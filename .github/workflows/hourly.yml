@@ -39,10 +39,11 @@ jobs:
         run: |
           git config user.name "edgefinder-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/output.html data/cache/ || true
+          git add data/output.html data/index.html || true
           if ! git diff --cached --quiet; then
             git commit -m "auto: refresh heatmap [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git push
+            # If remote has moved ahead (concurrent runs), pull --rebase and retry
+            git push || (git pull --rebase --autostash && git push)
           else
             echo "No changes to commit."
           fi
