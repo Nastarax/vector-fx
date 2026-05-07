@@ -67,7 +67,7 @@ categories:
       direction: up_is_bullish
       lookback_periods: 12
     - id: rates
-      label: Policy Rate
+      label: Interest Rates
       direction: up_is_bullish
       lookback_periods: 6
 
