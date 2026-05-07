@@ -17,8 +17,8 @@
 categories:
   Technical:
     - id: trend
-      label: Trend
-      method: trend_score          # custom: price vs SMA20/50/200
+      label: 4H/D Trend
+      method: trend_score          # custom: price vs SMA20/50/200 on Daily + 4H
     - id: seasonality
       label: Seasonality
       method: seasonality_score    # custom: same-month historical avg

@@ -32,14 +32,15 @@ def main():
         print(f"  COT failed: {e}; using empty fallback")
         cot_data = {}
 
-    print("[3/4] Fetching prices + retail sentiment...")
+    print("[3/4] Fetching prices (Daily + 4H) + retail sentiment...")
     pairs_cfg = load_pairs_cfg()
     pair_symbols = [p["symbol"] for p in pairs_cfg["pairs"]]
     px = prices.fetch_prices()
+    px_4h = prices.fetch_prices_4h()
     rt = retail.fetch_retail(pair_symbols)
 
     print("[4/4] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h)
     out_path = build_heatmap.render(heatmap)
 
     print(f"\nDone in {time.time()-t0:.1f}s -> {out_path}")

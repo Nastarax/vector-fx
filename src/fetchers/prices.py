@@ -15,9 +15,10 @@ CACHE_DIR = Path(__file__).resolve().parents[2] / "data" / "cache"
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 
 
-def _cache_path(symbol: str) -> Path:
+def _cache_path(symbol: str, suffix: str = "") -> Path:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    return CACHE_DIR / f"px_{symbol}.pkl"  # pickle: no extra deps required
+    name = f"px_{symbol}{suffix}.pkl"
+    return CACHE_DIR / name
 
 
 def _is_fresh(path: Path, max_age_hours: int = 1) -> bool:
@@ -55,10 +56,54 @@ def fetch_prices() -> dict[str, pd.DataFrame]:
     return out
 
 
+def fetch_prices_4h() -> dict[str, pd.DataFrame]:
+    """
+    Returns dict[symbol] -> DataFrame of 4H bars.
+    yfinance doesn't expose 4H directly, so we pull 60m and resample.
+    Used for the 4H Trend scoring component.
+    """
+    with open(CONFIG_DIR / "pairs.yaml") as f:
+        cfg = yaml.safe_load(f)
+
+    out: dict[str, pd.DataFrame] = {}
+    for p in cfg["pairs"]:
+        sym = p["symbol"]
+        ticker = p["yf_ticker"]
+        cache = _cache_path(sym, suffix="_4h")
+        if _is_fresh(cache):
+            df = pd.read_pickle(cache)
+        else:
+            try:
+                # Pull 90 days of hourly bars; enough for SMA200 on 4H
+                df_h = yf.Ticker(ticker).history(period="90d", interval="60m", auto_adjust=False)
+                if df_h.empty:
+                    raise RuntimeError("empty hourly dataframe")
+                df = df_h[["Open", "High", "Low", "Close"]].resample("4h").agg({
+                    "Open": "first",
+                    "High": "max",
+                    "Low": "min",
+                    "Close": "last",
+                }).dropna()
+                df.to_pickle(cache)
+            except Exception as e:
+                print(f"[prices_4h] {sym} ({ticker}) failed: {e}")
+                df = pd.DataFrame()
+        out[sym] = df
+        time.sleep(0.1)
+    return out
+
+
 if __name__ == "__main__":
     prices = fetch_prices()
     for s, df in prices.items():
         if df.empty:
             print(f"{s}: NO DATA")
         else:
-            print(f"{s}: {len(df)} bars, last close {df['Close'].iloc[-1]:.4f}")
+            print(f"{s}: {len(df)} daily bars, last close {df['Close'].iloc[-1]:.4f}")
+    print("\n4H bars:")
+    prices_4h = fetch_prices_4h()
+    for s, df in prices_4h.items():
+        if df.empty:
+            print(f"{s}: NO 4H DATA")
+        else:
+            print(f"{s}: {len(df)} 4H bars, last close {df['Close'].iloc[-1]:.4f}")

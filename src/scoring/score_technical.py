@@ -1,12 +1,16 @@
 """
-Technical scoring: trend (price vs moving averages) and seasonality.
+Technical scoring: trend on Daily + 4H, plus seasonality.
+
+EdgeFinder's "4H / Daily Chart Trend" combines both timeframes into one cell.
+We score each separately with the same logic, then average and round to int
+in the -2..+2 range.
 """
 from __future__ import annotations
 
 import pandas as pd
 
 
-def trend_score(df: pd.DataFrame) -> int:
+def _trend_on_df(df: pd.DataFrame, min_bars: int = 200) -> int:
     """
     Score -2..+2 based on price vs SMA20/50/200.
     +2: price above all 3 SMAs and SMA20 > SMA50 > SMA200 (full bull alignment)
@@ -15,7 +19,7 @@ def trend_score(df: pd.DataFrame) -> int:
     -1: price below majority of SMAs
     -2: price below all 3 and bear alignment
     """
-    if df is None or df.empty or len(df) < 200:
+    if df is None or df.empty or len(df) < min_bars:
         return 0
     closes = df["Close"]
     price = float(closes.iloc[-1])
@@ -38,6 +42,27 @@ def trend_score(df: pd.DataFrame) -> int:
     return 0
 
 
+def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None) -> int:
+    """
+    Combined 4H + Daily trend score.
+    If 4H is unavailable, falls back to Daily-only.
+    Result clamped to -2..+2.
+    """
+    daily = _trend_on_df(df_daily, min_bars=200)
+    if df_4h is None or df_4h.empty:
+        return daily
+    four_h = _trend_on_df(df_4h, min_bars=200)
+    # Average the two timeframes; round to nearest int with .5 going away from 0
+    avg = (daily + four_h) / 2
+    if avg > 0:
+        score = int(avg + 0.5)
+    elif avg < 0:
+        score = int(avg - 0.5)
+    else:
+        score = 0
+    return max(-2, min(2, score))
+
+
 def seasonality_score(df: pd.DataFrame) -> int:
     """
     Score -2..+2 based on average return for the current calendar month
@@ -55,7 +80,6 @@ def seasonality_score(df: pd.DataFrame) -> int:
     if same_month.empty:
         return 0
     avg = same_month.mean()
-    # Bucket by absolute average monthly return
     if avg > 0.015:
         return 2
     if avg > 0.003:
