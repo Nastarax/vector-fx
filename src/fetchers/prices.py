@@ -27,9 +27,11 @@ def _is_fresh(path: Path, max_age_hours: int = 1) -> bool:
     return (time.time() - path.stat().st_mtime) < max_age_hours * 3600
 
 
-def fetch_prices() -> dict[str, pd.DataFrame]:
+def fetch_prices(as_of_date: str | None = None) -> dict[str, pd.DataFrame]:
     """
     Returns dict[symbol] -> DataFrame indexed by date with columns Open/High/Low/Close.
+    If as_of_date (YYYY-MM-DD), filters each df to bars dated <= that date
+    (for historical backtesting).
     """
     with open(CONFIG_DIR / "pairs.yaml") as f:
         cfg = yaml.safe_load(f)
@@ -51,12 +53,14 @@ def fetch_prices() -> dict[str, pd.DataFrame]:
             except Exception as e:
                 print(f"[prices] {sym} ({ticker}) failed: {e}")
                 df = pd.DataFrame()
+        if as_of_date and not df.empty:
+            df = df.loc[df.index <= pd.Timestamp(as_of_date, tz=df.index.tz)]
         out[sym] = df
         time.sleep(0.1)
     return out
 
 
-def fetch_prices_4h() -> dict[str, pd.DataFrame]:
+def fetch_prices_4h(as_of_date: str | None = None) -> dict[str, pd.DataFrame]:
     """
     Returns dict[symbol] -> DataFrame of 4H bars.
     yfinance doesn't expose 4H directly, so we pull 60m and resample.
@@ -88,6 +92,8 @@ def fetch_prices_4h() -> dict[str, pd.DataFrame]:
             except Exception as e:
                 print(f"[prices_4h] {sym} ({ticker}) failed: {e}")
                 df = pd.DataFrame()
+        if as_of_date and not df.empty:
+            df = df.loc[df.index <= pd.Timestamp(as_of_date, tz=df.index.tz)]
         out[sym] = df
         time.sleep(0.1)
     return out

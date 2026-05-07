@@ -48,7 +48,12 @@ def _total_class(total: int) -> str:
 
 def render(heatmap: dict, output_path: Path | None = None) -> Path:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = output_path or (OUTPUT_DIR / "output.html")
+    as_of = heatmap.get("as_of_date")
+    if output_path is None:
+        if as_of:
+            output_path = OUTPUT_DIR / f"backtest_{as_of}.html"
+        else:
+            output_path = OUTPUT_DIR / "output.html"
 
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
@@ -67,6 +72,7 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
     tmpl = env.get_template("template.html")
     html = tmpl.render(
         updated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        as_of_date=as_of,
         indicators=heatmap["indicators"],
         categories=heatmap["categories"],
         rows=rows_for_render,

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>COT Detail · EdgeFinder Clone</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
+    --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
+    --pos:#2153d2; --posLite:#3974e6; --neg:#d23b4a; --negLite:#e07984;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:13px}
+  header{padding:14px 22px;display:flex;align-items:center;justify-content:space-between;background:var(--panel);border-bottom:1px solid var(--border)}
+  header h1{margin:0;font-size:18px;letter-spacing:.3px}
+  header .meta{color:var(--muted);font-size:12px}
+  header a{color:#aac4ff;text-decoration:none;font-size:13px}
+  header a:hover{text-decoration:underline}
+  .wrap{padding:18px 22px;overflow-x:auto}
+  table{border-collapse:collapse;min-width:100%;background:var(--panel);box-shadow:0 1px 0 var(--border)}
+  thead th{background:var(--panel);color:var(--text);font-weight:600;border-bottom:1px solid var(--border);padding:10px 12px;font-size:12px;text-align:right;white-space:nowrap;cursor:pointer;user-select:none}
+  thead th:first-child{text-align:left}
+  thead th.sorted-asc::after{content:" ▲";color:var(--posLite)}
+  thead th.sorted-desc::after{content:" ▼";color:var(--negLite)}
+  tbody td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+  tbody td:first-child{text-align:left;font-weight:700}
+  tbody tr:nth-child(odd){background:var(--row)}
+  tbody tr:nth-child(even){background:var(--rowAlt)}
+  .pos{background:var(--pos);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
+  .posLite{background:var(--posLite);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
+  .neg{background:var(--neg);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
+  .negLite{background:var(--negLite);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
+  footer{padding:12px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>COT Detail · Asset Manager Positioning</h1>
+    <div class="meta">Report date: 2026-04-28 · Source: CFTC Traders in Financial Futures · 7 assets</div>
+  </div>
+  <a href="index.html">← Back to Top Setups</a>
+</header>
+<div class="wrap">
+  <table id="cot-table">
+    <thead>
+      <tr>
+        <th data-col="0" data-type="str">Asset</th>
+        <th data-col="1" data-type="num">Long Contracts</th>
+        <th data-col="2" data-type="num">Short Contracts</th>
+        <th data-col="3" data-type="num">Δ Long</th>
+        <th data-col="4" data-type="num">Δ Short</th>
+        <th data-col="5" data-type="num">Long %</th>
+        <th data-col="6" data-type="num">Short %</th>
+        <th data-col="7" data-type="num">Net % Change</th>
+        <th data-col="8" data-type="num">Net Position</th>
+        <th data-col="9" data-type="num">Open Interest</th>
+        <th data-col="10" data-type="num">Δ Open Interest</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td>CAD</td>
+        <td>88,349</td>
+        <td>72,317</td>
+        <td><span class="posLite">+7,670</span></td>
+        <td><span class="posLite">-10,149</span></td>
+        <td><span class="posLite">54.99%</span></td>
+        <td><span class="posLite">45.01%</span></td>
+        <td><span class="pos">+11.09%</span></td>
+        <td><span class="pos">+16,032</span></td>
+        <td>252,679</td>
+        <td><span class="negLite">-2,449</span></td>
+      </tr>
+      
+      <tr>
+        <td>AUD</td>
+        <td>102,988</td>
+        <td>57,891</td>
+        <td><span class="posLite">+7,009</span></td>
+        <td><span class="posLite">-1,580</span></td>
+        <td><span class="pos">64.02%</span></td>
+        <td><span class="pos">35.98%</span></td>
+        <td><span class="pos">+5.34%</span></td>
+        <td><span class="pos">+45,097</span></td>
+        <td>277,370</td>
+        <td><span class="posLite">+1,955</span></td>
+      </tr>
+      
+      <tr>
+        <td>NZD</td>
+        <td>7,660</td>
+        <td>49,488</td>
+        <td><span class="posLite">+388</span></td>
+        <td><span class="posLite">-296</span></td>
+        <td><span class="neg">13.40%</span></td>
+        <td><span class="neg">86.60%</span></td>
+        <td><span class="pos">+1.20%</span></td>
+        <td><span class="neg">-41,828</span></td>
+        <td>83,529</td>
+        <td><span class="posLite">+1,021</span></td>
+      </tr>
+      
+      <tr>
+        <td>EUR</td>
+        <td>439,565</td>
+        <td>148,667</td>
+        <td><span class="posLite">+1,029</span></td>
+        <td><span class="posLite">-3,478</span></td>
+        <td><span class="pos">74.73%</span></td>
+        <td><span class="pos">25.27%</span></td>
+        <td><span class="posLite">+0.77%</span></td>
+        <td><span class="pos">+290,898</span></td>
+        <td>801,430</td>
+        <td><span class="posLite">+10,808</span></td>
+      </tr>
+      
+      <tr>
+        <td>CHF</td>
+        <td>6,003</td>
+        <td>43,537</td>
+        <td><span class="negLite">-184</span></td>
+        <td><span class="posLite">-117</span></td>
+        <td><span class="neg">12.12%</span></td>
+        <td><span class="neg">87.88%</span></td>
+        <td><span class="negLite">-0.14%</span></td>
+        <td><span class="neg">-37,534</span></td>
+        <td>94,111</td>
+        <td><span class="posLite">+2,579</span></td>
+      </tr>
+      
+      <tr>
+        <td>GBP</td>
+        <td>39,695</td>
+        <td>133,448</td>
+        <td><span class="negLite">-1,858</span></td>
+        <td><span class="negLite">+8,709</span></td>
+        <td><span class="neg">22.93%</span></td>
+        <td><span class="neg">77.07%</span></td>
+        <td><span class="neg">-6.10%</span></td>
+        <td><span class="neg">-93,753</span></td>
+        <td>263,635</td>
+        <td><span class="posLite">+112</span></td>
+      </tr>
+      
+      <tr>
+        <td>JPY</td>
+        <td>66,512</td>
+        <td>93,062</td>
+        <td><span class="posLite">+5,468</span></td>
+        <td><span class="negLite">+17,620</span></td>
+        <td><span class="negLite">41.68%</span></td>
+        <td><span class="negLite">58.32%</span></td>
+        <td><span class="neg">-7.62%</span></td>
+        <td><span class="neg">-26,550</span></td>
+        <td>372,780</td>
+        <td><span class="posLite">+20,998</span></td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+<footer>
+  Asset Manager category from CFTC TFF report. Higher Long % = more institutional money long that currency. Net % Change tracks weekly change in positioning.
+</footer>
+
+<script>
+(function(){
+  const table = document.getElementById("cot-table");
+  if (!table) return;
+  const tbody = table.tBodies[0];
+  const ths = table.tHead.rows[0].cells;
+  let lastCol = -1, dir = 1;
+
+  function parseNum(s) {
+    return parseFloat(String(s).replace(/[+,%\s]/g, ''));
+  }
+
+  for (let i = 0; i < ths.length; i++) {
+    ths[i].addEventListener("click", () => {
+      const col = parseInt(ths[i].dataset.col);
+      const type = ths[i].dataset.type;
+      if (col === lastCol) dir = -dir;
+      else { dir = type === "num" ? -1 : 1; lastCol = col; }
+
+      for (const th of ths) th.classList.remove("sorted-asc", "sorted-desc");
+      ths[i].classList.add(dir > 0 ? "sorted-asc" : "sorted-desc");
+
+      const rows = Array.from(tbody.rows);
+      rows.sort((a, b) => {
+        const av = a.cells[col].textContent.trim();
+        const bv = b.cells[col].textContent.trim();
+        if (type === "num") return (parseNum(av) - parseNum(bv)) * dir;
+        return av.localeCompare(bv) * dir;
+      });
+      for (const r of rows) tbody.appendChild(r);
+    });
+  }
+})();
+</script>
+</body>
+</html>

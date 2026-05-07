@@ -33,7 +33,9 @@ jobs:
         run: python main.py
 
       - name: Copy output to index.html for Pages
-        run: cp data/output.html data/index.html
+        run: |
+          cp data/output.html data/index.html
+          # cot.html is already in data/ from main.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>COT Detail · EdgeFinder Clone</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
+    --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
+    --pos:#2153d2; --posLite:#3974e6; --neg:#d23b4a; --negLite:#e07984;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:13px}
+  header{padding:14px 22px;display:flex;align-items:center;justify-content:space-between;background:var(--panel);border-bottom:1px solid var(--border)}
+  header h1{margin:0;font-size:18px;letter-spacing:.3px}
+  header .meta{color:var(--muted);font-size:12px}
+  header a{color:#aac4ff;text-decoration:none;font-size:13px}
+  header a:hover{text-decoration:underline}
+  .wrap{padding:18px 22px;overflow-x:auto}
+  table{border-collapse:collapse;min-width:100%;background:var(--panel);box-shadow:0 1px 0 var(--border)}
+  thead th{background:var(--panel);color:var(--text);font-weight:600;border-bottom:1px solid var(--border);padding:10px 12px;font-size:12px;text-align:right;white-space:nowrap;cursor:pointer;user-select:none}
+  thead th:first-child{text-align:left}
+  thead th.sorted-asc::after{content:" ▲";color:var(--posLite)}
+  thead th.sorted-desc::after{content:" ▼";color:var(--negLite)}
+  tbody td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+  tbody td:first-child{text-align:left;font-weight:700}
+  tbody tr:nth-child(odd){background:var(--row)}
+  tbody tr:nth-child(even){background:var(--rowAlt)}
+  .pos{background:var(--pos);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
+  .posLite{background:var(--posLite);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
+  .neg{background:var(--neg);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
+  .negLite{background:var(--negLite);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
+  footer{padding:12px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>COT Detail · Asset Manager Positioning</h1>
+    <div class="meta">Report date: {{ report_date }} · Source: CFTC Traders in Financial Futures · {{ rows|length }} assets</div>
+  </div>
+  <a href="index.html">← Back to Top Setups</a>
+</header>
+<div class="wrap">
+  <table id="cot-table">
+    <thead>
+      <tr>
+        <th data-col="0" data-type="str">Asset</th>
+        <th data-col="1" data-type="num">Long Contracts</th>
+        <th data-col="2" data-type="num">Short Contracts</th>
+        <th data-col="3" data-type="num">Δ Long</th>
+        <th data-col="4" data-type="num">Δ Short</th>
+        <th data-col="5" data-type="num">Long %</th>
+        <th data-col="6" data-type="num">Short %</th>
+        <th data-col="7" data-type="num">Net % Change</th>
+        <th data-col="8" data-type="num">Net Position</th>
+        <th data-col="9" data-type="num">Open Interest</th>
+        <th data-col="10" data-type="num">Δ Open Interest</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.currency }}</td>
+        <td>{{ "{:,}".format(r.long_contracts) }}</td>
+        <td>{{ "{:,}".format(r.short_contracts) }}</td>
+        <td><span class="{{ 'posLite' if r.long_change > 0 else 'negLite' if r.long_change < 0 else '' }}">{{ "{:+,}".format(r.long_change) if r.long_change else 0 }}</span></td>
+        <td><span class="{{ 'negLite' if r.short_change > 0 else 'posLite' if r.short_change < 0 else '' }}">{{ "{:+,}".format(r.short_change) if r.short_change else 0 }}</span></td>
+        <td><span class="{{ 'pos' if r.long_pct >= 60 else 'posLite' if r.long_pct >= 50 else 'negLite' if r.long_pct >= 40 else 'neg' }}">{{ "{:.2f}%".format(r.long_pct) }}</span></td>
+        <td><span class="{{ 'neg' if r.short_pct >= 60 else 'negLite' if r.short_pct >= 50 else 'posLite' if r.short_pct >= 40 else 'pos' }}">{{ "{:.2f}%".format(r.short_pct) }}</span></td>
+        <td><span class="{{ 'pos' if r.weekly_change_pct >= 1 else 'posLite' if r.weekly_change_pct > 0 else 'neg' if r.weekly_change_pct <= -1 else 'negLite' if r.weekly_change_pct < 0 else '' }}">{{ "{:+.2f}%".format(r.weekly_change_pct) }}</span></td>
+        <td><span class="{{ 'pos' if r.net_position > 0 else 'neg' if r.net_position < 0 else '' }}">{{ "{:+,}".format(r.net_position) }}</span></td>
+        <td>{{ "{:,}".format(r.open_interest) }}</td>
+        <td><span class="{{ 'posLite' if r.open_interest_change > 0 else 'negLite' if r.open_interest_change < 0 else '' }}">{{ "{:+,}".format(r.open_interest_change) }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<footer>
+  Asset Manager category from CFTC TFF report. Higher Long % = more institutional money long that currency. Net % Change tracks weekly change in positioning.
+</footer>
+
+<script>
+(function(){
+  const table = document.getElementById("cot-table");
+  if (!table) return;
+  const tbody = table.tBodies[0];
+  const ths = table.tHead.rows[0].cells;
+  let lastCol = -1, dir = 1;
+
+  function parseNum(s) {
+    return parseFloat(String(s).replace(/[+,%\s]/g, ''));
+  }
+
+  for (let i = 0; i < ths.length; i++) {
+    ths[i].addEventListener("click", () => {
+      const col = parseInt(ths[i].dataset.col);
+      const type = ths[i].dataset.type;
+      if (col === lastCol) dir = -dir;
+      else { dir = type === "num" ? -1 : 1; lastCol = col; }
+
+      for (const th of ths) th.classList.remove("sorted-asc", "sorted-desc");
+      ths[i].classList.add(dir > 0 ? "sorted-asc" : "sorted-desc");
+
+      const rows = Array.from(tbody.rows);
+      rows.sort((a, b) => {
+        const av = a.cells[col].textContent.trim();
+        const bv = b.cells[col].textContent.trim();
+        if (type === "num") return (parseNum(av) - parseNum(bv)) * dir;
+        return av.localeCompare(bv) * dir;
+      });
+      for (const r of rows) tbody.appendChild(r);
+    });
+  }
+})();
+</script>
+</body>
+</html>

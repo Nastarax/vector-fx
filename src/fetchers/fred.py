@@ -102,10 +102,13 @@ def fetch_series(series_id: str, api_key: str, force: bool = False) -> list[Fred
     return obs
 
 
-def fetch_all_macro(api_key: Optional[str] = None) -> dict:
+def fetch_all_macro(api_key: Optional[str] = None, as_of_date: Optional[str] = None) -> dict:
     """
     Returns nested dict:
       result[currency][indicator] = list[FredObservation] (newest first)
+
+    If as_of_date is provided (YYYY-MM-DD), filters each series to only include
+    observations dated on or before that date. Used for historical backtesting.
     """
     api_key = api_key or os.getenv("FRED_API_KEY")
     if not api_key:
@@ -120,11 +123,16 @@ def fetch_all_macro(api_key: Optional[str] = None) -> dict:
                 out[ccy][ind] = []
                 continue
             try:
-                out[ccy][ind] = fetch_series(series_id, api_key)
+                # When backtesting, force a fresh fetch (skip cache) to get the
+                # full history; filter afterwards.
+                obs = fetch_series(series_id, api_key, force=bool(as_of_date))
+                if as_of_date:
+                    obs = [o for o in obs if o.date <= as_of_date]
+                out[ccy][ind] = obs
             except Exception as e:
                 print(f"[fred] {ccy}/{ind} ({series_id}) failed: {e}")
                 out[ccy][ind] = []
-            time.sleep(0.05)  # be polite
+            time.sleep(0.05)
     return out
 
 

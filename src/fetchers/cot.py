@@ -41,9 +41,14 @@ class CotReading:
     report_date: str
     long_contracts: int
     short_contracts: int
+    long_change: int          # week-over-week change in long contracts
+    short_change: int         # week-over-week change in short contracts
     net_position: int
     long_pct: float
+    short_pct: float
     weekly_change_pct: float  # week-over-week change in net position, normalized
+    open_interest: int
+    open_interest_change: int
 
 
 def _cache_path() -> Path:
@@ -74,9 +79,11 @@ def _download_tff() -> pd.DataFrame:
     return df
 
 
-def fetch_cot() -> dict[str, CotReading]:
+def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
     """
     Returns dict[currency] -> latest CotReading.
+    If as_of_date (YYYY-MM-DD), uses the most recent report published before
+    that date (for historical backtesting).
     """
     df = _download_tff()
     # Identify the column names dynamically (CFTC files have wordy headers)
@@ -86,11 +93,15 @@ def fetch_cot() -> dict[str, CotReading]:
     short_col = next((c for c in df.columns if "Asset_Mgr_Positions_Short_All" in c), None)
     long_chg_col = next((c for c in df.columns if "Change_in_Asset_Mgr_Long_All" in c), None)
     short_chg_col = next((c for c in df.columns if "Change_in_Asset_Mgr_Short_All" in c), None)
+    oi_col = next((c for c in df.columns if "Open_Interest_All" in c and "Change" not in c), None)
+    oi_chg_col = next((c for c in df.columns if "Change_in_Open_Interest_All" in c), None)
 
     if not all([name_col, date_col, long_col, short_col]):
         raise RuntimeError("CFTC TFF schema unexpected; check column names.")
 
     df = df.sort_values(date_col, ascending=False)
+    if as_of_date:
+        df = df[df[date_col] <= as_of_date]
 
     out: dict[str, CotReading] = {}
     for ccy, market in CFTC_NAMES.items():
@@ -100,13 +111,16 @@ def fetch_cot() -> dict[str, CotReading]:
         row = sub.iloc[0]
         long_c = int(row[long_col])
         short_c = int(row[short_col])
+        long_chg = int(row[long_chg_col]) if long_chg_col else 0
+        short_chg = int(row[short_chg_col]) if short_chg_col else 0
         net = long_c - short_c
         total = long_c + short_c
         long_pct = 100 * long_c / total if total else 50.0
+        short_pct = 100 - long_pct
 
         # Weekly change in net position normalized by total
         if long_chg_col and short_chg_col:
-            net_chg = int(row[long_chg_col]) - int(row[short_chg_col])
+            net_chg = long_chg - short_chg
         elif len(sub) > 1:
             prev = sub.iloc[1]
             prev_net = int(prev[long_col]) - int(prev[short_col])
@@ -115,14 +129,22 @@ def fetch_cot() -> dict[str, CotReading]:
             net_chg = 0
         chg_pct = 100 * net_chg / total if total else 0.0
 
+        oi = int(row[oi_col]) if oi_col else 0
+        oi_chg = int(row[oi_chg_col]) if oi_chg_col else 0
+
         out[ccy] = CotReading(
             currency=ccy,
             report_date=str(row[date_col]),
             long_contracts=long_c,
             short_contracts=short_c,
+            long_change=long_chg,
+            short_change=short_chg,
             net_position=net,
             long_pct=long_pct,
+            short_pct=short_pct,
             weekly_change_pct=chg_pct,
+            open_interest=oi,
+            open_interest_change=oi_chg,
         )
     return out
 

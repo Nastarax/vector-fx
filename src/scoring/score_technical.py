@@ -63,10 +63,11 @@ def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None) -> in
     return max(-2, min(2, score))
 
 
-def seasonality_score(df: pd.DataFrame) -> int:
+def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None) -> int:
     """
     Score -2..+2 based on average return for the current calendar month
     over the last ~10 years.
+    If as_of_date is provided, scores seasonality for the month of that date.
     """
     if df is None or df.empty or len(df) < 252 * 5:
         return 0
@@ -75,7 +76,10 @@ def seasonality_score(df: pd.DataFrame) -> int:
     rets = rets.tail(120)  # last 10 years
     if rets.empty:
         return 0
-    current_month = pd.Timestamp.now(tz=monthly.index.tz).month
+    if as_of_date:
+        current_month = pd.Timestamp(as_of_date).month
+    else:
+        current_month = pd.Timestamp.now(tz=monthly.index.tz).month
     same_month = rets[rets.index.month == current_month]
     if same_month.empty:
         return 0

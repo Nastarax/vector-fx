@@ -84,6 +84,7 @@ def build_pair_rows(
     prices: dict,
     retail_data: dict,
     prices_4h: dict | None = None,
+    as_of_date: str | None = None,
 ) -> list[dict]:
     cfg = load_indicators_cfg()
     pairs_cfg = load_pairs_cfg()
@@ -120,7 +121,7 @@ def build_pair_rows(
         # Pair-level indicators
         df_4h = (prices_4h or {}).get(sym)
         scores["trend"] = trend_score(df, df_4h)
-        scores["seasonality"] = seasonality_score(df)
+        scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date)
         scores["crowd"] = retail_score(retail_data.get(sym))
 
         total = sum(scores.values())
@@ -137,7 +138,7 @@ def build_pair_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -147,10 +148,11 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None) -> 
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
     per_ccy = build_currency_scores(macro_data, cot_data)
-    rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h)
+    rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date)
     return {
         "indicators": indicator_meta,
         "categories": cat_groups,
         "rows": rows,
         "per_ccy": per_ccy,
+        "as_of_date": as_of_date,
     }

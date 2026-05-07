@@ -48,8 +48,18 @@
 </head>
 <body>
 <header>
-  <h1>Top Setups · FX</h1>
-  <div class="meta">Updated: {{ updated_at }} · {{ row_count }} pairs scored</div>
+  <div>
+    <h1>Top Setups · FX</h1>
+    <div class="meta">
+      {% if as_of_date %}
+        <span style="background:#c2410c;color:#fff;padding:2px 8px;border-radius:3px;font-weight:700;margin-right:8px">BACKTEST · AS OF {{ as_of_date }}</span>
+        Rendered: {{ updated_at }} · {{ row_count }} pairs scored
+      {% else %}
+        Updated: {{ updated_at }} · {{ row_count }} pairs scored
+      {% endif %}
+    </div>
+  </div>
+  <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px">COT Detail →</a>
 </header>
 <div class="wrap">
   <table>
