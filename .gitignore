@@ -1,7 +1,13 @@
 .env
 __pycache__/
 *.pyc
-data/cache/*.json
 .venv/
 venv/
 .DS_Store
+# Cache files: ignore most, but allow committing retail sentiment so the live
+# CI run can fall back to the last successful local fetch if Myfxbook blocks
+# the GitHub Actions IP.
+data/cache/*.json
+data/cache/*.csv
+data/cache/*.pkl
+!data/cache/myfxbook_outlook.json

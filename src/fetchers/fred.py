@@ -46,7 +46,10 @@ def _is_fresh(path: Path, max_age_hours: int = 6) -> bool:
 
 
 def fetch_series(series_id: str, api_key: str, force: bool = False) -> list[FredObservation]:
-    """Fetch one FRED series, with disk cache."""
+    """
+    Fetch one FRED series, with disk cache.
+    Retries transient 500/503 errors with exponential backoff (1s, 2s, 4s).
+    """
     cache = _cache_path(series_id)
     if not force and _is_fresh(cache):
         with open(cache) as f:
@@ -57,13 +60,38 @@ def fetch_series(series_id: str, api_key: str, force: bool = False) -> list[Fred
             "api_key": api_key,
             "file_type": "json",
             "sort_order": "desc",
-            "limit": 60,  # last 60 observations is plenty for our scoring
+            "limit": 60,
         }
-        r = requests.get(FRED_BASE, params=params, timeout=20)
-        r.raise_for_status()
-        data = r.json()
-        with open(cache, "w") as f:
-            json.dump(data, f)
+        last_err: Exception | None = None
+        for attempt in range(3):
+            try:
+                r = requests.get(FRED_BASE, params=params, timeout=20)
+                # Retry on transient server errors; raise on client errors (400 etc.)
+                if r.status_code in (500, 502, 503, 504):
+                    raise requests.HTTPError(f"transient {r.status_code}")
+                r.raise_for_status()
+                data = r.json()
+                with open(cache, "w") as f:
+                    json.dump(data, f)
+                break
+            except requests.HTTPError as e:
+                last_err = e
+                # Don't retry permanent (4xx) errors
+                if "transient" not in str(e):
+                    raise
+                if attempt < 2:
+                    time.sleep(2 ** attempt)  # 1s, 2s
+                    continue
+                raise
+            except requests.RequestException as e:
+                last_err = e
+                if attempt < 2:
+                    time.sleep(2 ** attempt)
+                    continue
+                raise
+        else:
+            if last_err:
+                raise last_err
 
     obs = []
     for o in data.get("observations", []):

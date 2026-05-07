@@ -1,13 +1,13 @@
 """
 Retail sentiment fetcher.
-Uses curl_cffi (already installed via yfinance) to impersonate a real Chrome
-browser at the TLS layer, which bypasses the Cloudflare protection that
-blocks plain `requests`.
 
-Order of attempts:
-1. Myfxbook public JSON outlook endpoint (impersonating Chrome)
-2. Myfxbook HTML outlook page (impersonating Chrome)
-3. Neutral 50/50 fallback (so scoring still runs)
+Strategy:
+1. Try Myfxbook JSON endpoint with Chrome TLS impersonation (curl_cffi).
+2. Try HTML scrape with same impersonation.
+3. If both fail (e.g., GitHub Actions datacenter IP gets blocked by Cloudflare),
+   fall back to the cached file from a previous successful run, regardless of
+   age. The cache file is committed to the repo so CI runs always have data.
+4. Last resort: neutral 50/50.
 """
 from __future__ import annotations
 
@@ -52,7 +52,6 @@ def _get(url: str, timeout: int = 15):
     """GET with Chrome TLS impersonation if available."""
     if HAS_CFFI:
         return cffi_requests.get(url, impersonate="chrome120", timeout=timeout)
-    # Fallback to plain requests with browser-ish headers
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -96,24 +95,50 @@ def _try_html() -> dict | None:
         return None
 
 
+def _load_stale_cache() -> dict | None:
+    """Read cache file regardless of age. Used as last-resort fallback."""
+    cache = _cache_path()
+    if not cache.exists():
+        return None
+    try:
+        with open(cache) as f:
+            data = json.load(f)
+        return data if data else None
+    except Exception:
+        return None
+
+
 def fetch_retail(pairs: list[str]) -> dict[str, RetailReading]:
     cache = _cache_path()
+    payload: dict | None = None
+
+    # Use fresh cache if recent
     if _is_fresh(cache):
         with open(cache) as f:
             payload = json.load(f)
+        print(f"[retail] using fresh cache; {len(payload)} pairs")
     else:
+        # Try fresh fetch
         payload = _try_json()
         source = "json"
         if not payload:
             payload = _try_html()
             source = "html"
+
         if payload:
             with open(cache, "w") as f:
                 json.dump(payload, f)
-            print(f"[retail] sourced from myfxbook ({source}); {len(payload)} pairs found")
+            print(f"[retail] sourced from myfxbook ({source}); {len(payload)} pairs")
         else:
-            print("[retail] all sources failed; using neutral 50/50 fallback")
-            payload = {}
+            # Fresh fetch failed (e.g., CI IP blocked). Use stale cache if any.
+            stale = _load_stale_cache()
+            if stale:
+                age_h = (time.time() - cache.stat().st_mtime) / 3600
+                print(f"[retail] fresh fetch failed; using stale cache from {age_h:.1f}h ago ({len(stale)} pairs)")
+                payload = stale
+            else:
+                print("[retail] all sources failed AND no cache; using neutral 50/50")
+                payload = {}
 
     out: dict[str, RetailReading] = {}
     for sym in pairs:
