@@ -68,6 +68,9 @@ def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None) -> int:
     Score -2..+2 based on average return for the current calendar month
     over the last ~10 years.
     If as_of_date is provided, scores seasonality for the month of that date.
+
+    Thresholds tuned to give signal even on small monthly biases (matching
+    EdgeFinder's behavior of rarely showing 0 for seasonality).
     """
     if df is None or df.empty or len(df) < 252 * 5:
         return 0
@@ -84,12 +87,13 @@ def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None) -> int:
     if same_month.empty:
         return 0
     avg = same_month.mean()
-    if avg > 0.015:
+    # Tighter bands so meaningful historical biases register
+    if avg > 0.010:
         return 2
-    if avg > 0.003:
+    if avg > 0.001:
         return 1
-    if avg < -0.015:
+    if avg < -0.010:
         return -2
-    if avg < -0.003:
+    if avg < -0.001:
         return -1
     return 0

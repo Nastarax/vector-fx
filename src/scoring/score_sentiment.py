@@ -33,16 +33,20 @@ def retail_score(reading: RetailReading | None) -> int:
     Contrarian: heavy retail long -> bearish for that pair (-2).
     Returns score for the PAIR (not per-currency), since retail data is
     pair-specific.
+
+    Thresholds tuned to be less aggressive at the extremes so we match
+    EdgeFinder's distribution better. Only truly extreme positioning
+    (>= 82% one-sided) scores ±2.
     """
     if reading is None:
         return 0
     longp = reading.long_pct
-    if longp >= 75:
+    if longp >= 82:
         return -2
-    if longp >= 60:
+    if longp >= 65:
         return -1
-    if longp <= 25:
+    if longp <= 18:
         return 2
-    if longp <= 40:
+    if longp <= 35:
         return 1
     return 0

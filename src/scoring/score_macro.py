@@ -36,7 +36,6 @@ def _z_bucket(change: float, history: list[float]) -> int:
     Returns -2..+2.
     """
     if not history:
-        # Without history, fall back to simple sign
         if change > 0.5:
             return 2
         if change > 0:
@@ -71,13 +70,17 @@ def score_indicator(
     obs: list[FredObservation],
     direction: str = "up_is_bullish",
     lookback_periods: int = 12,
-) -> int:
+) -> int | None:
     """
-    Returns -2..+2 score for one currency/indicator.
-    direction: 'up_is_bullish' or 'down_is_bullish'.
+    Returns -2..+2 score for one currency/indicator, OR None if data is
+    unavailable (vs returning 0 for "neutral signal with valid data").
+    The pair-level scoring uses None to mark cells as "unknown" so a
+    missing-data side doesn't unfairly penalize the visible side.
     """
-    if not obs or len(obs) < lookback_periods + 2:
-        return 0
+    if not obs:
+        return None  # data unavailable
+    if len(obs) < lookback_periods + 2:
+        return 0  # not enough history yet but we have something
 
     values = [o.value for o in obs]  # newest first
     # Latest pct change vs `lookback_periods` ago

@@ -75,10 +75,10 @@ AUD:
   gdp: NGDPRSAXDCAUQ
   mpmi: null
   spmi: null
-  retail_sales: null          # OECD AU monthly retail unstable
+  retail_sales: null
   consumer_conf: CSCICP02AUM460S
   cpi: AUSCPIALLQINMEI
-  ppi: null
+  ppi: null              # no clean free AUD PPI; cell will score 0
   pce: null
   rates: IRSTCI01AUM156N
   employment: LREM64TTAUQ156S

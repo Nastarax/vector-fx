@@ -104,9 +104,17 @@ def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
         df = df[df[date_col] <= as_of_date]
 
     out: dict[str, CotReading] = {}
+    not_found = []
     for ccy, market in CFTC_NAMES.items():
-        sub = df[df[name_col] == market].head(2)  # latest + previous
+        # Flexible match: case-insensitive contains. Handles extra whitespace,
+        # alt punctuation in CFTC's labels (e.g., "U.S. DOLLAR" vs "US DOLLAR").
+        # We match on the distinctive part of the name (everything before " - ").
+        market_key = market.split(" - ")[0].strip().upper().replace(".", "")
+        normalized = df[name_col].astype(str).str.upper().str.replace(".", "", regex=False)
+        mask = normalized.str.contains(market_key, na=False, regex=False)
+        sub = df[mask].head(2)
         if len(sub) == 0:
+            not_found.append((ccy, market))
             continue
         row = sub.iloc[0]
         long_c = int(row[long_col])
@@ -146,6 +154,12 @@ def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
             open_interest=oi,
             open_interest_change=oi_chg,
         )
+
+    if not_found:
+        print(f"[cot] WARNING: not found in CFTC file: {[c for c, _ in not_found]}")
+        print("[cot]   Available markets sample:")
+        for sample in df[name_col].dropna().unique()[:8]:
+            print(f"[cot]     {sample}")
     return out
 
 
