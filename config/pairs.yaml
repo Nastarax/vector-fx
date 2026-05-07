@@ -1,0 +1,60 @@
+# 13 FX pairs covered. Each pair scores as Currency1 - Currency2.
+# All 8 currencies USD, EUR, GBP, JPY, CHF, AUD, CAD, NZD are touched.
+pairs:
+  # Majors
+  - symbol: EURUSD
+    base: EUR
+    quote: USD
+    yf_ticker: "EURUSD=X"
+  - symbol: GBPUSD
+    base: GBP
+    quote: USD
+    yf_ticker: "GBPUSD=X"
+  - symbol: USDJPY
+    base: USD
+    quote: JPY
+    yf_ticker: "USDJPY=X"
+  - symbol: USDCHF
+    base: USD
+    quote: CHF
+    yf_ticker: "USDCHF=X"
+  - symbol: AUDUSD
+    base: AUD
+    quote: USD
+    yf_ticker: "AUDUSD=X"
+  - symbol: USDCAD
+    base: USD
+    quote: CAD
+    yf_ticker: "USDCAD=X"
+  - symbol: NZDUSD
+    base: NZD
+    quote: USD
+    yf_ticker: "NZDUSD=X"
+  # JPY crosses
+  - symbol: EURJPY
+    base: EUR
+    quote: JPY
+    yf_ticker: "EURJPY=X"
+  - symbol: GBPJPY
+    base: GBP
+    quote: JPY
+    yf_ticker: "GBPJPY=X"
+  - symbol: AUDJPY
+    base: AUD
+    quote: JPY
+    yf_ticker: "AUDJPY=X"
+  - symbol: NZDJPY
+    base: NZD
+    quote: JPY
+    yf_ticker: "NZDJPY=X"
+  - symbol: CADJPY
+    base: CAD
+    quote: JPY
+    yf_ticker: "CADJPY=X"
+  - symbol: CHFJPY
+    base: CHF
+    quote: JPY
+    yf_ticker: "CHFJPY=X"
+
+# Currencies covered
+currencies: [USD, EUR, GBP, JPY, CHF, AUD, CAD, NZD]

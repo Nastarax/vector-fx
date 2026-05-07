@@ -1,0 +1,114 @@
+# FRED series IDs per currency. null = no clean free equivalent (cell scores 0).
+# Use scripts/test_fred.py to check IDs after editing.
+
+USD:
+  gdp: A191RL1Q225SBEA      # Real GDP, % change SAAR
+  mpmi: null
+  spmi: null
+  retail_sales: RSAFS        # Advance Retail and Food Services Sales
+  consumer_conf: UMCSENT     # University of Michigan Consumer Sentiment
+  cpi: CPIAUCSL              # CPI All Urban Consumers
+  ppi: PPIACO                # Producer Price Index All Commodities
+  pce: PCEPILFE              # Core PCE
+  rates: DFF                 # Federal Funds Effective Rate
+  employment: PAYEMS         # Total Nonfarm Payrolls
+  unemployment_rate: UNRATE
+  jobless_claims: ICSA       # Initial Claims
+
+EUR:
+  gdp: CLVMNACSCAB1GQEA19    # Real GDP Euro Area
+  mpmi: null
+  spmi: null
+  retail_sales: null          # OECD Eurozone retail series deprecated
+  consumer_conf: CSCICP02EZM460S
+  cpi: CP0000EZ19M086NEST
+  ppi: null
+  pce: null
+  rates: ECBDFR              # ECB Deposit Facility Rate
+  employment: LREM64TTEZQ156S
+  unemployment_rate: LRHUTTTTEZM156S
+  jobless_claims: null
+
+GBP:
+  gdp: NGDPRSAXDCGBQ
+  mpmi: null
+  spmi: null
+  retail_sales: GBRSARTMISMEI    # UK retail trade volume index, monthly
+  consumer_conf: CSCICP02GBM460S
+  cpi: GBRCPIALLMINMEI
+  ppi: null
+  pce: null
+  rates: IUDSOIA
+  employment: LREM64TTGBQ156S
+  unemployment_rate: LRHUTTTTGBM156S
+  jobless_claims: null
+
+JPY:
+  gdp: JPNRGDPEXP
+  mpmi: null
+  spmi: null
+  retail_sales: JPNSARTMISMEI    # Japan retail trade volume index
+  consumer_conf: CSCICP02JPM460S
+  cpi: JPNCPIALLMINMEI
+  ppi: null
+  pce: null
+  rates: INTDSRJPM193N
+  employment: LREM64TTJPM156S
+  unemployment_rate: LRHUTTTTJPM156S
+  jobless_claims: null
+
+CHF:
+  gdp: null                   # CHF GDP series deprecated on FRED free
+  mpmi: null
+  spmi: null
+  retail_sales: null
+  consumer_conf: null
+  cpi: CHECPIALLMINMEI
+  ppi: null
+  pce: null
+  rates: IRSTCI01CHM156N
+  employment: LREM64TTCHQ156S
+  unemployment_rate: null
+  jobless_claims: null
+
+AUD:
+  gdp: NGDPRSAXDCAUQ
+  mpmi: null
+  spmi: null
+  retail_sales: null          # OECD AU monthly retail unstable
+  consumer_conf: CSCICP02AUM460S
+  cpi: AUSCPIALLQINMEI
+  ppi: null
+  pce: null
+  rates: IRSTCI01AUM156N
+  employment: LREM64TTAUQ156S
+  unemployment_rate: LRHUTTTTAUM156S
+  jobless_claims: null
+
+CAD:
+  gdp: NGDPRSAXDCCAQ
+  mpmi: null
+  spmi: null
+  retail_sales: CANSARTMISMEI
+  consumer_conf: null
+  cpi: CANCPIALLMINMEI
+  ppi: null
+  pce: null
+  rates: IRSTCI01CAM156N
+  employment: LREM64TTCAQ156S
+  unemployment_rate: LRHUTTTTCAM156S
+  jobless_claims: null
+
+NZD:
+  gdp: null                   # NZ quarterly GDP series unstable
+  mpmi: null
+  spmi: null
+  retail_sales: null
+  consumer_conf: null
+  cpi: NZLCPIALLQINMEI
+  ppi: null
+  pce: null
+  rates: IRSTCI01NZM156N
+  employment: LREM64TTNZQ156S
+  unemployment_rate: null
+  jobless_claims: null

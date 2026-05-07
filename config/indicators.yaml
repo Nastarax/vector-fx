@@ -1,0 +1,94 @@
+# Indicator scoring rules.
+# Each indicator scores -2..+2 per currency based on YoY (or MoM where noted)
+# rate of change of the latest reading vs prior. Higher score = bullish for that currency.
+#
+# Direction = "up_is_bullish" means rising indicator strengthens currency.
+# Direction = "down_is_bullish" means falling indicator strengthens currency
+#   (e.g., unemployment rate, jobless claims).
+#
+# Score logic (default rate-of-change method):
+#   +2 if pct_change >= +1 std dev of last N readings
+#   +1 if pct_change >  0
+#    0 if pct_change == 0
+#   -1 if pct_change <  0
+#   -2 if pct_change <= -1 std dev
+# Then flipped if direction = down_is_bullish.
+
+categories:
+  Technical:
+    - id: trend
+      label: Trend
+      method: trend_score          # custom: price vs SMA20/50/200
+    - id: seasonality
+      label: Seasonality
+      method: seasonality_score    # custom: same-month historical avg
+
+  Sentiment:
+    - id: cot
+      label: COT
+      method: cot_score            # custom: net positioning + change
+    - id: crowd
+      label: Crowd Sentiment
+      method: retail_score         # contrarian: heavy long crowd = bearish
+
+  Growth:
+    - id: gdp
+      label: GDP YoY
+      direction: up_is_bullish
+      lookback_periods: 8
+    - id: mpmi
+      label: Manufacturing PMI
+      direction: up_is_bullish
+      lookback_periods: 12
+    - id: spmi
+      label: Services PMI
+      direction: up_is_bullish
+      lookback_periods: 12
+    - id: retail_sales
+      label: Retail Sales
+      direction: up_is_bullish
+      lookback_periods: 12
+    - id: consumer_conf
+      label: Consumer Conf
+      direction: up_is_bullish
+      lookback_periods: 12
+
+  Inflation:
+    - id: cpi
+      label: CPI YoY
+      direction: up_is_bullish     # rising CPI -> rate hike expectation -> currency strength
+      lookback_periods: 12
+    - id: ppi
+      label: PPI YoY
+      direction: up_is_bullish
+      lookback_periods: 12
+    - id: pce
+      label: Core PCE / Core CPI
+      direction: up_is_bullish
+      lookback_periods: 12
+    - id: rates
+      label: Policy Rate
+      direction: up_is_bullish
+      lookback_periods: 6
+
+  Jobs:
+    - id: employment
+      label: Employment Change
+      direction: up_is_bullish
+      lookback_periods: 12
+    - id: unemployment_rate
+      label: Unemployment Rate
+      direction: down_is_bullish
+      lookback_periods: 12
+    - id: jobless_claims
+      label: Jobless Claims
+      direction: down_is_bullish
+      lookback_periods: 12
+
+# Bias label thresholds based on total pair score
+bias_thresholds:
+  very_bullish: 9
+  bullish: 4
+  neutral: 3            # |score| < this is neutral
+  bearish: -4
+  very_bearish: -9

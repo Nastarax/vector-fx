@@ -1,0 +1,56 @@
+name: Refresh EdgeFinder
+
+on:
+  schedule:
+    # Every hour at :05 past. UTC.
+    - cron: "5 * * * *"
+  workflow_dispatch:  # Allows manual run from the Actions tab
+
+permissions:
+  contents: write   # Needed to commit the refreshed output.html
+  pages: write
+  id-token: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run EdgeFinder pipeline
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python main.py
+
+      - name: Copy output to index.html for Pages
+        run: cp data/output.html data/index.html
+
+      - name: Commit refreshed output
+        run: |
+          git config user.name "edgefinder-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/output.html data/cache/ || true
+          if ! git diff --cached --quiet; then
+            git commit -m "auto: refresh heatmap [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: data
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

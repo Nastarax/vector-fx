@@ -1,0 +1,76 @@
+"""
+Render the Top Setups heatmap to HTML using Jinja2.
+"""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from pathlib import Path
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
+TEMPLATE_DIR = Path(__file__).resolve().parent
+
+
+def _cell_class(v: int) -> str:
+    if v == 2:
+        return "c2"
+    if v == 1:
+        return "c1"
+    if v == -1:
+        return "cn1"
+    if v == -2:
+        return "cn2"
+    return "c0"
+
+
+def _bias_class(bias: str) -> str:
+    return {
+        "Very Bullish": "b-vbull",
+        "Bullish": "b-bull",
+        "Neutral": "b-neut",
+        "Bearish": "b-bear",
+        "Very Bearish": "b-vbear",
+    }.get(bias, "b-neut")
+
+
+def _total_class(total: int) -> str:
+    if total >= 9:
+        return "total-c2"
+    if total >= 4:
+        return "total-c1"
+    if total <= -9:
+        return "total-cn2"
+    if total <= -4:
+        return "total-cn1"
+    return ""
+
+
+def render(heatmap: dict, output_path: Path | None = None) -> Path:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = output_path or (OUTPUT_DIR / "output.html")
+
+    env = Environment(
+        loader=FileSystemLoader(TEMPLATE_DIR),
+        autoescape=select_autoescape(["html"]),
+    )
+    env.globals["cell_class"] = _cell_class
+
+    rows_for_render = []
+    for r in heatmap["rows"]:
+        rows_for_render.append({
+            **r,
+            "bias_class": _bias_class(r["bias"]),
+            "total_class": _total_class(r["total"]),
+        })
+
+    tmpl = env.get_template("template.html")
+    html = tmpl.render(
+        updated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        indicators=heatmap["indicators"],
+        categories=heatmap["categories"],
+        rows=rows_for_render,
+        row_count=len(rows_for_render),
+    )
+    output_path.write_text(html, encoding="utf-8")
+    return output_path
