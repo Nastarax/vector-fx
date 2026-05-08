@@ -36,11 +36,11 @@ def _z_bucket(change: float, history: list[float]) -> int:
     Returns -2..+2.
     """
     if not history:
-        if change > 0.5:
+        if change > 0.3:
             return 2
         if change > 0:
             return 1
-        if change < -0.5:
+        if change < -0.3:
             return -2
         if change < 0:
             return -1
@@ -55,13 +55,15 @@ def _z_bucket(change: float, history: list[float]) -> int:
             return -1
         return 0
     z = (change - mu) / sigma
-    if z >= 1.0:
+    # Tighter thresholds: z >= 0.5 for ±2, z >= 0.15 for ±1.
+    # Now that null-handling is correct, tighter = more signal where data exists.
+    if z >= 0.5:
         return 2
-    if z >= 0.25:
+    if z >= 0.15:
         return 1
-    if z <= -1.0:
+    if z <= -0.5:
         return -2
-    if z <= -0.25:
+    if z <= -0.15:
         return -1
     return 0
 

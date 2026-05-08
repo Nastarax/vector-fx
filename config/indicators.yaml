@@ -35,7 +35,7 @@ categories:
     - id: gdp
       label: GDP YoY
       direction: up_is_bullish
-      lookback_periods: 8
+      lookback_periods: 4    # 4 quarters = 1 year YoY
     - id: mpmi
       label: Manufacturing PMI
       direction: up_is_bullish

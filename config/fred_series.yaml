@@ -2,7 +2,7 @@
 # Use scripts/test_fred.py to check IDs after editing.
 
 USD:
-  gdp: A191RL1Q225SBEA      # Real GDP, % change SAAR
+  gdp: GDPC1                # Real GDP, chained 2017 dollars, level (quarterly)
   mpmi: null
   spmi: null
   retail_sales: RSAFS        # Advance Retail and Food Services Sales
@@ -22,8 +22,8 @@ EUR:
   retail_sales: null          # OECD Eurozone retail series deprecated
   consumer_conf: CSCICP02EZM460S
   cpi: CP0000EZ19M086NEST
-  ppi: null
-  pce: null
+  ppi: null                    # no working free FRED EUR PPI series
+  pce: null                    # no working free FRED EUR Core CPI series
   rates: ECBDFR              # ECB Deposit Facility Rate
   employment: LREM64TTEZQ156S
   unemployment_rate: LRHUTTTTEZM156S
@@ -36,8 +36,8 @@ GBP:
   retail_sales: GBRSARTMISMEI    # UK retail trade volume index, monthly
   consumer_conf: CSCICP02GBM460S
   cpi: GBRCPIALLMINMEI
-  ppi: null
-  pce: null
+  ppi: null                      # no working free FRED GBP PPI series
+  pce: null                      # no working free FRED GBP Core CPI series
   rates: IUDSOIA
   employment: LREM64TTGBQ156S
   unemployment_rate: LRHUTTTTGBM156S
@@ -50,8 +50,8 @@ JPY:
   retail_sales: JPNSARTMISMEI    # Japan retail trade volume index
   consumer_conf: CSCICP02JPM460S
   cpi: JPNCPIALLMINMEI
-  ppi: null
-  pce: null
+  ppi: null                      # no working free FRED JPY PPI series
+  pce: null                      # no working free FRED JPY Core CPI series
   rates: INTDSRJPM193N
   employment: LREM64TTJPM156S
   unemployment_rate: LRHUTTTTJPM156S
@@ -78,7 +78,7 @@ AUD:
   retail_sales: null
   consumer_conf: CSCICP02AUM460S
   cpi: AUSCPIALLQINMEI
-  ppi: null              # no clean free AUD PPI; cell will score 0
+  ppi: null
   pce: null
   rates: IRSTCI01AUM156N
   employment: LREM64TTAUQ156S
