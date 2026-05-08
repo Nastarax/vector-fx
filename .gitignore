@@ -11,3 +11,6 @@ data/cache/*.json
 data/cache/*.csv
 data/cache/*.pkl
 !data/cache/myfxbook_outlook.json
+# Same reason for FF history: local scraping accumulates over time and we
+# want CI to use the accumulated data (FF blocks GitHub Actions IPs).
+!data/cache/ff_history.json

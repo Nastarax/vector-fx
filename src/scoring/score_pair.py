@@ -26,6 +26,7 @@ import yaml
 
 from src.scoring.score_macro import score_indicator
 from src.scoring.score_sentiment import cot_score, retail_score
+from src.scoring.score_surprise import surprise_score
 from src.scoring.score_technical import seasonality_score, trend_score
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
@@ -53,14 +54,17 @@ def bias_label(total: int, thresholds: dict) -> str:
     return "Neutral"
 
 
-def build_currency_scores(macro_data: dict, cot_data: dict) -> dict:
+def build_currency_scores(macro_data: dict, cot_data: dict, ff_history: dict | None = None) -> dict:
     """
     Returns: per_ccy[currency][indicator_id] = int score (-2..+2) OR None
     when data is unavailable for that currency/indicator.
-    The None propagates so pair scoring can mark unknown cells as 0
-    rather than unfairly punishing the side that has data.
+
+    Scoring preference:
+    1. ForexFactory Surprise (Actual vs Forecast) - matches EdgeFinder methodology
+    2. FRED momentum (rate of change z-score) - fallback when no FF data
     """
     cfg = load_indicators_cfg()
+    ff_history = ff_history or {}
     per_ccy: dict[str, dict[str, int | None]] = {}
 
     for ccy in macro_data:
@@ -68,12 +72,23 @@ def build_currency_scores(macro_data: dict, cot_data: dict) -> dict:
         for cat in ("Growth", "Inflation", "Jobs"):
             for ind in cfg["categories"][cat]:
                 ind_id = ind["id"]
-                obs = macro_data[ccy].get(ind_id, [])
-                per_ccy[ccy][ind_id] = score_indicator(
-                    obs,
-                    direction=ind.get("direction", "up_is_bullish"),
-                    lookback_periods=ind.get("lookback_periods", 12),
-                )
+                direction = ind.get("direction", "up_is_bullish")
+
+                # Try surprise score from FF first
+                ff_key = f"{ccy}|{ind_id}"
+                ff_releases = ff_history.get(ff_key, [])
+                surprise = surprise_score(ff_releases, direction=direction)
+
+                if surprise is not None:
+                    per_ccy[ccy][ind_id] = surprise
+                else:
+                    # Fall back to FRED momentum
+                    obs = macro_data[ccy].get(ind_id, [])
+                    per_ccy[ccy][ind_id] = score_indicator(
+                        obs,
+                        direction=direction,
+                        lookback_periods=ind.get("lookback_periods", 12),
+                    )
         # COT: USD Index trades on ICE which isn't in the CME TFF file we pull,
         # so USD usually has no COT reading. Default to 0 (neutral) instead of
         # None so pair scores still compute based on the other currency's
@@ -152,7 +167,7 @@ def build_pair_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -161,7 +176,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history)
     rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date)
     return {
         "indicators": indicator_meta,
