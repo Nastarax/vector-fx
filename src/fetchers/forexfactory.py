@@ -93,25 +93,24 @@ def _get(url: str, timeout: int = 25):
     return cffi_requests.get(url, headers=_get_browser_headers(), timeout=timeout)
 
 
-def _get_with_session(timeout: int = 25):
+def _get_with_session(target_url: str = None, timeout: int = 25):
     """
     Try a session-based approach: visit FF homepage first to get the
-    Cloudflare challenge cookies, then request the calendar with those cookies.
+    Cloudflare challenge cookies, then request the target URL with those cookies.
     Often gets through where direct requests get 403.
     Returns a (status_code, text) tuple, or (None, None) on failure.
     """
+    target_url = target_url or FF_BASE
     profiles = ["chrome120", "chrome116", "safari17_2", "firefox120"]
     for profile in profiles:
         try:
             if HAS_CFFI:
                 session = cffi_requests.Session()
-                # Step 1: homepage to get Cloudflare cookies
                 home = session.get("https://www.forexfactory.com/", impersonate=profile, timeout=timeout)
                 if home.status_code != 200:
                     continue
                 time.sleep(1.5)
-                # Step 2: calendar with cookies
-                r = session.get(FF_BASE, impersonate=profile, timeout=timeout)
+                r = session.get(target_url, impersonate=profile, timeout=timeout)
                 if r.status_code == 200:
                     return r.status_code, r.text
             else:
@@ -121,13 +120,64 @@ def _get_with_session(timeout: int = 25):
                 if home.status_code != 200:
                     continue
                 time.sleep(1.5)
-                r = session.get(FF_BASE, timeout=timeout)
+                r = session.get(target_url, timeout=timeout)
                 if r.status_code == 200:
                     return r.status_code, r.text
         except Exception as e:
             print(f"[ff] session attempt with {profile} failed: {e}")
             continue
     return None, None
+
+
+def _generate_week_params(weeks_back: int) -> list[str]:
+    """
+    Generate FF ?week= parameter strings going back N weeks.
+    FF uses format like 'may7.2026' (lowercase month abbrev, day, year).
+    """
+    today = datetime.now(timezone.utc).replace(tzinfo=None)
+    # FF weeks start on Sunday
+    days_to_sunday = (today.weekday() + 1) % 7
+    this_sunday = today - timedelta(days=days_to_sunday)
+
+    params = []
+    for w in range(weeks_back):
+        sunday = this_sunday - timedelta(weeks=w)
+        param = sunday.strftime("%b%d.%Y").lower()
+        params.append(param)
+    return params
+
+
+def backfill_history(weeks: int = 26) -> dict:
+    """
+    Backfill FF history by scraping past N weeks.
+    Polite delay between requests (2s) to avoid rate limiting.
+    """
+    print(f"[ff backfill] Starting backfill for past {weeks} weeks...")
+    week_params = _generate_week_params(weeks)
+
+    total_new = 0
+    for i, wparam in enumerate(week_params, 1):
+        url = f"{FF_BASE}?week={wparam}"
+        print(f"[ff backfill] [{i:>2}/{weeks}] {wparam}...", end=" ", flush=True)
+        try:
+            status, html = _get_with_session(url)
+            if not html:
+                print("FAILED (no html)")
+                time.sleep(3)
+                continue
+            releases = parse_calendar_html(html)
+            print(f"{len(releases)} releases")
+            if releases:
+                update_history(releases)
+                total_new += len(releases)
+        except Exception as e:
+            print(f"FAILED ({e})")
+        time.sleep(2)  # rate limit politeness
+
+    print(f"\n[ff backfill] Complete. Added ~{total_new} releases.")
+    history = load_history()
+    print(f"[ff backfill] Total history: {sum(len(v) for v in history.values())} releases across {len(history)} indicator/country pairs")
+    return history
 
 
 def _classify_event(event_name: str) -> str | None:
@@ -325,12 +375,22 @@ def fetch_ff() -> dict[str, list[dict]]:
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="ForexFactory calendar fetcher.")
+    parser.add_argument("--backfill", type=int, default=0,
+                        help="Backfill past N weeks of history (e.g., 26 for 6 months)")
+    args = parser.parse_args()
+
     print(f"curl_cffi installed: {HAS_CFFI}")
-    history = fetch_ff()
-    # Dump a summary of what we have per indicator
+    if args.backfill > 0:
+        history = backfill_history(weeks=args.backfill)
+    else:
+        history = fetch_ff()
+
     summary: dict[str, set[str]] = {}
     for key, releases in history.items():
         ccy, ind = key.split("|")
         summary.setdefault(ind, set()).add(ccy)
+    print("\nCoverage summary:")
     for ind, ccys in sorted(summary.items()):
         print(f"  {ind:18s} {sorted(ccys)}")
