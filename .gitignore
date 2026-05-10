@@ -14,3 +14,5 @@ data/cache/*.pkl
 # Same reason for FF history: local scraping accumulates over time and we
 # want CI to use the accumulated data (FF blocks GitHub Actions IPs).
 !data/cache/ff_history.json
+# TE history accumulates from manual sweeps; commit so CI inherits the data
+!data/cache/te_history.json

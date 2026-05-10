@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>EdgeFinder Backtest</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { background:#0d1430; color:#e8ecff; font-family:-apple-system,Segoe UI,sans-serif; padding:24px; font-size:13px; }
+h1 { font-size:22px; margin:0 0 4px; }
+h2 { font-size:16px; margin-top:32px; color:#aac4ff; }
+h3 { font-size:14px; margin-top:20px; color:#cdd9ff; }
+.meta { color:#8893c0; font-size:12px; margin-bottom:24px; }
+table { border-collapse:collapse; margin:8px 0; max-width:900px; }
+th, td { padding:6px 12px; border-bottom:1px solid #2a3060; text-align:right; }
+th:first-child, td:first-child { text-align:left; }
+.pos { color:#3974e6; font-weight:600; }
+.neg { color:#e07984; font-weight:600; }
+.bucket-vbull { background:#1f3a86; padding:3px 8px; border-radius:3px; }
+.bucket-bull { background:#274690; padding:3px 8px; border-radius:3px; }
+.bucket-bear { background:#7a2935; padding:3px 8px; border-radius:3px; }
+.bucket-vbear { background:#a01827; padding:3px 8px; border-radius:3px; }
+canvas { background:#141a3a; border-radius:6px; padding:12px; max-width:900px; margin-top:12px; }
+</style></head><body>
+
+<h1>Backtest: Does the signal predict the move?</h1>
+<div class="meta">26 weeks of weekly snapshots · 13 FX pairs · forward returns at 1d, 3d, 5d, 10d, 20d, 30d, 60d</div>
+<h3><span class="bucket-vbull">Very Bullish</span> &nbsp; (17 signals)</h3><p style="color:#8893c0">Expected: pair goes UP. <strong>"% Up"</strong> column should ideally be &gt; 50%.</p><table><tr><th>Horizon</th><th>Avg Return</th><th>% Up</th><th>% Down</th></tr><tr><td>1d</td><td class="pos">+0.02%</td><td>58.8%</td><td>41.2%</td></tr><tr><td>3d</td><td class="pos">+0.02%</td><td>58.8%</td><td>41.2%</td></tr><tr><td>5d</td><td class="neg">-0.20%</td><td>52.9%</td><td>47.1%</td></tr><tr><td>10d</td><td class="neg">-0.09%</td><td>60.0%</td><td>40.0%</td></tr><tr><td>20d</td><td class="pos">+0.17%</td><td>66.7%</td><td>33.3%</td></tr><tr><td>30d</td><td class="pos">+0.99%</td><td>70.0%</td><td>30.0%</td></tr><tr><td>60d</td><td class="pos">+0.84%</td><td>33.3%</td><td>66.7%</td></tr></table><h3><span class="bucket-bull">Bullish</span> &nbsp; (90 signals)</h3><p style="color:#8893c0">Expected: pair goes UP. <strong>"% Up"</strong> column should ideally be &gt; 50%.</p><table><tr><th>Horizon</th><th>Avg Return</th><th>% Up</th><th>% Down</th></tr><tr><td>1d</td><td class="pos">+0.10%</td><td>52.2%</td><td>47.8%</td></tr><tr><td>3d</td><td class="pos">+0.26%</td><td>62.2%</td><td>37.8%</td></tr><tr><td>5d</td><td class="pos">+0.04%</td><td>53.3%</td><td>46.7%</td></tr><tr><td>10d</td><td class="neg">-0.04%</td><td>50.0%</td><td>50.0%</td></tr><tr><td>20d</td><td class="pos">+0.06%</td><td>56.8%</td><td>43.2%</td></tr><tr><td>30d</td><td class="pos">+0.52%</td><td>60.5%</td><td>39.5%</td></tr><tr><td>60d</td><td class="pos">+1.53%</td><td>67.3%</td><td>32.7%</td></tr></table><h3><span class="">Neutral</span> &nbsp; (190 signals)</h3><p style="color:#8893c0">No directional expectation.</p><table><tr><th>Horizon</th><th>Avg Return</th><th>% Up</th><th>% Down</th></tr><tr><td>1d</td><td class="pos">+0.09%</td><td>58.4%</td><td>41.6%</td></tr><tr><td>3d</td><td class="pos">+0.19%</td><td>61.1%</td><td>38.9%</td></tr><tr><td>5d</td><td class="pos">+0.17%</td><td>61.1%</td><td>38.9%</td></tr><tr><td>10d</td><td class="pos">+0.47%</td><td>62.4%</td><td>37.6%</td></tr><tr><td>20d</td><td class="pos">+1.02%</td><td>73.1%</td><td>26.9%</td></tr><tr><td>30d</td><td class="pos">+1.22%</td><td>71.8%</td><td>28.2%</td></tr><tr><td>60d</td><td class="pos">+2.05%</td><td>77.3%</td><td>22.7%</td></tr></table><h3><span class="bucket-bear">Bearish</span> &nbsp; (33 signals)</h3><p style="color:#8893c0">Expected: pair goes DOWN. <strong>"% Down"</strong> column should ideally be &gt; 50%.</p><table><tr><th>Horizon</th><th>Avg Return</th><th>% Up</th><th>% Down</th></tr><tr><td>1d</td><td class="pos">+0.14%</td><td>69.7%</td><td>30.3%</td></tr><tr><td>3d</td><td class="pos">+0.19%</td><td>57.6%</td><td>42.4%</td></tr><tr><td>5d</td><td class="pos">+0.40%</td><td>54.5%</td><td>45.5%</td></tr><tr><td>10d</td><td class="pos">+0.91%</td><td>72.7%</td><td>27.3%</td></tr><tr><td>20d</td><td class="pos">+1.11%</td><td>77.4%</td><td>22.6%</td></tr><tr><td>30d</td><td class="pos">+1.42%</td><td>70.8%</td><td>29.2%</td></tr><tr><td>60d</td><td class="pos">+1.87%</td><td>70.0%</td><td>30.0%</td></tr></table><h3><span class="bucket-vbear">Very Bearish</span> &nbsp; (8 signals)</h3><p style="color:#8893c0">Expected: pair goes DOWN. <strong>"% Down"</strong> column should ideally be &gt; 50%.</p><table><tr><th>Horizon</th><th>Avg Return</th><th>% Up</th><th>% Down</th></tr><tr><td>1d</td><td class="neg">-0.04%</td><td>50.0%</td><td>50.0%</td></tr><tr><td>3d</td><td class="pos">+0.23%</td><td>62.5%</td><td>37.5%</td></tr><tr><td>5d</td><td class="pos">+0.44%</td><td>75.0%</td><td>25.0%</td></tr><tr><td>10d</td><td class="pos">+0.42%</td><td>62.5%</td><td>37.5%</td></tr><tr><td>20d</td><td class="pos">+1.02%</td><td>87.5%</td><td>12.5%</td></tr><tr><td>30d</td><td class="neg">-0.28%</td><td>42.9%</td><td>57.1%</td></tr><tr><td>60d</td><td class="pos">+0.97%</td><td>71.4%</td><td>28.6%</td></tr></table>
+<h2>Avg return curve over time, by signal strength</h2>
+<canvas id="chart" height="320"></canvas>
+<script>
+const data = {"Very Bullish": {"h": [1, 3, 5, 10, 20, 30, 60], "avg": [0.01796547241565615, 0.02413786695306382, -0.19848218765294526, -0.09063324305614101, 0.16512842285169324, 0.9868087474151899, 0.8357167294992377]}, "Bullish": {"h": [1, 3, 5, 10, 20, 30, 60], "avg": [0.09556079323472286, 0.26054014252476987, 0.03640619601204448, -0.03912596333880596, 0.061690091891585926, 0.52451320377019, 1.5333970224451758]}, "Neutral": {"h": [1, 3, 5, 10, 20, 30, 60], "avg": [0.08523869277160027, 0.19258230522525283, 0.16727923419001706, 0.47267144974486763, 1.021401375514922, 1.2248517508267265, 2.046441711411973]}, "Bearish": {"h": [1, 3, 5, 10, 20, 30, 60], "avg": [0.13849067728559286, 0.194221359962006, 0.39511596378159974, 0.9100778532349718, 1.106557890500648, 1.4224863467137203, 1.8701720868073566]}, "Very Bearish": {"h": [1, 3, 5, 10, 20, 30, 60], "avg": [-0.04329565143080391, 0.22971548369169434, 0.4359378073656755, 0.41770321482581874, 1.0237050252526314, -0.2781453121055887, 0.9699882193005074]}};
+const colors = { 'Very Bullish':'#3974e6','Bullish':'#5d8ff0','Neutral':'#8893c0','Bearish':'#e07984','Very Bearish':'#d23b4a' };
+const datasets = Object.entries(data).map(([bucket, vals]) => ({
+  label: bucket,
+  data: vals.h.map((h,i) => ({ x:h, y:vals.avg[i] })),
+  borderColor: colors[bucket],
+  backgroundColor: colors[bucket],
+  showLine: true, fill: false, tension: 0.2, pointRadius: 5,
+}));
+new Chart(document.getElementById('chart').getContext('2d'), {
+  type:'scatter', data: {datasets},
+  options: {
+    plugins:{ legend:{ labels:{ color:'#e8ecff' } } },
+    scales:{
+      x:{ title:{display:true, text:'Trading days forward', color:'#aac4ff'}, ticks:{color:'#aac4ff'}, grid:{color:'#2a3060'} },
+      y:{ title:{display:true, text:'Average % return', color:'#aac4ff'}, ticks:{color:'#aac4ff'}, grid:{color:'#2a3060'} }
+    }
+  }
+});
+</script>
+</body></html>

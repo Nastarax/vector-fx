@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import cot, forexfactory, fred, prices, retail
+from src.fetchers import cot, forexfactory, fred, prices, retail, tradingeconomics
 from src.output import build_cot, build_heatmap
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
@@ -69,15 +69,17 @@ def main():
     else:
         rt = retail.fetch_retail(pair_symbols)
 
-    print("[4/5] Fetching ForexFactory calendar (surprise data)...")
+    print("[4/5] Fetching ForexFactory + Trading Economics surprise data...")
     if args.date:
-        # Skip FF on backtest mode (we only have current calendar)
         ff_history = {}
+        te_history = {}
     else:
         ff_history = forexfactory.fetch_ff()
+        te_history = tradingeconomics.load_history()  # use accumulated cache; sweep manually
+        print(f"[te] using cached history: {sum(len(v) for v in te_history.values())} releases across {len(te_history)} pairs")
 
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history)
     out_path = build_heatmap.render(heatmap)
     cot_path = build_cot.render(cot_data) if cot_data else None
 

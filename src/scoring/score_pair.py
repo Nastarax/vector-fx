@@ -54,17 +54,25 @@ def bias_label(total: int, thresholds: dict) -> str:
     return "Neutral"
 
 
-def build_currency_scores(macro_data: dict, cot_data: dict, ff_history: dict | None = None) -> dict:
+def build_currency_scores(
+    macro_data: dict,
+    cot_data: dict,
+    ff_history: dict | None = None,
+    te_history: dict | None = None,
+) -> dict:
     """
     Returns: per_ccy[currency][indicator_id] = int score (-2..+2) OR None
     when data is unavailable for that currency/indicator.
 
     Scoring preference:
-    1. ForexFactory Surprise (Actual vs Forecast) - matches EdgeFinder methodology
-    2. FRED momentum (rate of change z-score) - fallback when no FF data
+    1. Combined TE + FF Surprise (Actual vs Forecast). TE takes priority on
+       overlapping dates because its TEForecast matches EdgeFinder methodology.
+       Combined history from both sources gives richer z-score baseline.
+    2. FRED momentum (rate of change z-score) - fallback when no surprise data
     """
     cfg = load_indicators_cfg()
     ff_history = ff_history or {}
+    te_history = te_history or {}
     per_ccy: dict[str, dict[str, int | None]] = {}
 
     for ccy in macro_data:
@@ -73,11 +81,26 @@ def build_currency_scores(macro_data: dict, cot_data: dict, ff_history: dict | N
             for ind in cfg["categories"][cat]:
                 ind_id = ind["id"]
                 direction = ind.get("direction", "up_is_bullish")
+                key = f"{ccy}|{ind_id}"
 
-                # Try surprise score from FF first
-                ff_key = f"{ccy}|{ind_id}"
-                ff_releases = ff_history.get(ff_key, [])
-                surprise = surprise_score(ff_releases, direction=direction)
+                # Combine TE + FF, prefer TE on duplicate dates
+                te_rels = te_history.get(key, [])
+                ff_rels = ff_history.get(key, [])
+                seen_dates = set()
+                combined = []
+                for r in te_rels:
+                    d = r.get("date")
+                    if d and d not in seen_dates:
+                        combined.append(r)
+                        seen_dates.add(d)
+                for r in ff_rels:
+                    d = r.get("date")
+                    if d and d not in seen_dates:
+                        combined.append(r)
+                        seen_dates.add(d)
+                combined.sort(key=lambda x: x.get("date", ""), reverse=True)
+
+                surprise = surprise_score(combined, direction=direction)
 
                 if surprise is not None:
                     per_ccy[ccy][ind_id] = surprise
@@ -167,7 +190,7 @@ def build_pair_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -176,7 +199,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history)
     rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date)
     return {
         "indicators": indicator_meta,
