@@ -1,0 +1,50 @@
+{
+  "NZD": {
+    "date": "2026-04-09",
+    "actual": 53.2,
+    "forecast": null,
+    "previous": 54.8
+  },
+  "AUD": {
+    "date": "2026-04-30",
+    "actual": 51.3,
+    "forecast": 51.0,
+    "previous": 49.8
+  },
+  "CHF": {
+    "date": "2026-05-04",
+    "actual": 54.5,
+    "forecast": 52.0,
+    "previous": 53.3
+  },
+  "USD": {
+    "date": "2026-05-01",
+    "actual": 52.7,
+    "forecast": 53.1,
+    "previous": 52.7
+  },
+  "GBP": {
+    "date": "2026-05-01",
+    "actual": 53.7,
+    "forecast": 53.6,
+    "previous": 51.0
+  },
+  "EUR": {
+    "date": "2026-05-04",
+    "actual": 52.2,
+    "forecast": 52.2,
+    "previous": 51.6
+  },
+  "CAD": {
+    "date": "2026-05-01",
+    "actual": 53.3,
+    "forecast": null,
+    "previous": 50.0
+  },
+  "JPY": {
+    "date": "2026-05-01",
+    "actual": 55.1,
+    "forecast": 54.9,
+    "previous": 51.6
+  }
+}
