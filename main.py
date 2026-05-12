@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import cot, forexfactory, fred, investing, prices, retail, tradingeconomics
+from src.fetchers import cot, forexfactory, fred, investing, prices, retail, services_pmi, tradingeconomics
 from src.output import build_cot, build_heatmap
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
@@ -96,6 +96,12 @@ def main():
             c: r for c, r in cached.items()
             if r.get("date") and r["date"] <= args.date
         }
+        # Same logic for sPMI
+        cached_s = services_pmi.load_cached()
+        investing_spmi = {
+            c: r for c, r in cached_s.items()
+            if r.get("date") and r["date"] <= args.date
+        }
     else:
         ff_history = forexfactory.fetch_ff()
         # Always refresh GDP from TE so we have the latest TEForecast for the
@@ -106,17 +112,23 @@ def main():
         print(f"[te] using cached history: {sum(len(v) for v in te_history.values())} releases across {len(te_history)} pairs")
 
         # Investing.com mPMI: read from cache only. The cache is refreshed by
-        # scripts/refresh_investing.py (run once a day on its own cron). PMI is
-        # a monthly indicator so hourly scraping is wasteful and risks getting
-        # IP-flagged by Cloudflare.
+        # scripts/refresh_investing.py (run locally). PMI is monthly so hourly
+        # scraping is wasteful and Cloudflare blocks GitHub Actions IPs anyway.
         investing_mpmi = investing.load_cached()
         if investing_mpmi:
             print(f"[investing] using cached mPMI: {len(investing_mpmi)} currencies")
         else:
-            print("[investing] no cache found - run scripts/refresh_investing.py to populate")
+            print("[investing] no mPMI cache - run scripts/refresh_investing.py to populate")
+
+        # Services PMI cache: same pattern as mPMI.
+        investing_spmi = services_pmi.load_cached()
+        if investing_spmi:
+            print(f"[spmi] using cached sPMI: {len(investing_spmi)} currencies")
+        else:
+            print("[spmi] no sPMI cache - run scripts/refresh_investing.py to populate")
 
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi)
     out_path = build_heatmap.render(heatmap)
     cot_path = build_cot.render(cot_data) if cot_data else None
 

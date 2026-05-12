@@ -19,3 +19,5 @@ data/cache/*.pkl
 # Same reason for Investing.com PMI cache: Cloudflare blocks GitHub Actions IPs
 # completely. Refresh runs locally and the JSON is committed.
 !data/cache/investing_pmi.json
+# Services PMI cache (6 Investing pages + 2 TE pages). Same local-refresh model.
+!data/cache/spmi.json

@@ -22,23 +22,23 @@ View the live online dashboard (auto-refreshed hourly by GitHub Actions):
 
 
 ================================================================================
-WEEKLY MAINTENANCE - Refresh Investing.com PMI data
+WEEKLY MAINTENANCE - Refresh PMI data (manufacturing + services)
 ================================================================================
 
-GitHub Actions can't scrape Investing.com (Cloudflare blocks GitHub IPs).
-The PMI cache must be refreshed locally and pushed.
+GitHub Actions can't scrape Investing.com or TradingEconomics (Cloudflare
+blocks GitHub IPs). The PMI caches must be refreshed locally and pushed.
 
 Recommended: do this once a week. PMI is monthly per currency so weekly
 keeps you within 7 days of any new release.
 
-Step 1 - refresh the cache:
+Step 1 - refresh both mPMI and sPMI caches:
     python scripts/refresh_investing.py
 
-(Takes 3-5 minutes. Patient sleeps + retries.)
+(Takes 6-10 minutes total. Refreshes manufacturing PMI first, then services.)
 
-Step 2 - commit and push the updated JSON:
-    git add data/cache/investing_pmi.json
-    git commit -m "Refresh Investing mPMI cache"
+Step 2 - commit and push the updated JSONs:
+    git add data/cache/investing_pmi.json data/cache/spmi.json
+    git commit -m "Refresh PMI cache"
     git push
 
 
@@ -81,8 +81,11 @@ Backfill ForexFactory history (run if FF cache gets wiped or you want more weeks
 Refresh just the GDP data from Trading Economics:
     python -c "from src.fetchers import tradingeconomics; tradingeconomics.fetch_gdp_only()"
 
-Check what Investing.com is returning right now (without saving to cache):
+Check what Investing.com is returning for mPMI right now:
     python -m src.fetchers.investing
+
+Check what sPMI sources are returning right now:
+    python -m src.fetchers.services_pmi
 
 
 ================================================================================

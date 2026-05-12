@@ -60,6 +60,7 @@ def build_currency_scores(
     ff_history: dict | None = None,
     te_history: dict | None = None,
     investing_mpmi: dict | None = None,
+    investing_spmi: dict | None = None,
 ) -> dict:
     """
     Returns: per_ccy[currency][indicator_id] = int score (-2..+2) OR None
@@ -79,6 +80,7 @@ def build_currency_scores(
     ff_history = ff_history or {}
     te_history = te_history or {}
     investing_mpmi = investing_mpmi or {}
+    investing_spmi = investing_spmi or {}
     per_ccy: dict[str, dict[str, int | None]] = {}
 
     for ccy in macro_data:
@@ -107,11 +109,15 @@ def build_currency_scores(
                     continue
 
                 # PMI (mpmi, spmi): EF uses CHANGE from previous to latest, not surprise.
-                # For mPMI we prefer Investing.com's per-currency Latest Release page
-                # (source of truth). Fallback to combined TE + FF history.
-                # For sPMI we still use TE + FF only.
+                # For mPMI we prefer Investing.com's per-currency Latest Release page.
+                # For sPMI we prefer the investing_spmi dict (6 Investing pages + 2 TE pages).
+                # Both fall back to combined TE + FF history if their fresh source is missing.
                 if ind_id == "mpmi" and investing_mpmi.get(ccy):
                     rel = investing_mpmi[ccy]
+                    per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
+                    continue
+                if ind_id == "spmi" and investing_spmi.get(ccy):
+                    rel = investing_spmi[ccy]
                     per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
                     continue
                 if ind_id in ("mpmi", "spmi"):
@@ -229,7 +235,7 @@ def build_pair_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -238,7 +244,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi)
     rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date)
     return {
         "indicators": indicator_meta,
