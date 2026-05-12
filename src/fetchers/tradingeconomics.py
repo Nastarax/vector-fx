@@ -326,6 +326,40 @@ def update_history(new_releases: list[TERelease]) -> dict:
     return history
 
 
+def fetch_gdp_only() -> dict:
+    """
+    Refresh GDP data for all 8 currencies from TE. Used to keep the GDP cell
+    fresh on every main.py run.
+
+    Sorts releases by date DESC so the latest released GDP (most recent
+    with an Actual value) is always picked as the scoring input.
+
+    Polite 2s delay between requests.
+    """
+    print("[te] refreshing GDP for all 8 currencies...")
+    success = 0
+    for ccy in TE_COUNTRY_SLUGS:
+        try:
+            releases = fetch_indicator(ccy, "gdp")
+            if releases:
+                # Sort by date DESC so latest is index 0
+                releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+                update_history(releases_sorted)
+                success += 1
+                latest = releases_sorted[0]
+                actual = latest.actual if latest.actual is not None else "n/a"
+                consensus = latest.consensus if latest.consensus is not None else "n/a"
+                forecast = latest.forecast if latest.forecast is not None else "n/a"
+                print(f"  {ccy}: Actual={actual}  Consensus={consensus}  TEForecast={forecast}  ({latest.date})")
+            else:
+                print(f"  {ccy}: no releases")
+        except Exception as e:
+            print(f"  {ccy}: failed ({e})")
+        time.sleep(2)
+    print(f"[te] GDP refresh complete: {success}/{len(TE_COUNTRY_SLUGS)} ok")
+    return load_history()
+
+
 def fetch_te_all(only_indicators: list[str] | None = None) -> dict:
     """
     Sweep all (country, indicator) combos. Polite 2s delay between requests.

@@ -9,44 +9,58 @@ from src.fetchers.retail import RetailReading
 
 def cot_score(reading: CotReading | None) -> int:
     """
-    EdgeFinder-style: +1 if net positioning bullish, -1 if bearish.
-                      +1 if weekly change positive, -1 if negative.
-    Total cell range: -2..+2.
+    EdgeFinder methodology, exact match.
+
+    1. Net Positioning (+1 / -1):
+       +1 if Long contracts > Short contracts
+       -1 if Short contracts > Long contracts
+
+    2. Net % Change (+1 / -1 / 0):
+       Long% this week MINUS Long% last week
+       +1 if positive
+       -1 if negative
+       0 if exactly zero
+
+    Total range: -2..+2.
     """
     if reading is None:
         return 0
-    pos_score = 0
-    chg_score = 0
-    if reading.long_pct > 55:
-        pos_score = 1
-    elif reading.long_pct < 45:
-        pos_score = -1
-    if reading.weekly_change_pct > 1.0:
+
+    # Net Positioning: binary, no neutral zone
+    pos_score = 1 if reading.long_contracts > reading.short_contracts else -1
+
+    # Net % Change: based on change in Long%, not normalized net change
+    if reading.long_pct_change > 0:
         chg_score = 1
-    elif reading.weekly_change_pct < -1.0:
+    elif reading.long_pct_change < 0:
         chg_score = -1
+    else:
+        chg_score = 0
+
     return pos_score + chg_score
 
 
 def retail_score(reading: RetailReading | None) -> int:
     """
-    Contrarian: heavy retail long -> bearish for that pair (-2).
-    Returns score for the PAIR (not per-currency), since retail data is
-    pair-specific.
+    EdgeFinder methodology, exact match.
 
-    Thresholds tuned to be less aggressive at the extremes so we match
-    EdgeFinder's distribution better. Only truly extreme positioning
-    (>= 82% one-sided) scores ±2.
+    Strict contrarian logic on retail broker Long%:
+      Long% >= 60%  -> -1 (crowd heavily long = contrarian bearish)
+      40% < Long% < 60%  -> 0 (mixed positioning)
+      Long% <= 40%  -> +1 (crowd heavily short = contrarian bullish)
+
+    Score range: -1 / 0 / +1.
+
+    Note: EF combines retail broker data (OANDA + Myfxbook + others) plus
+    AAII Investor Sentiment + Put/Call Ratio for indices/stocks. For pure
+    FX pairs, only retail broker positioning applies (AAII and Put/Call
+    are equity-market signals).
     """
     if reading is None:
         return 0
     longp = reading.long_pct
-    if longp >= 82:
-        return -2
-    if longp >= 65:
+    if longp >= 60:
         return -1
-    if longp <= 18:
-        return 2
-    if longp <= 35:
+    if longp <= 40:
         return 1
     return 0

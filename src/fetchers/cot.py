@@ -1,28 +1,31 @@
 """
-CFTC Commitment of Traders fetcher.
-Pulls the latest 'TFF' (Traders in Financial Futures) report for currency futures.
-Free public CSV from CFTC, updated every Friday ~3:30 PM ET for prior Tuesday.
+CFTC Commitment of Traders fetcher (Legacy Futures Only - Non-Commercial).
+
+Uses CFTC's public Socrata API at publicreporting.cftc.gov. The Legacy
+COT report's "Non-Commercial" category matches EdgeFinder's "smart money"
+definition exactly (speculators including hedge funds and CTAs).
+
+API endpoint: https://publicreporting.cftc.gov/resource/6dca-aqww.json
+- Free, no key required
+- Supports filtering by market name and date
+- Returns JSON, no zip handling
+- Always current (CFTC updates Friday 3:30 PM ET)
 """
 from __future__ import annotations
 
-import io
 import json
 import time
-import zipfile
+import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
 
-import pandas as pd
 import requests
 
-CFTC_TFF_URL = (
-    "https://www.cftc.gov/files/dea/history/fut_fin_txt_2026.zip"  # current year
-)
-# Fallback: 'all years' aggregated. Year-specific is smaller.
+CFTC_API = "https://publicreporting.cftc.gov/resource/6dca-aqww.json"
 CACHE_DIR = Path(__file__).resolve().parents[2] / "data" / "cache"
 
-# Map currencies to CFTC market codes / contract names.
-# These are the labels that appear in the TFF report.
+# Map currencies to their CFTC market_and_exchange_names value (Legacy uses
+# the same labels as TFF for currency futures).
 CFTC_NAMES = {
     "USD": "U.S. DOLLAR INDEX - ICE FUTURES U.S.",
     "EUR": "EURO FX - CHICAGO MERCANTILE EXCHANGE",
@@ -41,108 +44,115 @@ class CotReading:
     report_date: str
     long_contracts: int
     short_contracts: int
-    long_change: int          # week-over-week change in long contracts
-    short_change: int         # week-over-week change in short contracts
+    long_change: int
+    short_change: int
     net_position: int
     long_pct: float
     short_pct: float
-    weekly_change_pct: float  # week-over-week change in net position, normalized
+    weekly_change_pct: float
+    long_pct_change: float
     open_interest: int
     open_interest_change: int
 
 
 def _cache_path() -> Path:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    return CACHE_DIR / "cot_tff.csv"
+    return CACHE_DIR / "cot_legacy_api.json"
 
 
 def _is_fresh(path: Path, max_age_hours: int = 24) -> bool:
     if not path.exists():
         return False
-    age = time.time() - path.stat().st_mtime
-    return age < max_age_hours * 3600
+    return (time.time() - path.stat().st_mtime) < max_age_hours * 3600
 
 
-def _download_tff() -> pd.DataFrame:
-    cache = _cache_path()
-    if _is_fresh(cache):
-        return pd.read_csv(cache, low_memory=False)
+def _fetch_market(market: str, as_of_date: str | None = None) -> list[dict]:
+    """
+    Fetch up to 4 most recent reports for a single market via Socrata API.
+    If as_of_date is given, restricts to reports on or before that date.
+    """
+    where_parts = [f"market_and_exchange_names = '{market}'"]
+    if as_of_date:
+        where_parts.append(f"report_date_as_yyyy_mm_dd <= '{as_of_date}T23:59:59.999'")
+    where = " AND ".join(where_parts)
 
-    r = requests.get(CFTC_TFF_URL, timeout=30)
+    params = {
+        "$where": where,
+        "$order": "report_date_as_yyyy_mm_dd DESC",
+        "$limit": "4",
+    }
+    url = f"{CFTC_API}?{urllib.parse.urlencode(params)}"
+    r = requests.get(url, timeout=20)
     r.raise_for_status()
-    with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-        # The TFF zip contains a single .txt file (CSV-formatted)
-        name = [n for n in z.namelist() if n.lower().endswith(".txt")][0]
-        with z.open(name) as f:
-            df = pd.read_csv(f, low_memory=False)
-    df.to_csv(cache, index=False)
-    return df
+    return r.json()
+
+
+def _to_int(v) -> int:
+    try:
+        return int(float(v))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _to_float(v) -> float:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
     """
-    Returns dict[currency] -> latest CotReading.
-    If as_of_date (YYYY-MM-DD), uses the most recent report published before
-    that date (for historical backtesting).
+    Returns dict[currency] -> latest CotReading using Legacy Non-Commercial.
     """
-    df = _download_tff()
-    # Identify the column names dynamically (CFTC files have wordy headers)
-    name_col = next((c for c in df.columns if "Market_and_Exchange_Names" in c), None)
-    date_col = next((c for c in df.columns if "Report_Date_as_YYYY-MM-DD" in c), None)
-    long_col = next((c for c in df.columns if "Asset_Mgr_Positions_Long_All" in c), None)
-    short_col = next((c for c in df.columns if "Asset_Mgr_Positions_Short_All" in c), None)
-    long_chg_col = next((c for c in df.columns if "Change_in_Asset_Mgr_Long_All" in c), None)
-    short_chg_col = next((c for c in df.columns if "Change_in_Asset_Mgr_Short_All" in c), None)
-    oi_col = next((c for c in df.columns if "Open_Interest_All" in c and "Change" not in c), None)
-    oi_chg_col = next((c for c in df.columns if "Change_in_Open_Interest_All" in c), None)
-
-    if not all([name_col, date_col, long_col, short_col]):
-        raise RuntimeError("CFTC TFF schema unexpected; check column names.")
-
-    df = df.sort_values(date_col, ascending=False)
-    if as_of_date:
-        df = df[df[date_col] <= as_of_date]
-
     out: dict[str, CotReading] = {}
-    not_found = []
+    not_found: list[str] = []
+
     for ccy, market in CFTC_NAMES.items():
-        # Flexible match: case-insensitive contains. Handles extra whitespace,
-        # alt punctuation in CFTC's labels (e.g., "U.S. DOLLAR" vs "US DOLLAR").
-        # We match on the distinctive part of the name (everything before " - ").
-        market_key = market.split(" - ")[0].strip().upper().replace(".", "")
-        normalized = df[name_col].astype(str).str.upper().str.replace(".", "", regex=False)
-        mask = normalized.str.contains(market_key, na=False, regex=False)
-        sub = df[mask].head(2)
-        if len(sub) == 0:
-            not_found.append((ccy, market))
+        try:
+            rows = _fetch_market(market, as_of_date)
+        except Exception as e:
+            print(f"[cot] {ccy} ({market}) fetch failed: {e}")
             continue
-        row = sub.iloc[0]
-        long_c = int(row[long_col])
-        short_c = int(row[short_col])
-        long_chg = int(row[long_chg_col]) if long_chg_col else 0
-        short_chg = int(row[short_chg_col]) if short_chg_col else 0
+
+        if not rows:
+            not_found.append(ccy)
+            continue
+
+        latest = rows[0]
+        prev = rows[1] if len(rows) > 1 else None
+
+        long_c = _to_int(latest.get("noncomm_positions_long_all"))
+        short_c = _to_int(latest.get("noncomm_positions_short_all"))
+        long_chg = _to_int(latest.get("change_in_noncomm_long_all"))
+        short_chg = _to_int(latest.get("change_in_noncomm_short_all"))
+        oi = _to_int(latest.get("open_interest_all"))
+        oi_chg = _to_int(latest.get("change_in_open_interest_all"))
+
         net = long_c - short_c
         total = long_c + short_c
         long_pct = 100 * long_c / total if total else 50.0
         short_pct = 100 - long_pct
 
-        # Weekly change in net position normalized by total
-        if long_chg_col and short_chg_col:
-            net_chg = long_chg - short_chg
-        elif len(sub) > 1:
-            prev = sub.iloc[1]
-            prev_net = int(prev[long_col]) - int(prev[short_col])
-            net_chg = net - prev_net
-        else:
-            net_chg = 0
-        chg_pct = 100 * net_chg / total if total else 0.0
+        net_chg = long_chg - short_chg
+        weekly_change_pct = 100 * net_chg / total if total else 0.0
 
-        oi = int(row[oi_col]) if oi_col else 0
-        oi_chg = int(row[oi_chg_col]) if oi_chg_col else 0
+        # EF Net % Change: this week's long% MINUS last week's long%
+        if prev:
+            prev_long = _to_int(prev.get("noncomm_positions_long_all"))
+            prev_short = _to_int(prev.get("noncomm_positions_short_all"))
+            prev_total = prev_long + prev_short
+            prev_long_pct = 100 * prev_long / prev_total if prev_total else 50.0
+        else:
+            prev_long_pct = long_pct
+        long_pct_change = long_pct - prev_long_pct
+
+        # Date string: API returns "2026-05-05T00:00:00.000" -> trim to YYYY-MM-DD
+        report_date = (latest.get("report_date_as_yyyy_mm_dd") or "")[:10]
 
         out[ccy] = CotReading(
             currency=ccy,
-            report_date=str(row[date_col]),
+            report_date=report_date,
             long_contracts=long_c,
             short_contracts=short_c,
             long_change=long_chg,
@@ -150,20 +160,18 @@ def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
             net_position=net,
             long_pct=long_pct,
             short_pct=short_pct,
-            weekly_change_pct=chg_pct,
+            weekly_change_pct=weekly_change_pct,
+            long_pct_change=long_pct_change,
             open_interest=oi,
             open_interest_change=oi_chg,
         )
 
     if not_found:
-        print(f"[cot] WARNING: not found in CFTC file: {[c for c, _ in not_found]}")
-        print("[cot]   Available markets sample:")
-        for sample in df[name_col].dropna().unique()[:8]:
-            print(f"[cot]     {sample}")
+        print(f"[cot] WARNING: not found in CFTC API: {not_found}")
     return out
 
 
 if __name__ == "__main__":
     cot = fetch_cot()
     for ccy, r in cot.items():
-        print(f"{ccy}: long%={r.long_pct:.1f}  net={r.net_position}  wkchg%={r.weekly_change_pct:+.2f}  ({r.report_date})")
+        print(f"{ccy}: long%={r.long_pct:.1f}  Δlong%={r.long_pct_change:+.2f}pp  net={r.net_position:+d}  ({r.report_date})")

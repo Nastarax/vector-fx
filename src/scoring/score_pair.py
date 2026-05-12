@@ -26,7 +26,7 @@ import yaml
 
 from src.scoring.score_macro import score_indicator
 from src.scoring.score_sentiment import cot_score, retail_score
-from src.scoring.score_surprise import surprise_score
+from src.scoring.score_surprise import momentum_score, surprise_score
 from src.scoring.score_technical import seasonality_score, trend_score
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
@@ -59,6 +59,7 @@ def build_currency_scores(
     cot_data: dict,
     ff_history: dict | None = None,
     te_history: dict | None = None,
+    investing_mpmi: dict | None = None,
 ) -> dict:
     """
     Returns: per_ccy[currency][indicator_id] = int score (-2..+2) OR None
@@ -69,10 +70,15 @@ def build_currency_scores(
        overlapping dates because its TEForecast matches EdgeFinder methodology.
        Combined history from both sources gives richer z-score baseline.
     2. FRED momentum (rate of change z-score) - fallback when no surprise data
+
+    investing_mpmi: per-currency latest Manufacturing PMI release from
+    Investing.com {"USD": {"actual": ..., "previous": ..., "date": ...}, ...}.
+    Source of truth for mPMI when present; falls back to combined TE+FF data.
     """
     cfg = load_indicators_cfg()
     ff_history = ff_history or {}
     te_history = te_history or {}
+    investing_mpmi = investing_mpmi or {}
     per_ccy: dict[str, dict[str, int | None]] = {}
 
     for ccy in macro_data:
@@ -83,7 +89,51 @@ def build_currency_scores(
                 direction = ind.get("direction", "up_is_bullish")
                 key = f"{ccy}|{ind_id}"
 
-                # Combine TE + FF, prefer TE on duplicate dates
+                # GDP: use Consensus (analyst median) from TE pages, not TEForecast.
+                # Per user preference. Swap the 'consensus' value into the 'forecast'
+                # field so surprise_score uses it.
+                if ind_id == "gdp":
+                    te_rels = te_history.get(key, [])
+                    te_rels_sorted = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)
+                    consensus_rels = []
+                    for r in te_rels_sorted:
+                        consensus_value = r.get("consensus")
+                        if consensus_value is None:
+                            continue
+                        modified = dict(r)
+                        modified["forecast"] = consensus_value
+                        consensus_rels.append(modified)
+                    per_ccy[ccy][ind_id] = surprise_score(consensus_rels, direction=direction)
+                    continue
+
+                # PMI (mpmi, spmi): EF uses CHANGE from previous to latest, not surprise.
+                # For mPMI we prefer Investing.com's per-currency Latest Release page
+                # (source of truth). Fallback to combined TE + FF history.
+                # For sPMI we still use TE + FF only.
+                if ind_id == "mpmi" and investing_mpmi.get(ccy):
+                    rel = investing_mpmi[ccy]
+                    per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
+                    continue
+                if ind_id in ("mpmi", "spmi"):
+                    te_rels = te_history.get(key, [])
+                    ff_rels = ff_history.get(key, [])
+                    seen_dates = set()
+                    combined = []
+                    for r in te_rels:
+                        d = r.get("date")
+                        if d and d not in seen_dates:
+                            combined.append(r)
+                            seen_dates.add(d)
+                    for r in ff_rels:
+                        d = r.get("date")
+                        if d and d not in seen_dates:
+                            combined.append(r)
+                            seen_dates.add(d)
+                    combined.sort(key=lambda x: x.get("date", ""), reverse=True)
+                    per_ccy[ccy][ind_id] = momentum_score(combined, direction=direction)
+                    continue
+
+                # Other indicators: combine TE + FF, prefer TE on duplicate dates
                 te_rels = te_history.get(key, [])
                 ff_rels = ff_history.get(key, [])
                 seen_dates = set()
@@ -100,18 +150,7 @@ def build_currency_scores(
                         seen_dates.add(d)
                 combined.sort(key=lambda x: x.get("date", ""), reverse=True)
 
-                surprise = surprise_score(combined, direction=direction)
-
-                if surprise is not None:
-                    per_ccy[ccy][ind_id] = surprise
-                else:
-                    # Fall back to FRED momentum
-                    obs = macro_data[ccy].get(ind_id, [])
-                    per_ccy[ccy][ind_id] = score_indicator(
-                        obs,
-                        direction=direction,
-                        lookback_periods=ind.get("lookback_periods", 12),
-                    )
+                per_ccy[ccy][ind_id] = surprise_score(combined, direction=direction)
         # COT: USD Index trades on ICE which isn't in the CME TFF file we pull,
         # so USD usually has no COT reading. Default to 0 (neutral) instead of
         # None so pair scores still compute based on the other currency's
@@ -190,7 +229,7 @@ def build_pair_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -199,7 +238,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi)
     rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date)
     return {
         "indicators": indicator_meta,

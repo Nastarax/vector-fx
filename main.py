@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import cot, forexfactory, fred, prices, retail, tradingeconomics
+from src.fetchers import cot, forexfactory, fred, investing, prices, retail, tradingeconomics
 from src.output import build_cot, build_heatmap
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
@@ -71,15 +71,52 @@ def main():
 
     print("[4/5] Fetching ForexFactory + Trading Economics surprise data...")
     if args.date:
-        ff_history = {}
-        te_history = {}
+        # Backtest mode: use accumulated history filtered to releases on/before that date
+        raw_ff = forexfactory.load_history()
+        ff_history = {
+            k: [r for r in v if r.get("date", "") <= args.date]
+            for k, v in raw_ff.items()
+        }
+        ff_history = {k: v for k, v in ff_history.items() if v}
+
+        raw_te = tradingeconomics.load_history()
+        te_history = {
+            k: [r for r in v if r.get("date", "") <= args.date]
+            for k, v in raw_te.items()
+        }
+        te_history = {k: v for k, v in te_history.items() if v}
+
+        print(f"[ff] backtest history: {sum(len(v) for v in ff_history.values())} releases across {len(ff_history)} pairs")
+        print(f"[te] backtest history: {sum(len(v) for v in te_history.values())} releases across {len(te_history)} pairs")
+
+        # Investing.com mPMI doesn't have backfill history; use cached snapshot
+        # only if its date is <= backtest date.
+        cached = investing.load_cached()
+        investing_mpmi = {
+            c: r for c, r in cached.items()
+            if r.get("date") and r["date"] <= args.date
+        }
     else:
         ff_history = forexfactory.fetch_ff()
-        te_history = tradingeconomics.load_history()  # use accumulated cache; sweep manually
+        # Always refresh GDP from TE so we have the latest TEForecast for the
+        # GDP column. Other TE indicators (PPI, PCE) stay cached until next
+        # manual sweep.
+        tradingeconomics.fetch_gdp_only()
+        te_history = tradingeconomics.load_history()
         print(f"[te] using cached history: {sum(len(v) for v in te_history.values())} releases across {len(te_history)} pairs")
 
+        # Investing.com mPMI: read from cache only. The cache is refreshed by
+        # scripts/refresh_investing.py (run once a day on its own cron). PMI is
+        # a monthly indicator so hourly scraping is wasteful and risks getting
+        # IP-flagged by Cloudflare.
+        investing_mpmi = investing.load_cached()
+        if investing_mpmi:
+            print(f"[investing] using cached mPMI: {len(investing_mpmi)} currencies")
+        else:
+            print("[investing] no cache found - run scripts/refresh_investing.py to populate")
+
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi)
     out_path = build_heatmap.render(heatmap)
     cot_path = build_cot.render(cot_data) if cot_data else None
 

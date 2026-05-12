@@ -1,0 +1,50 @@
+name: Daily Investing mPMI Refresh
+
+# Why this is separate from the hourly heatmap workflow:
+#   PMI is a monthly indicator. Scraping Investing.com hourly is wasteful
+#   and risks getting our GitHub Actions IP Cloudflare-flagged. This job
+#   runs once a day, takes a few minutes (patient sleeps + retries), and
+#   commits the refreshed cache JSON back to the repo. The hourly heatmap
+#   then reads from that cache.
+
+on:
+  schedule:
+    # 06:00 UTC daily. Picks up most PMI releases that hit overnight EU/US time.
+    # Most PMIs publish between 01:00-15:00 UTC, so 06:00 catches the early
+    # batch and the prior day's late batch.
+    - cron: "0 6 * * *"
+  workflow_dispatch:  # Manual run from the Actions tab
+
+permissions:
+  contents: write   # Needed to commit the refreshed cache file
+
+jobs:
+  refresh-investing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh Investing.com mPMI cache
+        run: python scripts/refresh_investing.py
+
+      - name: Commit cache update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cache/investing_pmi.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: refresh Investing.com mPMI cache [skip ci]"
+            git push
+          fi
