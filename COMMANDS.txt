@@ -1,0 +1,154 @@
+================================================================================
+EDGEFINDER - COMMAND REFERENCE
+================================================================================
+
+All commands assume you're in the project folder:
+    cd C:\Users\yanae\Desktop\Swing Trading\edgefinder
+
+
+================================================================================
+DAILY USE (most common)
+================================================================================
+
+Run the heatmap locally with fresh data:
+    python main.py
+
+This writes data/output.html. Open it in your browser to see the live heatmap.
+Takes ~75 seconds.
+
+
+View the live online dashboard (auto-refreshed hourly by GitHub Actions):
+    https://nastarax.github.io/edgefinder/
+
+
+================================================================================
+WEEKLY MAINTENANCE - Refresh Investing.com PMI data
+================================================================================
+
+GitHub Actions can't scrape Investing.com (Cloudflare blocks GitHub IPs).
+The PMI cache must be refreshed locally and pushed.
+
+Recommended: do this once a week. PMI is monthly per currency so weekly
+keeps you within 7 days of any new release.
+
+Step 1 - refresh the cache:
+    python scripts/refresh_investing.py
+
+(Takes 3-5 minutes. Patient sleeps + retries.)
+
+Step 2 - commit and push the updated JSON:
+    git add data/cache/investing_pmi.json
+    git commit -m "Refresh Investing mPMI cache"
+    git push
+
+
+================================================================================
+PUSHING CODE CHANGES
+================================================================================
+
+After editing any code files:
+    git add -A
+    git commit -m "Describe what changed in plain English"
+    git push
+
+GitHub Actions will redeploy automatically.
+
+
+================================================================================
+BACKTESTING
+================================================================================
+
+Single date snapshot (builds heatmap as it would have looked that day):
+    python main.py --date 2026-03-15
+
+Outputs data/backtest_2026-03-15.html.
+
+
+Run the full systematic backtester (multi-horizon analysis across history):
+    python scripts/backtest.py
+
+
+================================================================================
+ONE-OFF / DEBUGGING COMMANDS
+================================================================================
+
+Check what data the FRED API returns for a specific series:
+    python scripts/test_fred.py
+
+Backfill ForexFactory history (run if FF cache gets wiped or you want more weeks):
+    python -m src.fetchers.forexfactory --backfill 26
+
+Refresh just the GDP data from Trading Economics:
+    python -c "from src.fetchers import tradingeconomics; tradingeconomics.fetch_gdp_only()"
+
+Check what Investing.com is returning right now (without saving to cache):
+    python -m src.fetchers.investing
+
+
+================================================================================
+ENVIRONMENT SETUP (one-time, only if reinstalling)
+================================================================================
+
+Install Python dependencies:
+    pip install -r requirements.txt
+
+The .env file needs:
+    FRED_API_KEY=your_key_here
+
+Get a free FRED key at: https://fred.stlouisfed.org/docs/api/api_key.html
+
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Investing scraping fails with 403 from your laptop:
+    Your IP may be temporarily flagged. Wait 30 minutes and retry. If it
+    keeps failing, the cache fallback in main.py will still keep your
+    heatmap working (PMI is monthly so cached values are usually correct).
+
+main.py says "no cache found":
+    Run the Investing refresh above to populate data/cache/investing_pmi.json.
+
+GitHub Actions hourly job is failing:
+    Go to https://github.com/Nastarax/edgefinder/actions and check the latest
+    run. The error message will tell you which step broke.
+
+Pulled new code from GitHub and main.py errors:
+    Re-run: pip install -r requirements.txt
+
+
+================================================================================
+GIT BASICS (in case you ever forget)
+================================================================================
+
+See what files changed:
+    git status
+
+See exactly what lines changed:
+    git diff
+
+Pull latest changes from GitHub before editing (do this if working from
+multiple machines):
+    git pull
+
+Undo all uncommitted changes (DESTRUCTIVE - you lose your edits):
+    git reset --hard
+
+See commit history:
+    git log --oneline -20
+
+
+================================================================================
+NOTES TO SELF / FUTURE COMMANDS
+================================================================================
+
+Add new commands here as the project grows. Pattern:
+
+What it does:
+    the exact command
+
+Why or when to run it:
+    notes
+
+
