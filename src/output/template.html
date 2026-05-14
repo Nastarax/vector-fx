@@ -43,6 +43,12 @@
   .total-cn2{background:var(--neg2);color:#fff;border-radius:2px}
   .legend{display:flex;gap:14px;align-items:center;color:var(--muted);font-size:12px;padding:0 22px 18px}
   .legend .sw{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .filter-bar{display:flex;gap:18px;align-items:center;padding:10px 22px;background:var(--panel);border-bottom:1px solid var(--border);font-size:12px}
+  .filter-bar label{cursor:pointer;color:var(--text);display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--row);transition:background .15s,border-color .15s}
+  .filter-bar label:hover{background:var(--rowAlt);border-color:#3a4078}
+  .filter-bar input[type=radio]{accent-color:#3974e6;margin:0}
+  .filter-bar input[type=radio]:checked + span{color:#aac4ff;font-weight:600}
+  .filter-bar .count{color:var(--muted);margin-left:auto;font-size:11px}
   footer{padding:12px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
 </style>
 </head>
@@ -59,8 +65,15 @@
       {% endif %}
     </div>
   </div>
-  <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px">COT Detail →</a>
+  <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px">COT Detail &gt;</a>
 </header>
+<div class="filter-bar">
+  <label><input type="radio" name="bias-filter" value="all" checked onchange="applyBiasFilter()"><span>All pairs</span></label>
+  <label><input type="radio" name="bias-filter" value="directional" onchange="applyBiasFilter()"><span>Bullish / Bearish only</span></label>
+  <label><input type="radio" name="bias-filter" value="bullish" onchange="applyBiasFilter()"><span>Bullish only</span></label>
+  <label><input type="radio" name="bias-filter" value="bearish" onchange="applyBiasFilter()"><span>Bearish only</span></label>
+  <span class="count" id="visible-count"></span>
+</div>
 <div class="wrap">
   <table>
     <thead>
@@ -81,7 +94,7 @@
     </thead>
     <tbody>
       {% for r in rows %}
-      <tr>
+      <tr data-bias="{{ r.bias_class }}">
         <td class="symbol">{{ r.symbol }}</td>
         <td class="bias {{ r.bias_class }}">{{ r.bias }}</td>
         <td class="score {{ r.total_class }}">{{ r.total }}</td>
@@ -103,7 +116,31 @@
   <span style="margin-left:auto">Pair score = base currency score - quote currency score, clamped to -2..+2 per cell.</span>
 </div>
 <footer>
-  Self-hosted EdgeFinder clone · Data: FRED, CFTC, Myfxbook, Yahoo Finance · For personal research only, not financial advice.
+  Self-hosted EdgeFinder clone &middot; Data: FRED, CFTC, Myfxbook, Yahoo Finance &middot; For personal research only, not financial advice.
 </footer>
+<script>
+function applyBiasFilter(){
+  var sel = document.querySelector('input[name="bias-filter"]:checked');
+  var mode = sel ? sel.value : 'all';
+  var rows = document.querySelectorAll('tbody tr');
+  var shown = 0;
+  rows.forEach(function(tr){
+    var bias = tr.getAttribute('data-bias') || '';
+    var show = true;
+    if(mode === 'directional'){
+      show = bias !== 'b-neut';
+    } else if(mode === 'bullish'){
+      show = (bias === 'b-bull' || bias === 'b-vbull');
+    } else if(mode === 'bearish'){
+      show = (bias === 'b-bear' || bias === 'b-vbear');
+    }
+    tr.style.display = show ? '' : 'none';
+    if(show) shown++;
+  });
+  var c = document.getElementById('visible-count');
+  if(c) c.textContent = shown + ' / ' + rows.length + ' pairs shown';
+}
+document.addEventListener('DOMContentLoaded', applyBiasFilter);
+</script>
 </body>
 </html>

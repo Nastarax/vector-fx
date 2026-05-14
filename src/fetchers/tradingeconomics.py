@@ -2,17 +2,8 @@
 Trading Economics scraper.
 
 Pulls Actual / TEForecast / Previous / Consensus from TE's public indicator
-pages (e.g., tradingeconomics.com/japan/manufacturing-pmi). EdgeFinder uses
-TEForecast specifically, which is TE's proprietary forecast and often
-differs from the analyst consensus that ForexFactory shows. Using TEForecast
-brings our surprise scoring into closer alignment with EF.
-
-Strategy:
-- Visit TE homepage to get Cloudflare cookies
-- Hit each (country, indicator) page individually
-- Parse the HTML table for Calendar / Actual / TEForecast / Previous
-- Compute surprise = (Actual - TEForecast) / |TEForecast|
-- Save as te_history.json (same shape as ff_history.json)
+pages. EdgeFinder uses TEForecast specifically, which is TE's proprietary
+forecast and often differs from the analyst consensus that ForexFactory shows.
 """
 from __future__ import annotations
 
@@ -38,7 +29,6 @@ HISTORY_FILE = CACHE_DIR / "te_history.json"
 TE_BASE = "https://tradingeconomics.com"
 
 
-# Country -> URL slug
 TE_COUNTRY_SLUGS = {
     "USD": "united-states",
     "EUR": "euro-area",
@@ -50,7 +40,6 @@ TE_COUNTRY_SLUGS = {
     "NZD": "new-zealand",
 }
 
-# Indicator id -> URL slug.
 TE_INDICATOR_SLUGS = {
     "gdp": "gdp-growth",
     "cpi": "inflation-cpi",
@@ -66,6 +55,13 @@ TE_INDICATOR_SLUGS = {
     "jobless_claims": "initial-jobless-claims",
 }
 
+TE_INDICATOR_SLUG_OVERRIDES = {
+    ("JPY", "retail_sales"): "retail-sales-annual",
+    ("CHF", "retail_sales"): "retail-sales-annual",
+    # UK PPI uses ppi-input-yoy instead of the standard producer-prices-change
+    ("GBP", "ppi"): "ppi-input-yoy",
+}
+
 
 @dataclass
 class TERelease:
@@ -73,7 +69,7 @@ class TERelease:
     indicator_id: str
     date: str
     actual: float | None
-    forecast: float | None  # TEForecast
+    forecast: float | None
     previous: float | None
     consensus: float | None
     surprise: float | None
@@ -83,16 +79,18 @@ class TERelease:
 
 def build_url(country: str, indicator: str) -> str | None:
     cslug = TE_COUNTRY_SLUGS.get(country)
-    islug = TE_INDICATOR_SLUGS.get(indicator)
+    islug = TE_INDICATOR_SLUG_OVERRIDES.get((country, indicator))
+    if islug is None:
+        islug = TE_INDICATOR_SLUGS.get(indicator)
     if not cslug or not islug:
         return None
     return f"{TE_BASE}/{cslug}/{islug}"
 
 
-def _parse_value(text: str) -> float | None:
+def _parse_value(text):
     if not text or not text.strip():
         return None
-    t = text.strip().replace(",", "").replace(" ", " ").strip()
+    t = text.strip().replace(",", "").replace(" ", " ").strip()
     multiplier = 1.0
     if t.endswith("K"):
         multiplier = 1_000
@@ -111,8 +109,7 @@ def _parse_value(text: str) -> float | None:
         return None
 
 
-def _get_session(target_url: str, timeout: int = 25):
-    """Visit TE homepage to get cookies, then fetch target URL."""
+def _get_session(target_url, timeout=25):
     profiles = ["chrome120", "chrome116", "safari17_2"]
     for profile in profiles:
         try:
@@ -127,10 +124,7 @@ def _get_session(target_url: str, timeout: int = 25):
                     return r.text
             else:
                 headers = {
-                    "User-Agent": (
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-                    ),
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                     "Referer": "https://tradingeconomics.com/",
                 }
                 session = cffi_requests.Session()
@@ -147,114 +141,58 @@ def _get_session(target_url: str, timeout: int = 25):
     return None
 
 
-def _parse_te_table(html: str, country: str, indicator: str, debug: bool = False) -> list[TERelease]:
-    """
-    Find the calendar table (one with "Actual" and "TEForecast" headers).
-    Map columns by header text, extract release rows.
-    """
+def _parse_te_table(html, country, indicator, debug=False):
     soup = BeautifulSoup(html, "html.parser")
     target_table = None
-
     for table in soup.find_all("table"):
         headers = [h.get_text(strip=True).lower() for h in table.find_all("th")]
         if "actual" in headers and ("teforecast" in headers or "te-forecast" in headers or "forecast" in headers):
             target_table = table
             break
-
     if not target_table:
         return []
 
     headers = [h.get_text(strip=True).lower() for h in target_table.find_all("th")]
-    def col(name):
-        # Try exact match first, then substring (TE sometimes mashes header
-        # text together, e.g., 'calendargmtreference' for the first column).
-        for i, h in enumerate(headers):
-            if h == name:
-                return i
-        for i, h in enumerate(headers):
-            if name in h:
-                return i
-        return -1
-
-    idx_calendar = col("calendar")
-    idx_actual = col("actual")
-    idx_previous = col("previous")
-    idx_consensus = col("consensus")
-    idx_te = col("teforecast")
-    if idx_te < 0:
-        idx_te = col("forecast")
 
     releases = []
     rows = target_table.find_all("tr")
-    if debug:
-        print(f"[te DEBUG] table has {len(rows)} <tr> rows total")
-        print(f"[te DEBUG] (anchoring value columns from END of row, since header count != cell count)")
-
     for ri, row in enumerate(rows[1:], 1):
         cells = row.find_all("td")
-        if not cells:
-            if debug and ri <= 3:
-                print(f"[te DEBUG] row {ri}: no <td> cells")
+        if not cells or len(cells) < 5:
             continue
-        # TE rows have layout: [date, time, type, reference?, actual, previous, consensus, teforecast]
-        # The last 4 cells are always the value columns regardless of column count.
-        if len(cells) < 5:
-            if debug and ri <= 3:
-                print(f"[te DEBUG] row {ri}: only {len(cells)} cells, need at least 5")
-            continue
-
         date_text = cells[0].get_text(strip=True)
         date_str = _normalize_date(date_text)
-        if debug and ri <= 5:
-            print(f"[te DEBUG] row {ri}: date='{date_text}' -> '{date_str}'  cells={[c.get_text(strip=True) for c in cells]}")
         if not date_str:
             continue
-
-        # Anchor from end
         teforecast_text = cells[-1].get_text(strip=True)
         consensus_text = cells[-2].get_text(strip=True)
         previous_text = cells[-3].get_text(strip=True)
         actual_text = cells[-4].get_text(strip=True)
-
         actual = _parse_value(actual_text)
         forecast = _parse_value(teforecast_text)
         previous = _parse_value(previous_text)
         consensus = _parse_value(consensus_text)
-
         if actual is None:
             continue
-
         surprise = None
         if forecast is not None:
             denom = abs(forecast) if abs(forecast) > 1e-9 else max(abs(actual), 1.0)
             surprise = (actual - forecast) / denom
-
         releases.append(TERelease(
-            country=country,
-            indicator_id=indicator,
-            date=date_str,
-            actual=actual,
-            forecast=forecast,
-            previous=previous,
-            consensus=consensus,
-            surprise=surprise,
-            impact="high",  # TE doesn't tag impact; assume high since it's standard releases
-            source="te",
+            country=country, indicator_id=indicator, date=date_str,
+            actual=actual, forecast=forecast, previous=previous,
+            consensus=consensus, surprise=surprise, impact="high", source="te",
         ))
-
     return releases
 
 
-def _normalize_date(text: str) -> str | None:
-    """Convert TE date strings to YYYY-MM-DD."""
+def _normalize_date(text):
     text = text.strip()
     if not text:
         return None
-    # YYYY-MM-DD
     m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", text)
     if m:
         return m.group(0)
-    # Mmm DD YYYY (e.g., "Feb 15 2026")
     m = re.match(r"^([A-Za-z]+)\s+(\d{1,2})\s+(\d{4})", text)
     if m:
         try:
@@ -265,35 +203,106 @@ def _normalize_date(text: str) -> str | None:
     return None
 
 
-def fetch_indicator(country: str, indicator: str, debug: bool = False) -> list[TERelease]:
+def _parse_te_stats_fallback(html, country, indicator, debug=False):
+    """
+    Fallback parser for pages with no calendar+forecast table.
+    Pulls Actual + Previous from the stats table; date from Related Indicators.
+    Used for CAD Consumer Confidence (no forecast published).
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    stats_table = None
+    for table in soup.find_all("table"):
+        headers = [h.get_text(strip=True).lower() for h in table.find_all("th")]
+        if "actual" in headers and "previous" in headers and "highest" in headers and "lowest" in headers:
+            stats_table = table
+            break
+    if not stats_table:
+        return []
+
+    rows = stats_table.find_all("tr")
+    data_row = None
+    for r in rows[1:]:
+        cells = [c.get_text(strip=True) for c in r.find_all("td")]
+        if cells and len(cells) >= 4:
+            data_row = cells
+            break
+    if not data_row:
+        return []
+
+    headers = [h.get_text(strip=True).lower() for h in stats_table.find_all("th")]
+    def col(name):
+        for i, h in enumerate(headers):
+            if h == name:
+                return i
+        return -1
+    idx_actual = col("actual")
+    idx_previous = col("previous")
+    if idx_actual < 0 or idx_previous < 0:
+        return []
+    if idx_actual >= len(data_row) or idx_previous >= len(data_row):
+        return []
+    actual = _parse_value(data_row[idx_actual])
+    previous = _parse_value(data_row[idx_previous])
+    if actual is None or previous is None:
+        return []
+
+    date_str = None
+    for table in soup.find_all("table"):
+        headers2 = [h.get_text(strip=True).lower() for h in table.find_all("th")]
+        if "related" in headers2 and "reference" in headers2:
+            ref_idx = headers2.index("reference")
+            for row in table.find_all("tr")[1:]:
+                cells = [c.get_text(strip=True) for c in row.find_all("td")]
+                if not cells or ref_idx >= len(cells):
+                    continue
+                first = cells[0].lower()
+                indicator_label = indicator.replace("_", " ")
+                if indicator_label in first or (indicator == "consumer_conf" and "consumer confidence" in first):
+                    m = re.match(r"^([A-Za-z]+)\s+(\d{4})", cells[ref_idx])
+                    if m:
+                        try:
+                            d = datetime.strptime(f"{m.group(1)} 1 {m.group(2)}", "%b %d %Y")
+                            date_str = d.strftime("%Y-%m-%d")
+                        except ValueError:
+                            pass
+                    break
+            if date_str:
+                break
+
+    if date_str is None:
+        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    if debug:
+        print(f"[te DEBUG] stats fallback: actual={actual} previous={previous} date={date_str}")
+
+    return [TERelease(
+        country=country, indicator_id=indicator, date=date_str,
+        actual=actual, forecast=None, previous=previous, consensus=None,
+        surprise=None, impact="high", source="te",
+    )]
+
+
+def fetch_indicator(country, indicator, debug=False):
     url = build_url(country, indicator)
     if not url:
-        if debug:
-            print(f"[te DEBUG] no slug for {country}/{indicator}")
         return []
-    if debug:
-        print(f"[te DEBUG] fetching {url}")
     html = _get_session(url)
     if not html:
-        if debug:
-            print(f"[te DEBUG] all profiles failed (likely 403/Cloudflare)")
         return []
     if debug:
-        print(f"[te DEBUG] got {len(html)} bytes of HTML")
         debug_path = CACHE_DIR / f"te_debug_{country}_{indicator}.html"
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
         debug_path.write_text(html, encoding="utf-8")
         print(f"[te DEBUG] saved html to {debug_path}")
-        soup = BeautifulSoup(html, "html.parser")
-        tables = soup.find_all("table")
-        print(f"[te DEBUG] found {len(tables)} <table> elements")
-        for i, t in enumerate(tables):
-            headers = [h.get_text(strip=True) for h in t.find_all("th")]
-            print(f"[te DEBUG]   table[{i}] headers: {headers[:10]}")
-    return _parse_te_table(html, country, indicator, debug=debug)
+    releases = _parse_te_table(html, country, indicator, debug=debug)
+    if not releases:
+        if debug:
+            print(f"[te DEBUG] calendar table empty, trying stats fallback...")
+        releases = _parse_te_stats_fallback(html, country, indicator, debug=debug)
+    return releases
 
 
-def load_history() -> dict[str, list[dict]]:
+def load_history():
     if not HISTORY_FILE.exists():
         return {}
     try:
@@ -303,13 +312,13 @@ def load_history() -> dict[str, list[dict]]:
         return {}
 
 
-def save_history(history: dict[str, list[dict]]):
+def save_history(history):
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     with open(HISTORY_FILE, "w") as f:
         json.dump(history, f)
 
 
-def update_history(new_releases: list[TERelease]) -> dict:
+def update_history(new_releases):
     history = load_history()
     for r in new_releases:
         if not r.date:
@@ -326,31 +335,21 @@ def update_history(new_releases: list[TERelease]) -> dict:
     return history
 
 
-def fetch_gdp_only() -> dict:
-    """
-    Refresh GDP data for all 8 currencies from TE. Used to keep the GDP cell
-    fresh on every main.py run.
-
-    Sorts releases by date DESC so the latest released GDP (most recent
-    with an Actual value) is always picked as the scoring input.
-
-    Polite 2s delay between requests.
-    """
+def fetch_gdp_only():
     print("[te] refreshing GDP for all 8 currencies...")
     success = 0
     for ccy in TE_COUNTRY_SLUGS:
         try:
             releases = fetch_indicator(ccy, "gdp")
             if releases:
-                # Sort by date DESC so latest is index 0
                 releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
                 update_history(releases_sorted)
                 success += 1
                 latest = releases_sorted[0]
-                actual = latest.actual if latest.actual is not None else "n/a"
-                consensus = latest.consensus if latest.consensus is not None else "n/a"
-                forecast = latest.forecast if latest.forecast is not None else "n/a"
-                print(f"  {ccy}: Actual={actual}  Consensus={consensus}  TEForecast={forecast}  ({latest.date})")
+                a = latest.actual if latest.actual is not None else "n/a"
+                c = latest.consensus if latest.consensus is not None else "n/a"
+                f = latest.forecast if latest.forecast is not None else "n/a"
+                print(f"  {ccy}: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
             else:
                 print(f"  {ccy}: no releases")
         except Exception as e:
@@ -360,17 +359,101 @@ def fetch_gdp_only() -> dict:
     return load_history()
 
 
-def fetch_te_all(only_indicators: list[str] | None = None) -> dict:
+def fetch_retail_sales_only():
+    print("[te] refreshing retail sales for 7 currencies (AUD uses ABS MHSI)...")
+    countries = [c for c in TE_COUNTRY_SLUGS if c != "AUD"]
+    success = 0
+    for ccy in countries:
+        try:
+            releases = fetch_indicator(ccy, "retail_sales")
+            if releases:
+                releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+                update_history(releases_sorted)
+                success += 1
+                latest = releases_sorted[0]
+                a = latest.actual if latest.actual is not None else "n/a"
+                c = latest.consensus if latest.consensus is not None else "n/a"
+                f = latest.forecast if latest.forecast is not None else "n/a"
+                print(f"  {ccy}: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+            else:
+                print(f"  {ccy}: no releases")
+        except Exception as e:
+            print(f"  {ccy}: failed ({e})")
+        time.sleep(2)
+    print(f"[te] retail sales refresh complete: {success}/{len(countries)} ok")
+    return load_history()
+
+
+def fetch_ppi_only():
     """
-    Sweep all (country, indicator) combos. Polite 2s delay between requests.
-    only_indicators lets you scope to e.g. ['mpmi', 'spmi', 'ppi', 'pce']
-    if you only want to fill specific gaps.
+    Refresh PPI YoY data for 7 currencies from TE (NZD uses Investing.com,
+    see src/fetchers/investing_ppi.py).
+
+    Scoring spec: Actual vs Consensus, fall back to TEForecast if Consensus
+    is missing. Always picks the latest release by date.
+
+    GBP uses ppi-input-yoy slug (handled by TE_INDICATOR_SLUG_OVERRIDES).
+    Polite 2s delay between requests.
     """
+    print("[te] refreshing PPI YoY for 7 currencies (NZD via Investing.com)...")
+    countries = [c for c in TE_COUNTRY_SLUGS if c != "NZD"]
+    success = 0
+    for ccy in countries:
+        try:
+            releases = fetch_indicator(ccy, "ppi")
+            if releases:
+                releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+                update_history(releases_sorted)
+                success += 1
+                latest = releases_sorted[0]
+                a = latest.actual if latest.actual is not None else "n/a"
+                c = latest.consensus if latest.consensus is not None else "n/a"
+                f = latest.forecast if latest.forecast is not None else "n/a"
+                print(f"  {ccy}: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+            else:
+                print(f"  {ccy}: no releases")
+        except Exception as e:
+            print(f"  {ccy}: failed ({e})")
+        time.sleep(2)
+    print(f"[te] PPI refresh complete: {success}/{len(countries)} ok")
+    return load_history()
+
+
+def fetch_consumer_conf_only():
+    """
+    Refresh Consumer Confidence for all 8 currencies. Scoring uses TEForecast
+    (Actual vs TEForecast) for 7 ccys; CAD has no TEForecast so the parser
+    falls back to stats table and scoring uses momentum (Actual vs Previous).
+    """
+    print("[te] refreshing consumer confidence for all 8 currencies...")
+    success = 0
+    for ccy in TE_COUNTRY_SLUGS:
+        try:
+            releases = fetch_indicator(ccy, "consumer_conf")
+            if releases:
+                releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+                update_history(releases_sorted)
+                success += 1
+                latest = releases_sorted[0]
+                a = latest.actual if latest.actual is not None else "n/a"
+                f = latest.forecast if latest.forecast is not None else "n/a"
+                c = latest.consensus if latest.consensus is not None else "n/a"
+                p = latest.previous if latest.previous is not None else "n/a"
+                print(f"  {ccy}: Actual={a}  TEForecast={f}  Consensus={c}  Previous={p}  ({latest.date})")
+            else:
+                print(f"  {ccy}: no releases")
+        except Exception as e:
+            print(f"  {ccy}: failed ({e})")
+        time.sleep(2)
+    print(f"[te] consumer conf refresh complete: {success}/{len(TE_COUNTRY_SLUGS)} ok")
+    return load_history()
+
+
+def fetch_te_all(only_indicators=None):
     indicators = only_indicators or list(TE_INDICATOR_SLUGS.keys())
     countries = list(TE_COUNTRY_SLUGS.keys())
     total = len(countries) * len(indicators)
     print(f"[te] Starting TE sweep: {len(countries)} countries x {len(indicators)} indicators = {total} pages")
-
     success = 0
     for ccy in countries:
         for ind in indicators:
@@ -387,7 +470,6 @@ def fetch_te_all(only_indicators: list[str] | None = None) -> dict:
             except Exception as e:
                 print(f"ERR ({e})")
             time.sleep(2)
-
     print(f"\n[te] Sweep complete. {success}/{total} pages had data.")
     history = load_history()
     print(f"[te] History: {sum(len(v) for v in history.values())} releases across {len(history)} pairs")
@@ -397,14 +479,11 @@ def fetch_te_all(only_indicators: list[str] | None = None) -> dict:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gaps-only", action="store_true",
-                        help="Only fetch indicators FF doesn't cover well: mpmi, spmi, ppi, pce")
-    parser.add_argument("--country", type=str, default=None, help="Limit to a single currency code")
-    parser.add_argument("--indicator", type=str, default=None, help="Limit to a single indicator id")
+    parser.add_argument("--gaps-only", action="store_true")
+    parser.add_argument("--country", type=str, default=None)
+    parser.add_argument("--indicator", type=str, default=None)
     args = parser.parse_args()
-
     if args.country and args.indicator:
-        print(f"[te] Single test: {args.country} / {args.indicator}")
         rel = fetch_indicator(args.country, args.indicator, debug=True)
         print(f"\n[te] parsed {len(rel)} releases")
         for r in rel[:5]:
@@ -413,12 +492,3 @@ if __name__ == "__main__":
         fetch_te_all(only_indicators=["mpmi", "spmi", "ppi", "pce"])
     else:
         fetch_te_all()
-
-    history = load_history()
-    summary: dict[str, set[str]] = {}
-    for key in history:
-        ccy, ind = key.split("|")
-        summary.setdefault(ind, set()).add(ccy)
-    print("\nCoverage summary:")
-    for ind, ccys in sorted(summary.items()):
-        print(f"  {ind:18s} {sorted(ccys)}")

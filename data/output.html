@@ -43,6 +43,12 @@
   .total-cn2{background:var(--neg2);color:#fff;border-radius:2px}
   .legend{display:flex;gap:14px;align-items:center;color:var(--muted);font-size:12px;padding:0 22px 18px}
   .legend .sw{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .filter-bar{display:flex;gap:18px;align-items:center;padding:10px 22px;background:var(--panel);border-bottom:1px solid var(--border);font-size:12px}
+  .filter-bar label{cursor:pointer;color:var(--text);display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--row);transition:background .15s,border-color .15s}
+  .filter-bar label:hover{background:var(--rowAlt);border-color:#3a4078}
+  .filter-bar input[type=radio]{accent-color:#3974e6;margin:0}
+  .filter-bar input[type=radio]:checked + span{color:#aac4ff;font-weight:600}
+  .filter-bar .count{color:var(--muted);margin-left:auto;font-size:11px}
   footer{padding:12px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
 </style>
 </head>
@@ -52,12 +58,19 @@
     <h1>Top Setups · FX</h1>
     <div class="meta">
       
-        Updated: 2026-05-12 13:32 UTC · 13 pairs scored
+        Updated: 2026-05-14 21:33 UTC · 28 pairs scored
       
     </div>
   </div>
-  <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px">COT Detail →</a>
+  <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px">COT Detail &gt;</a>
 </header>
+<div class="filter-bar">
+  <label><input type="radio" name="bias-filter" value="all" checked onchange="applyBiasFilter()"><span>All pairs</span></label>
+  <label><input type="radio" name="bias-filter" value="directional" onchange="applyBiasFilter()"><span>Bullish / Bearish only</span></label>
+  <label><input type="radio" name="bias-filter" value="bullish" onchange="applyBiasFilter()"><span>Bullish only</span></label>
+  <label><input type="radio" name="bias-filter" value="bearish" onchange="applyBiasFilter()"><span>Bearish only</span></label>
+  <span class="count" id="visible-count"></span>
+</div>
 <div class="wrap">
   <table>
     <thead>
@@ -116,16 +129,16 @@
     </thead>
     <tbody>
       
-      <tr>
-        <td class="symbol">AUDUSD</td>
+      <tr data-bias="b-bull">
+        <td class="symbol">AUDNZD</td>
         <td class="bias b-bull">Bullish</td>
-        <td class="score total-c1">8</td>
+        <td class="score total-c1">6</td>
         
           
           <td class="cell c2">2</td>
         
           
-          <td class="cell c2">2</td>
+          <td class="cell c0">0</td>
         
           
           <td class="cell c2">2</td>
@@ -137,7 +150,19 @@
           <td class="cell c2">2</td>
         
           
-          <td class="cell c1">1</td>
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
         
           
           <td class="cell c0">0</td>
@@ -152,35 +177,23 @@
           <td class="cell c0">0</td>
         
           
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
+          <td class="cell cn1">-1</td>
         
           
           <td class="cell c0">0</td>
         
       </tr>
       
-      <tr>
+      <tr data-bias="b-bull">
         <td class="symbol">AUDJPY</td>
         <td class="bias b-bull">Bullish</td>
-        <td class="score total-c1">7</td>
+        <td class="score total-c1">5</td>
         
           
-          <td class="cell c1">1</td>
+          <td class="cell c2">2</td>
         
           
-          <td class="cell c1">1</td>
+          <td class="cell c2">2</td>
         
           
           <td class="cell c2">2</td>
@@ -204,10 +217,10 @@
           <td class="cell c0">0</td>
         
           
-          <td class="cell c0">0</td>
+          <td class="cell cn2">-2</td>
         
           
-          <td class="cell c0">0</td>
+          <td class="cell cn2">-2</td>
         
           
           <td class="cell c0">0</td>
@@ -226,10 +239,10 @@
         
       </tr>
       
-      <tr>
-        <td class="symbol">EURUSD</td>
-        <td class="bias b-neut">Neutral</td>
-        <td class="score ">2</td>
+      <tr data-bias="b-bull">
+        <td class="symbol">AUDUSD</td>
+        <td class="bias b-bull">Bullish</td>
+        <td class="score total-c1">4</td>
         
           
           <td class="cell c1">1</td>
@@ -238,16 +251,28 @@
           <td class="cell c2">2</td>
         
           
-          <td class="cell c0">0</td>
+          <td class="cell c2">2</td>
         
           
-          <td class="cell c0">0</td>
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c1">1</td>
         
           
           <td class="cell c0">0</td>
         
           
           <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
         
           
           <td class="cell cn2">-2</td>
@@ -267,85 +292,30 @@
           
           <td class="cell c0">0</td>
         
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
       </tr>
       
-      <tr>
-        <td class="symbol">EURJPY</td>
-        <td class="bias b-neut">Neutral</td>
-        <td class="score ">2</td>
-        
-          
-          <td class="cell c0">0</td>
+      <tr data-bias="b-bull">
+        <td class="symbol">EURGBP</td>
+        <td class="bias b-bull">Bullish</td>
+        <td class="score total-c1">4</td>
         
           
           <td class="cell c1">1</td>
         
           
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell cn1">-1</td>
-        
-          
-          <td class="cell cn1">-1</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
           <td class="cell c1">1</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
         
           
           <td class="cell c2">2</td>
         
           
-          <td class="cell c0">0</td>
-        
-      </tr>
-      
-      <tr>
-        <td class="symbol">GBPJPY</td>
-        <td class="bias b-neut">Neutral</td>
-        <td class="score ">2</td>
-        
-          
           <td class="cell cn1">-1</td>
         
           
-          <td class="cell c1">1</td>
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
         
           
           <td class="cell cn2">-2</td>
@@ -363,43 +333,6 @@
           <td class="cell c2">2</td>
         
           
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c2">2</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-      </tr>
-      
-      <tr>
-        <td class="symbol">CADJPY</td>
-        <td class="bias b-neut">Neutral</td>
-        <td class="score ">2</td>
-        
-          
-          <td class="cell cn1">-1</td>
-        
-          
           <td class="cell c1">1</td>
         
           
@@ -414,23 +347,48 @@
           
           <td class="cell c0">0</td>
         
-          
-          <td class="cell c2">2</td>
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">EURNZD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">3</td>
         
           
           <td class="cell cn2">-2</td>
         
           
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
+          <td class="cell cn1">-1</td>
         
           
           <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
         
           
           <td class="cell c0">0</td>
@@ -446,8 +404,228 @@
         
       </tr>
       
-      <tr>
-        <td class="symbol">USDJPY</td>
+      <tr data-bias="b-neut">
+        <td class="symbol">AUDCHF</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">3</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">CHFJPY</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">GBPNZD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">AUDCAD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">2</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">USDCAD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">1</td>
         
@@ -455,19 +633,28 @@
           <td class="cell c0">0</td>
         
           
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
           <td class="cell c1">1</td>
         
           
           <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell cn1">-1</td>
-        
-          
-          <td class="cell cn1">-1</td>
         
           
           <td class="cell c2">2</td>
@@ -490,19 +677,65 @@
           
           <td class="cell c0">0</td>
         
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">EURJPY</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">1</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
           
           <td class="cell c0">0</td>
         
           
           <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
         
           
           <td class="cell c0">0</td>
         
       </tr>
       
-      <tr>
-        <td class="symbol">GBPUSD</td>
+      <tr data-bias="b-neut">
+        <td class="symbol">EURUSD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">0</td>
         
@@ -513,22 +746,77 @@
           <td class="cell c1">1</td>
         
           
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
           <td class="cell cn2">-2</td>
         
           
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c1">1</td>
-        
-          
           <td class="cell c1">1</td>
         
           
           <td class="cell c0">0</td>
         
           
+          <td class="cell cn1">-1</td>
+        
+          
           <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">USDJPY</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn1">-1</td>
         
           
           <td class="cell c0">0</td>
@@ -556,7 +844,62 @@
         
       </tr>
       
-      <tr>
+      <tr data-bias="b-neut">
+        <td class="symbol">CADJPY</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
         <td class="symbol">USDCHF</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">-1</td>
@@ -565,7 +908,7 @@
           <td class="cell c0">0</td>
         
           
-          <td class="cell cn2">-2</td>
+          <td class="cell cn1">-1</td>
         
           
           <td class="cell c0">0</td>
@@ -583,10 +926,10 @@
           <td class="cell c2">2</td>
         
           
-          <td class="cell c0">0</td>
+          <td class="cell c1">1</td>
         
           
-          <td class="cell c0">0</td>
+          <td class="cell cn2">-2</td>
         
           
           <td class="cell c0">0</td>
@@ -611,13 +954,19 @@
         
       </tr>
       
-      <tr>
-        <td class="symbol">CHFJPY</td>
+      <tr data-bias="b-neut">
+        <td class="symbol">GBPJPY</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">-1</td>
         
           
+          <td class="cell cn1">-1</td>
+        
+          
           <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
         
           
           <td class="cell c1">1</td>
@@ -626,166 +975,50 @@
           <td class="cell c0">0</td>
         
           
-          <td class="cell cn1">-1</td>
-        
-          
           <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell cn2">-2</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c1">1</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-      </tr>
-      
-      <tr>
-        <td class="symbol">USDCAD</td>
-        <td class="bias b-neut">Neutral</td>
-        <td class="score ">-2</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell cn1">-1</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell cn1">-1</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-      </tr>
-      
-      <tr>
-        <td class="symbol">NZDUSD</td>
-        <td class="bias b-neut">Neutral</td>
-        <td class="score ">-2</td>
         
           
           <td class="cell c2">2</td>
         
           
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
           <td class="cell c2">2</td>
-        
-          
-          <td class="cell cn2">-2</td>
-        
-          
-          <td class="cell cn1">-1</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell cn1">-1</td>
-        
-          
-          <td class="cell cn2">-2</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
-        
-          
-          <td class="cell c0">0</td>
         
           
           <td class="cell c0">0</td>
         
       </tr>
       
-      <tr>
+      <tr data-bias="b-neut">
         <td class="symbol">NZDJPY</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">-2</td>
         
           
-          <td class="cell c1">1</td>
+          <td class="cell c2">2</td>
         
           
-          <td class="cell c1">1</td>
+          <td class="cell c2">2</td>
         
           
           <td class="cell cn2">-2</td>
@@ -812,7 +1045,7 @@
           <td class="cell c0">0</td>
         
           
-          <td class="cell c0">0</td>
+          <td class="cell cn2">-2</td>
         
           
           <td class="cell c0">0</td>
@@ -825,6 +1058,611 @@
         
           
           <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">EURAUD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">EURCAD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">EURCHF</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">GBPUSD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">-3</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-neut">
+        <td class="symbol">NZDUSD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">-3</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-bear">
+        <td class="symbol">GBPAUD</td>
+        <td class="bias b-bear">Bearish</td>
+        <td class="score total-cn1">-4</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-bear">
+        <td class="symbol">GBPCAD</td>
+        <td class="bias b-bear">Bearish</td>
+        <td class="score total-cn1">-4</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-bear">
+        <td class="symbol">GBPCHF</td>
+        <td class="bias b-bear">Bearish</td>
+        <td class="score total-cn1">-4</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-bear">
+        <td class="symbol">NZDCAD</td>
+        <td class="bias b-bear">Bearish</td>
+        <td class="score total-cn1">-4</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-bear">
+        <td class="symbol">CADCHF</td>
+        <td class="bias b-bear">Bearish</td>
+        <td class="score total-cn1">-4</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+      </tr>
+      
+      <tr data-bias="b-bear">
+        <td class="symbol">NZDCHF</td>
+        <td class="bias b-bear">Bearish</td>
+        <td class="score total-cn1">-5</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c1">1</td>
+        
+          
+          <td class="cell cn1">-1</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c2">2</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell cn2">-2</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c0">0</td>
+        
+          
+          <td class="cell c1">1</td>
         
           
           <td class="cell c0">0</td>
@@ -843,7 +1681,31 @@
   <span style="margin-left:auto">Pair score = base currency score - quote currency score, clamped to -2..+2 per cell.</span>
 </div>
 <footer>
-  Self-hosted EdgeFinder clone · Data: FRED, CFTC, Myfxbook, Yahoo Finance · For personal research only, not financial advice.
+  Self-hosted EdgeFinder clone &middot; Data: FRED, CFTC, Myfxbook, Yahoo Finance &middot; For personal research only, not financial advice.
 </footer>
+<script>
+function applyBiasFilter(){
+  var sel = document.querySelector('input[name="bias-filter"]:checked');
+  var mode = sel ? sel.value : 'all';
+  var rows = document.querySelectorAll('tbody tr');
+  var shown = 0;
+  rows.forEach(function(tr){
+    var bias = tr.getAttribute('data-bias') || '';
+    var show = true;
+    if(mode === 'directional'){
+      show = bias !== 'b-neut';
+    } else if(mode === 'bullish'){
+      show = (bias === 'b-bull' || bias === 'b-vbull');
+    } else if(mode === 'bearish'){
+      show = (bias === 'b-bear' || bias === 'b-vbear');
+    }
+    tr.style.display = show ? '' : 'none';
+    if(show) shown++;
+  });
+  var c = document.getElementById('visible-count');
+  if(c) c.textContent = shown + ' / ' + rows.length + ' pairs shown';
+}
+document.addEventListener('DOMContentLoaded', applyBiasFilter);
+</script>
 </body>
 </html>

@@ -21,3 +21,11 @@ data/cache/*.pkl
 !data/cache/investing_pmi.json
 # Services PMI cache (6 Investing pages + 2 TE pages). Same local-refresh model.
 !data/cache/spmi.json
+# CPI YoY cache (Investing.com, all 8 currencies). Local refresh, GH Actions reads.
+!data/cache/investing_cpi.json
+# PPI YoY cache (Investing.com, NZD only; other 7 use TE history). Local refresh.
+!data/cache/investing_ppi.json
+# AUD Monthly Household Spending Indicator cache (replaces TE retail sales
+# for AUD only). ABS isn't bot-blocked so this gets refreshed every main.py
+# run, but cache it for backtest mode.
+!data/cache/abs_au_household.json

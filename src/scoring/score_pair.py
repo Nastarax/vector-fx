@@ -61,6 +61,9 @@ def build_currency_scores(
     te_history: dict | None = None,
     investing_mpmi: dict | None = None,
     investing_spmi: dict | None = None,
+    abs_au_mhsi: dict | None = None,
+    investing_cpi: dict | None = None,
+    investing_ppi: dict | None = None,
 ) -> dict:
     """
     Returns: per_ccy[currency][indicator_id] = int score (-2..+2) OR None
@@ -81,6 +84,8 @@ def build_currency_scores(
     te_history = te_history or {}
     investing_mpmi = investing_mpmi or {}
     investing_spmi = investing_spmi or {}
+    investing_cpi = investing_cpi or {}
+    investing_ppi = investing_ppi or {}
     per_ccy: dict[str, dict[str, int | None]] = {}
 
     for ccy in macro_data:
@@ -106,6 +111,159 @@ def build_currency_scores(
                         modified["forecast"] = consensus_value
                         consensus_rels.append(modified)
                     per_ccy[ccy][ind_id] = surprise_score(consensus_rels, direction=direction)
+                    continue
+
+                # Retail sales:
+                # - AUD: ABS Monthly Household Spending Indicator. Australia
+                #   deprecated retail sales; MHSI is the official replacement.
+                #   Scoring: current MoM% > previous MoM% -> +1 (acceleration).
+                # - Other 7 currencies: TE retail sales. Actual vs Consensus,
+                #   fall back to TEForecast if Consensus is missing.
+                # Only the latest release is scored.
+                if ind_id == "retail_sales" and ccy == "AUD":
+                    mhsi = abs_au_mhsi or {}
+                    cur = mhsi.get("current_mom")
+                    prev = mhsi.get("previous_mom")
+                    if cur is None or prev is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if cur > prev:
+                        s = 1
+                    elif cur < prev:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+                if ind_id == "retail_sales":
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")  # TEForecast fallback
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
+                # Consumer Confidence: Actual vs PREVIOUS on the latest
+                # release (momentum scoring). The TEForecast comparison
+                # produced counter-intuitive results when TE set a low bar
+                # (e.g., JPY: TEForecast 31.0 vs Previous 33.3, Actual 32.2
+                # technically "beat" the forecast but confidence still
+                # declined month-over-month). Momentum reflects the actual
+                # trend direction, which is what matters for swing trading.
+                # Same methodology EdgeFinder uses for PMI.
+                if ind_id == "consumer_conf":
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    previous = latest.get("previous")
+                    if actual is None or previous is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > previous:
+                        s = 1
+                    elif actual < previous:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
+                # PPI YoY:
+                # - NZD: Investing.com PPI Output (latest release). Actual
+                #   vs Forecast; fall back to Previous if Forecast missing.
+                # - Other 7 (USD/EUR/GBP/JPY/CHF/AUD/CAD): TE producer-prices
+                #   page. Actual vs Consensus, fall back to TEForecast if
+                #   Consensus missing. GBP uses ppi-input-yoy slug (handled
+                #   via TE_INDICATOR_SLUG_OVERRIDES).
+                if ind_id == "ppi" and ccy == "NZD" and investing_ppi.get("NZD"):
+                    rel = investing_ppi["NZD"]
+                    actual = rel.get("actual")
+                    benchmark = rel.get("forecast")
+                    if benchmark is None:
+                        benchmark = rel.get("previous")
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+                if ind_id == "ppi":
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")  # TEForecast fallback
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
+                # CPI YoY: Investing.com per-currency Latest Release. Actual
+                # vs Forecast where the forecast is published. Falls back to
+                # Actual vs Previous for JPY (Investing's Japan CPI YoY page
+                # never lists a forecast) and for CHF when the next Swiss
+                # release's forecast hasn't been published yet.
+                if ind_id == "cpi" and investing_cpi.get(ccy):
+                    rel = investing_cpi[ccy]
+                    actual = rel.get("actual")
+                    forecast = rel.get("forecast")
+                    previous = rel.get("previous")
+                    benchmark = forecast if forecast is not None else previous
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
                     continue
 
                 # PMI (mpmi, spmi): EF uses CHANGE from previous to latest, not surprise.
@@ -235,7 +393,7 @@ def build_pair_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -244,7 +402,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi)
     rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date)
     return {
         "indicators": indicator_meta,

@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.fetchers import investing, services_pmi
+from src.fetchers import investing, investing_cpi, investing_ppi, services_pmi
 
 
 def _retry_failed(module, all_urls: dict, failed: list, sleep_between: float, cooldown: int = 60):
@@ -109,13 +109,83 @@ def refresh_spmi():
         print("\nsPMI: all previously-failed currencies recovered on pass 2.")
 
 
+def refresh_cpi():
+    print("\n============================================")
+    print("REFRESHING CPI YoY")
+    print("============================================")
+    print(f"Targeting {len(investing_cpi.CPI_URLS)} currencies\n")
+
+    print("--- Pass 1: full fetch ---")
+    first = investing_cpi.fetch_cpi(sleep_between=12.0)
+
+    failed = [c for c in investing_cpi.CPI_URLS if c not in first]
+    if not failed:
+        print("\nCPI: all currencies fetched fresh on first pass.")
+        return
+
+    print(f"\n--- Pass 2: retry {failed} after 60s cooldown ---")
+    time.sleep(60)
+    orig = investing_cpi.CPI_URLS.copy()
+    try:
+        for k in list(investing_cpi.CPI_URLS.keys()):
+            if k not in failed:
+                del investing_cpi.CPI_URLS[k]
+        second = investing_cpi.fetch_cpi(sleep_between=18.0)
+    finally:
+        investing_cpi.CPI_URLS.clear()
+        investing_cpi.CPI_URLS.update(orig)
+
+    still_failed = [c for c in failed if c not in second]
+    if still_failed:
+        print(f"\nCPI: still failing after 2 passes: {still_failed}")
+        print("Cache retains last successful values for these currencies.")
+    else:
+        print("\nCPI: all previously-failed currencies recovered on pass 2.")
+
+
+def refresh_ppi():
+    print("\n============================================")
+    print("REFRESHING PPI YoY (NZD only via Investing)")
+    print("============================================")
+    print(f"Targeting {len(investing_ppi.PPI_URLS)} currencies\n")
+
+    print("--- Pass 1: full fetch ---")
+    first = investing_ppi.fetch_ppi(sleep_between=12.0)
+
+    failed = [c for c in investing_ppi.PPI_URLS if c not in first]
+    if not failed:
+        print("\nPPI (NZD): fetched fresh on first pass.")
+        return
+
+    print(f"\n--- Pass 2: retry {failed} after 60s cooldown ---")
+    time.sleep(60)
+    orig = investing_ppi.PPI_URLS.copy()
+    try:
+        for k in list(investing_ppi.PPI_URLS.keys()):
+            if k not in failed:
+                del investing_ppi.PPI_URLS[k]
+        second = investing_ppi.fetch_ppi(sleep_between=18.0)
+    finally:
+        investing_ppi.PPI_URLS.clear()
+        investing_ppi.PPI_URLS.update(orig)
+
+    still_failed = [c for c in failed if c not in second]
+    if still_failed:
+        print(f"\nPPI (NZD): still failing after 2 passes: {still_failed}")
+        print("Cache retains last successful values.")
+    else:
+        print("\nPPI (NZD): recovered on pass 2.")
+
+
 def main():
-    print("=== PMI cache refresh (mPMI + sPMI) ===")
+    print("=== Investing.com cache refresh (mPMI + sPMI + CPI + PPI) ===")
     refresh_mpmi()
     refresh_spmi()
+    refresh_cpi()
+    refresh_ppi()
     print("\nDone. Now commit + push:")
-    print("  git add data/cache/investing_pmi.json data/cache/spmi.json")
-    print("  git commit -m 'Refresh PMI cache'")
+    print("  git add data/cache/investing_pmi.json data/cache/spmi.json data/cache/investing_cpi.json data/cache/investing_ppi.json")
+    print("  git commit -m 'Refresh Investing cache'")
     print("  git push")
 
 

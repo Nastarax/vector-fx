@@ -1,6 +1,13 @@
 """
 yfinance fetcher for FX OHLC.
 Pulls daily candles for the last ~25 years to support trend + seasonality scoring.
+
+Resilience strategy:
+- Try fresh cache (<1h old) first
+- Otherwise hit yfinance with 3 retries + exponential backoff (yfinance flakes
+  intermittently, especially on EURUSD=X which Yahoo rate-limits aggressively)
+- If all yfinance attempts fail, fall back to STALE cache rather than returning
+  an empty DataFrame. A day-old trend score is still useful; no score is not.
 """
 from __future__ import annotations
 
@@ -27,6 +34,31 @@ def _is_fresh(path: Path, max_age_hours: int = 1) -> bool:
     return (time.time() - path.stat().st_mtime) < max_age_hours * 3600
 
 
+def _yf_history_with_retries(ticker: str, period: str, interval: str, max_attempts: int = 3) -> pd.DataFrame | None:
+    """
+    Wrap yf.Ticker(...).history() with retries. yfinance returns None or raises
+    a TypeError on rate-limited responses; we retry with exponential backoff.
+    Returns the DataFrame on success, None if all attempts fail.
+    """
+    for attempt in range(max_attempts):
+        try:
+            df = yf.Ticker(ticker).history(period=period, interval=interval, auto_adjust=False)
+            # yfinance can return None or a non-DataFrame on internal errors
+            if df is None or not isinstance(df, pd.DataFrame):
+                raise RuntimeError("yfinance returned None or non-DataFrame")
+            if df.empty:
+                raise RuntimeError("empty dataframe from yfinance")
+            return df
+        except Exception as e:
+            if attempt < max_attempts - 1:
+                # Exponential backoff: 2s, 4s, 8s
+                wait = 2 ** (attempt + 1)
+                time.sleep(wait)
+            else:
+                print(f"[prices] {ticker} all {max_attempts} attempts failed: {e}")
+    return None
+
+
 def fetch_prices(as_of_date: str | None = None) -> dict[str, pd.DataFrame]:
     """
     Returns dict[symbol] -> DataFrame indexed by date with columns Open/High/Low/Close.
@@ -41,18 +73,25 @@ def fetch_prices(as_of_date: str | None = None) -> dict[str, pd.DataFrame]:
         sym = p["symbol"]
         ticker = p["yf_ticker"]
         cache = _cache_path(sym)
+
+        df: pd.DataFrame | None = None
         if _is_fresh(cache):
             df = pd.read_pickle(cache)
         else:
-            try:
-                df = yf.Ticker(ticker).history(period="25y", interval="1d", auto_adjust=False)
-                if df.empty:
-                    raise RuntimeError("empty dataframe from yfinance")
+            df = _yf_history_with_retries(ticker, period="25y", interval="1d")
+            if df is not None:
                 df = df[["Open", "High", "Low", "Close"]].copy()
                 df.to_pickle(cache)
-            except Exception as e:
-                print(f"[prices] {sym} ({ticker}) failed: {e}")
+            elif cache.exists():
+                # yfinance failed; use stale cache rather than zero data
+                stale_age_hours = (time.time() - cache.stat().st_mtime) / 3600
+                print(f"[prices] {sym} using stale cache ({stale_age_hours:.1f}h old)")
+                df = pd.read_pickle(cache)
+            else:
                 df = pd.DataFrame()
+
+        if df is None:
+            df = pd.DataFrame()
         if as_of_date and not df.empty:
             df = df.loc[df.index <= pd.Timestamp(as_of_date, tz=df.index.tz)]
         out[sym] = df
@@ -74,14 +113,13 @@ def fetch_prices_4h(as_of_date: str | None = None) -> dict[str, pd.DataFrame]:
         sym = p["symbol"]
         ticker = p["yf_ticker"]
         cache = _cache_path(sym, suffix="_4h")
+
+        df: pd.DataFrame | None = None
         if _is_fresh(cache):
             df = pd.read_pickle(cache)
         else:
-            try:
-                # Pull 90 days of hourly bars; enough for SMA200 on 4H
-                df_h = yf.Ticker(ticker).history(period="90d", interval="60m", auto_adjust=False)
-                if df_h.empty:
-                    raise RuntimeError("empty hourly dataframe")
+            df_h = _yf_history_with_retries(ticker, period="90d", interval="60m")
+            if df_h is not None:
                 df = df_h[["Open", "High", "Low", "Close"]].resample("4h").agg({
                     "Open": "first",
                     "High": "max",
@@ -89,9 +127,15 @@ def fetch_prices_4h(as_of_date: str | None = None) -> dict[str, pd.DataFrame]:
                     "Close": "last",
                 }).dropna()
                 df.to_pickle(cache)
-            except Exception as e:
-                print(f"[prices_4h] {sym} ({ticker}) failed: {e}")
+            elif cache.exists():
+                stale_age_hours = (time.time() - cache.stat().st_mtime) / 3600
+                print(f"[prices_4h] {sym} using stale cache ({stale_age_hours:.1f}h old)")
+                df = pd.read_pickle(cache)
+            else:
                 df = pd.DataFrame()
+
+        if df is None:
+            df = pd.DataFrame()
         if as_of_date and not df.empty:
             df = df.loc[df.index <= pd.Timestamp(as_of_date, tz=df.index.tz)]
         out[sym] = df

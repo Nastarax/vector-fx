@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import cot, forexfactory, fred, investing, prices, retail, services_pmi, tradingeconomics
+from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_cpi, investing_ppi, prices, retail, services_pmi, tradingeconomics
 from src.output import build_cot, build_heatmap
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
@@ -102,12 +102,32 @@ def main():
             c: r for c, r in cached_s.items()
             if r.get("date") and r["date"] <= args.date
         }
+        # CPI cache: filter by backtest date
+        cached_cpi = investing_cpi.load_cached()
+        investing_cpi_data = {
+            c: r for c, r in cached_cpi.items()
+            if r.get("date") and r["date"] <= args.date
+        }
+        # PPI (NZD) cache: same filter
+        cached_ppi = investing_ppi.load_cached()
+        investing_ppi_data = {
+            c: r for c, r in cached_ppi.items()
+            if r.get("date") and r["date"] <= args.date
+        }
+
+        # ABS MHSI cache (AUD retail sales). Only one snapshot is cached, so we
+        # can either use it or skip; the date check keeps backtests honest.
+        cached_abs = abs_au.load_cached() or {}
+        abs_au_mhsi = cached_abs if cached_abs.get("current_month") and cached_abs["current_month"] <= args.date else None
     else:
         ff_history = forexfactory.fetch_ff()
-        # Always refresh GDP from TE so we have the latest TEForecast for the
-        # GDP column. Other TE indicators (PPI, PCE) stay cached until next
-        # manual sweep.
+        # Always refresh GDP and retail sales from TE so we have the latest
+        # Consensus values for both columns. Other TE indicators (PPI, PCE)
+        # stay cached until next manual sweep.
         tradingeconomics.fetch_gdp_only()
+        tradingeconomics.fetch_retail_sales_only()
+        tradingeconomics.fetch_consumer_conf_only()
+        tradingeconomics.fetch_ppi_only()
         te_history = tradingeconomics.load_history()
         print(f"[te] using cached history: {sum(len(v) for v in te_history.values())} releases across {len(te_history)} pairs")
 
@@ -127,8 +147,26 @@ def main():
         else:
             print("[spmi] no sPMI cache - run scripts/refresh_investing.py to populate")
 
+        # CPI YoY cache: same pattern. Refreshed by scripts/refresh_investing.py.
+        investing_cpi_data = investing_cpi.load_cached()
+        if investing_cpi_data:
+            print(f"[cpi] using cached CPI: {len(investing_cpi_data)} currencies")
+        else:
+            print("[cpi] no CPI cache - run scripts/refresh_investing.py to populate")
+
+        # PPI YoY cache (NZD only via Investing). Other 7 use TE history.
+        investing_ppi_data = investing_ppi.load_cached()
+        if investing_ppi_data:
+            print(f"[ppi] using cached NZD PPI: {len(investing_ppi_data)} currencies")
+        else:
+            print("[ppi] no NZD PPI cache - run scripts/refresh_investing.py to populate")
+
+        # ABS Monthly Household Spending Indicator (replaces TE retail sales
+        # for AUD only). Not Cloudflare-blocked so we can scrape on every run.
+        abs_au_mhsi = abs_au.fetch_mhsi()
+
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data)
     out_path = build_heatmap.render(heatmap)
     cot_path = build_cot.render(cot_data) if cot_data else None
 

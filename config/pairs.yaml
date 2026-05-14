@@ -1,7 +1,7 @@
-# 13 FX pairs covered. Each pair scores as Currency1 - Currency2.
-# All 8 currencies USD, EUR, GBP, JPY, CHF, AUD, CAD, NZD are touched.
+# All 28 FX pairs across the 8 covered currencies.
+# Each pair scores as base currency - quote currency.
 pairs:
-  # Majors
+  # USD majors (7)
   - symbol: EURUSD
     base: EUR
     quote: USD
@@ -30,7 +30,8 @@ pairs:
     base: NZD
     quote: USD
     yf_ticker: "NZDUSD=X"
-  # JPY crosses
+
+  # JPY crosses (6)
   - symbol: EURJPY
     base: EUR
     quote: JPY
@@ -55,6 +56,76 @@ pairs:
     base: CHF
     quote: JPY
     yf_ticker: "CHFJPY=X"
+
+  # EUR crosses (5)
+  - symbol: EURGBP
+    base: EUR
+    quote: GBP
+    yf_ticker: "EURGBP=X"
+  - symbol: EURAUD
+    base: EUR
+    quote: AUD
+    yf_ticker: "EURAUD=X"
+  - symbol: EURNZD
+    base: EUR
+    quote: NZD
+    yf_ticker: "EURNZD=X"
+  - symbol: EURCAD
+    base: EUR
+    quote: CAD
+    yf_ticker: "EURCAD=X"
+  - symbol: EURCHF
+    base: EUR
+    quote: CHF
+    yf_ticker: "EURCHF=X"
+
+  # GBP crosses (4)
+  - symbol: GBPAUD
+    base: GBP
+    quote: AUD
+    yf_ticker: "GBPAUD=X"
+  - symbol: GBPNZD
+    base: GBP
+    quote: NZD
+    yf_ticker: "GBPNZD=X"
+  - symbol: GBPCAD
+    base: GBP
+    quote: CAD
+    yf_ticker: "GBPCAD=X"
+  - symbol: GBPCHF
+    base: GBP
+    quote: CHF
+    yf_ticker: "GBPCHF=X"
+
+  # AUD crosses (3)
+  - symbol: AUDNZD
+    base: AUD
+    quote: NZD
+    yf_ticker: "AUDNZD=X"
+  - symbol: AUDCAD
+    base: AUD
+    quote: CAD
+    yf_ticker: "AUDCAD=X"
+  - symbol: AUDCHF
+    base: AUD
+    quote: CHF
+    yf_ticker: "AUDCHF=X"
+
+  # NZD crosses (2)
+  - symbol: NZDCAD
+    base: NZD
+    quote: CAD
+    yf_ticker: "NZDCAD=X"
+  - symbol: NZDCHF
+    base: NZD
+    quote: CHF
+    yf_ticker: "NZDCHF=X"
+
+  # CAD cross (1)
+  - symbol: CADCHF
+    base: CAD
+    quote: CHF
+    yf_ticker: "CADCHF=X"
 
 # Currencies covered
 currencies: [USD, EUR, GBP, JPY, CHF, AUD, CAD, NZD]
