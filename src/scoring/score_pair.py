@@ -534,16 +534,13 @@ def build_currency_scores(
                 combined.sort(key=lambda x: x.get("date", ""), reverse=True)
 
                 per_ccy[ccy][ind_id] = surprise_score(combined, direction=direction)
-        # COT: USD Index trades on ICE which isn't in the CME TFF file we pull,
-        # so USD usually has no COT reading. Default to 0 (neutral) instead of
-        # None so pair scores still compute based on the other currency's
-        # positioning. EdgeFinder appears to do the same (AUDUSD COT = AUD's
-        # score because USD's reading is treated as neutral).
+        # COT: all 8 currencies including USD ("USD INDEX - ICE FUTURES U.S."
+        # in the CFTC Legacy report). If a reading is missing for any reason
+        # (API hiccup, market name changed again), fall through to None and
+        # the pair-diff logic in build_pair_rows treats either-side-None as 0.
         cot_reading = cot_data.get(ccy)
         if cot_reading:
             per_ccy[ccy]["cot"] = cot_score(cot_reading)
-        elif ccy == "USD":
-            per_ccy[ccy]["cot"] = 0  # explicit neutral, not unknown
         else:
             per_ccy[ccy]["cot"] = None
     return per_ccy

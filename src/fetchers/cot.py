@@ -27,7 +27,7 @@ CACHE_DIR = Path(__file__).resolve().parents[2] / "data" / "cache"
 # Map currencies to their CFTC market_and_exchange_names value (Legacy uses
 # the same labels as TFF for currency futures).
 CFTC_NAMES = {
-    "USD": "U.S. DOLLAR INDEX - ICE FUTURES U.S.",
+    "USD": "USD INDEX - ICE FUTURES U.S.",
     "EUR": "EURO FX - CHICAGO MERCANTILE EXCHANGE",
     "GBP": "BRITISH POUND - CHICAGO MERCANTILE EXCHANGE",
     "JPY": "JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE",
