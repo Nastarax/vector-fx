@@ -63,7 +63,7 @@ categories:
       direction: up_is_bullish
       lookback_periods: 12
     - id: pce
-      label: Core PCE / Core CPI
+      label: PCE YoY
       direction: up_is_bullish
       lookback_periods: 12
     - id: rates
@@ -72,8 +72,12 @@ categories:
       lookback_periods: 6
 
   Jobs:
-    - id: employment
-      label: Employment Change
+    - id: nfp
+      label: NFP
+      direction: up_is_bullish
+      lookback_periods: 12
+    - id: adp
+      label: ADP
       direction: up_is_bullish
       lookback_periods: 12
     - id: unemployment_rate
@@ -81,8 +85,12 @@ categories:
       direction: down_is_bullish
       lookback_periods: 12
     - id: jobless_claims
-      label: Jobless Claims
+      label: Unemployment Claims
       direction: down_is_bullish
+      lookback_periods: 12
+    - id: jolts
+      label: JOLTS
+      direction: up_is_bullish
       lookback_periods: 12
 
 # Bias label thresholds based on total pair score

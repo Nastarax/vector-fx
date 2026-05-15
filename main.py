@@ -114,6 +114,10 @@ def main():
             c: r for c, r in cached_ppi.items()
             if r.get("date") and r["date"] <= args.date
         }
+        # Rates outlook in backtest mode: use whatever's cached. The
+        # snapshot is point-in-time; for honest backtests the user should
+        # have refreshed near the date in question.
+        rates_outlook = tradingeconomics.load_rates_outlook()
 
         # ABS MHSI cache (AUD retail sales). Only one snapshot is cached, so we
         # can either use it or skip; the date check keeps backtests honest.
@@ -121,6 +125,9 @@ def main():
         abs_au_mhsi = cached_abs if cached_abs.get("current_month") and cached_abs["current_month"] <= args.date else None
     else:
         ff_history = forexfactory.fetch_ff()
+        # Upcoming rate decisions from TE (free TEForecast on per-country
+        # interest-rate pages). Refreshed every run.
+        rates_outlook = tradingeconomics.fetch_rates_outlook()
         # Always refresh GDP and retail sales from TE so we have the latest
         # Consensus values for both columns. Other TE indicators (PPI, PCE)
         # stay cached until next manual sweep.
@@ -128,6 +135,12 @@ def main():
         tradingeconomics.fetch_retail_sales_only()
         tradingeconomics.fetch_consumer_conf_only()
         tradingeconomics.fetch_ppi_only()
+        tradingeconomics.fetch_pce_only()
+        tradingeconomics.fetch_nfp_only()
+        tradingeconomics.fetch_adp_only()
+        tradingeconomics.fetch_unemployment_only()
+        tradingeconomics.fetch_jobless_claims_only()
+        tradingeconomics.fetch_jolts_only()
         te_history = tradingeconomics.load_history()
         print(f"[te] using cached history: {sum(len(v) for v in te_history.values())} releases across {len(te_history)} pairs")
 
@@ -166,7 +179,7 @@ def main():
         abs_au_mhsi = abs_au.fetch_mhsi()
 
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, rates_outlook=rates_outlook)
     out_path = build_heatmap.render(heatmap)
     cot_path = build_cot.render(cot_data) if cot_data else None
 

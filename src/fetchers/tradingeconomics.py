@@ -25,6 +25,7 @@ from bs4 import BeautifulSoup
 
 CACHE_DIR = Path(__file__).resolve().parents[2] / "data" / "cache"
 HISTORY_FILE = CACHE_DIR / "te_history.json"
+RATES_OUTLOOK_FILE = CACHE_DIR / "te_rates_outlook.json"
 
 TE_BASE = "https://tradingeconomics.com"
 
@@ -44,15 +45,17 @@ TE_INDICATOR_SLUGS = {
     "gdp": "gdp-growth",
     "cpi": "inflation-cpi",
     "ppi": "producer-prices-change",
-    "pce": "core-inflation-rate",
+    "pce": "pce-price-index-annual-change",
     "mpmi": "manufacturing-pmi",
     "spmi": "services-pmi",
     "retail_sales": "retail-sales",
     "unemployment_rate": "unemployment-rate",
     "consumer_conf": "consumer-confidence",
     "rates": "interest-rate",
-    "employment": "employment-change",
-    "jobless_claims": "initial-jobless-claims",
+    "nfp": "non-farm-payrolls",
+    "jobless_claims": "jobless-claims",
+    "adp": "adp-employment-change",
+    "jolts": "job-offers",
 }
 
 TE_INDICATOR_SLUG_OVERRIDES = {
@@ -384,6 +387,180 @@ def fetch_retail_sales_only():
     return load_history()
 
 
+def _parse_te_rates_table(html, country):
+    """
+    Parse a TE interest-rate calendar table.
+    Returns list of dicts: {date, actual, forecast (TEForecast), is_future}
+    Captures BOTH past releases (actual is not None) AND upcoming
+    releases (actual is None, forecast may or may not be set).
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    target_table = None
+    for table in soup.find_all("table"):
+        headers = [h.get_text(strip=True).lower() for h in table.find_all("th")]
+        if "actual" in headers and ("teforecast" in headers or "te-forecast" in headers or "forecast" in headers):
+            target_table = table
+            break
+    if not target_table:
+        return []
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    out = []
+    for row in target_table.find_all("tr")[1:]:
+        cells = row.find_all("td")
+        if not cells or len(cells) < 5:
+            continue
+        date_text = cells[0].get_text(strip=True)
+        date_str = _normalize_date(date_text)
+        if not date_str:
+            continue
+        teforecast_text = cells[-1].get_text(strip=True)
+        actual_text = cells[-4].get_text(strip=True)
+        actual = _parse_value(actual_text)
+        forecast = _parse_value(teforecast_text)
+        out.append({
+            "date": date_str,
+            "actual": actual,
+            "forecast": forecast,
+            "is_future": date_str > today,
+        })
+    return out
+
+
+def fetch_rates_outlook():
+    """
+    For each of 8 currencies, scrape TE interest-rate page and extract:
+      - Current rate: latest past release with Actual
+      - Forecast rate: next upcoming release's TEForecast (if published).
+        If no upcoming TEForecast available, falls back to current rate
+        (so the score becomes 0 = "no expected change").
+
+    Returns: {ccy: {"date": "...", "current": float, "forecast": float}}
+    Cached to te_rates_outlook.json. Refreshed every main.py run.
+    """
+    print("[te-rates] refreshing rate outlook for all 8 currencies...")
+    out: dict[str, dict] = {}
+    for ccy in TE_COUNTRY_SLUGS:
+        try:
+            url = build_url(ccy, "rates")
+            if not url:
+                continue
+            html = _get_session(url)
+            if not html:
+                print(f"  {ccy}: fetch failed")
+                continue
+            rows = _parse_te_rates_table(html, ccy)
+            if not rows:
+                print(f"  {ccy}: no rows parsed")
+                continue
+            # Latest past release (actual not None) by date desc
+            past = [r for r in rows if r["actual"] is not None]
+            past.sort(key=lambda x: x["date"], reverse=True)
+            current = past[0]["actual"] if past else None
+            # Earliest upcoming release with TEForecast
+            future = [r for r in rows if r["is_future"]]
+            future.sort(key=lambda x: x["date"])
+            next_meeting_date = future[0]["date"] if future else None
+            forecast = None
+            for r in future:
+                if r["forecast"] is not None:
+                    forecast = r["forecast"]
+                    break
+            if current is None:
+                print(f"  {ccy}: no current rate found")
+                continue
+            # If no forecast published yet, treat as same as current (score=0)
+            if forecast is None:
+                forecast = current
+                forecast_source = "= current (no TEForecast yet)"
+            else:
+                forecast_source = "TEForecast"
+            out[ccy] = {
+                "date": next_meeting_date or "",
+                "current": current,
+                "forecast": forecast,
+            }
+            direction = "+1" if forecast > current else ("-1" if forecast < current else "0")
+            print(f"  {ccy}: current={current}  forecast={forecast} ({forecast_source})  next={next_meeting_date}  -> {direction}")
+        except Exception as e:
+            print(f"  {ccy}: failed ({e})")
+        time.sleep(2)
+    _save_rates_outlook(out)
+    print(f"[te-rates] outlook complete: {len(out)}/{len(TE_COUNTRY_SLUGS)} ok")
+    return out
+
+
+def _save_rates_outlook(data):
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with open(RATES_OUTLOOK_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def load_rates_outlook():
+    if not RATES_OUTLOOK_FILE.exists():
+        return {}
+    try:
+        with open(RATES_OUTLOOK_FILE) as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def fetch_nfp_only():
+    """
+    Refresh Non-Farm Payrolls for USD only.
+
+    Scoring spec: Actual vs Consensus (priority), fall back to TEForecast
+    if Consensus missing. NFP is a US-only indicator. The TE slug is
+    'non-farm-payrolls'.
+    """
+    print("[te] refreshing NFP (USD only)...")
+    try:
+        releases = fetch_indicator("USD", "nfp")
+        if releases:
+            releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+            update_history(releases_sorted)
+            latest = releases_sorted[0]
+            a = latest.actual if latest.actual is not None else "n/a"
+            c = latest.consensus if latest.consensus is not None else "n/a"
+            f = latest.forecast if latest.forecast is not None else "n/a"
+            print(f"  USD: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+        else:
+            print("  USD: no releases")
+    except Exception as e:
+        print(f"  USD: failed ({e})")
+    print("[te] NFP refresh complete")
+    return load_history()
+
+
+def fetch_pce_only():
+    """
+    Refresh PCE Price Index YoY for USD only.
+
+    Scoring spec: Actual vs Consensus (priority), fall back to TEForecast
+    if Consensus missing. PCE is a US-only indicator. The TE slug is
+    'pce-price-index-annual-change' which is the YoY % change of the
+    headline PCE Price Index (not Core PCE).
+    """
+    print("[te] refreshing PCE YoY (USD only)...")
+    try:
+        releases = fetch_indicator("USD", "pce")
+        if releases:
+            releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+            update_history(releases_sorted)
+            latest = releases_sorted[0]
+            a = latest.actual if latest.actual is not None else "n/a"
+            c = latest.consensus if latest.consensus is not None else "n/a"
+            f = latest.forecast if latest.forecast is not None else "n/a"
+            print(f"  USD: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+        else:
+            print("  USD: no releases")
+    except Exception as e:
+        print(f"  USD: failed ({e})")
+    print("[te] PCE refresh complete")
+    return load_history()
+
+
 def fetch_ppi_only():
     """
     Refresh PPI YoY data for 7 currencies from TE (NZD uses Investing.com,
@@ -416,6 +593,123 @@ def fetch_ppi_only():
             print(f"  {ccy}: failed ({e})")
         time.sleep(2)
     print(f"[te] PPI refresh complete: {success}/{len(countries)} ok")
+    return load_history()
+
+
+def fetch_jolts_only():
+    """
+    Refresh JOLTS Job Openings for USD only.
+
+    Scoring spec (handled in score_pair.py): Actual vs Consensus (priority),
+    fall back to TEForecast if Consensus missing. Direction is up_is_bullish
+    (more job openings = strong economy = stronger USD). Released monthly,
+    roughly one month lag. The TE slug is 'job-offers'.
+    """
+    print("[te] refreshing JOLTS Job Openings (USD only)...")
+    try:
+        releases = fetch_indicator("USD", "jolts")
+        if releases:
+            releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+            update_history(releases_sorted)
+            latest = releases_sorted[0]
+            a = latest.actual if latest.actual is not None else "n/a"
+            c = latest.consensus if latest.consensus is not None else "n/a"
+            f = latest.forecast if latest.forecast is not None else "n/a"
+            print(f"  USD: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+        else:
+            print("  USD: no releases")
+    except Exception as e:
+        print(f"  USD: failed ({e})")
+    print("[te] JOLTS refresh complete")
+    return load_history()
+
+
+def fetch_adp_only():
+    """
+    Refresh ADP Employment Change for USD only.
+
+    Scoring spec (handled in score_pair.py): Actual vs Consensus (priority),
+    fall back to TEForecast if Consensus missing. Direction is up_is_bullish
+    (more jobs added = stronger USD). Released monthly, 2 days before NFP.
+    The TE slug is 'adp-employment-change'.
+    """
+    print("[te] refreshing ADP Employment (USD only)...")
+    try:
+        releases = fetch_indicator("USD", "adp")
+        if releases:
+            releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+            update_history(releases_sorted)
+            latest = releases_sorted[0]
+            a = latest.actual if latest.actual is not None else "n/a"
+            c = latest.consensus if latest.consensus is not None else "n/a"
+            f = latest.forecast if latest.forecast is not None else "n/a"
+            print(f"  USD: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+        else:
+            print("  USD: no releases")
+    except Exception as e:
+        print(f"  USD: failed ({e})")
+    print("[te] ADP refresh complete")
+    return load_history()
+
+
+def fetch_jobless_claims_only():
+    """
+    Refresh Jobless Claims for USD only.
+
+    Scoring spec (handled in score_pair.py): Actual vs Consensus (priority),
+    fall back to TEForecast if Consensus missing. Direction is
+    down_is_bullish (lower claims = stronger USD). The TE slug is
+    'jobless-claims'. Released weekly (Thursdays).
+    """
+    print("[te] refreshing Jobless Claims (USD only)...")
+    try:
+        releases = fetch_indicator("USD", "jobless_claims")
+        if releases:
+            releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+            update_history(releases_sorted)
+            latest = releases_sorted[0]
+            a = latest.actual if latest.actual is not None else "n/a"
+            c = latest.consensus if latest.consensus is not None else "n/a"
+            f = latest.forecast if latest.forecast is not None else "n/a"
+            print(f"  USD: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+        else:
+            print("  USD: no releases")
+    except Exception as e:
+        print(f"  USD: failed ({e})")
+    print("[te] Jobless Claims refresh complete")
+    return load_history()
+
+
+def fetch_unemployment_only():
+    """
+    Refresh Unemployment Rate for all 8 currencies from TE.
+
+    Scoring spec (handled in score_pair.py): Actual vs Consensus (priority),
+    fall back to TEForecast if Consensus missing. Direction is
+    down_is_bullish (lower unemployment = stronger currency).
+    The TE slug is 'unemployment-rate' (standard for all 8 countries).
+    Polite 2s delay between requests.
+    """
+    print("[te] refreshing Unemployment Rate for all 8 currencies...")
+    success = 0
+    for ccy in TE_COUNTRY_SLUGS:
+        try:
+            releases = fetch_indicator(ccy, "unemployment_rate")
+            if releases:
+                releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+                update_history(releases_sorted)
+                success += 1
+                latest = releases_sorted[0]
+                a = latest.actual if latest.actual is not None else "n/a"
+                c = latest.consensus if latest.consensus is not None else "n/a"
+                f = latest.forecast if latest.forecast is not None else "n/a"
+                print(f"  {ccy}: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+            else:
+                print(f"  {ccy}: no releases")
+        except Exception as e:
+            print(f"  {ccy}: failed ({e})")
+        time.sleep(2)
+    print(f"[te] Unemployment Rate refresh complete: {success}/{len(TE_COUNTRY_SLUGS)} ok")
     return load_history()
 
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>EdgeFinder Clone — Top Setups</title>
+<title>Vector · FX Top Setups</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   :root{
@@ -13,9 +13,13 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:13px}
-  header{padding:14px 22px;display:flex;align-items:center;justify-content:space-between;background:var(--panel);border-bottom:1px solid var(--border)}
-  header h1{margin:0;font-size:18px;letter-spacing:.3px}
-  header .meta{color:var(--muted);font-size:12px}
+  header{padding:18px 26px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#161d44 0%,var(--panel) 100%);border-bottom:1px solid var(--border)}
+  header .brand{display:flex;align-items:center;gap:14px}
+  header .brand-mark{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3974e6 0%,#2153d2 100%);border-radius:8px;box-shadow:0 2px 8px rgba(57,116,230,.35);font-weight:800;font-size:18px;color:#fff;letter-spacing:0;line-height:1}
+  header .brand-text{display:flex;flex-direction:column;gap:2px}
+  header .brand-name{font-size:22px;font-weight:700;letter-spacing:3px;color:var(--text);margin:0;line-height:1}
+  header h1{margin:0;font-size:13px;letter-spacing:.5px;color:var(--muted);font-weight:500;text-transform:uppercase}
+  header .meta{color:var(--muted);font-size:12px;text-align:right}
   .wrap{padding:18px 22px;overflow-x:auto}
   table{border-collapse:collapse;min-width:100%;background:var(--panel);box-shadow:0 1px 0 var(--border)}
   thead th{background:var(--panel);color:var(--text);font-weight:600;border-bottom:1px solid var(--border);padding:8px 6px;font-size:12px;text-align:center;white-space:nowrap}
@@ -54,18 +58,24 @@
 </head>
 <body>
 <header>
-  <div>
-    <h1>Top Setups · FX</h1>
-    <div class="meta">
-      {% if as_of_date %}
-        <span style="background:#c2410c;color:#fff;padding:2px 8px;border-radius:3px;font-weight:700;margin-right:8px">BACKTEST · AS OF {{ as_of_date }}</span>
-        Rendered: {{ updated_at }} · {{ row_count }} pairs scored
-      {% else %}
-        Updated: {{ updated_at }} · {{ row_count }} pairs scored
-      {% endif %}
+  <div class="brand">
+    <div class="brand-mark">V&rarr;</div>
+    <div class="brand-text">
+      <div class="brand-name">VECTOR</div>
+      <h1>FX Top Setups</h1>
     </div>
   </div>
-  <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px">COT Detail &gt;</a>
+  <div style="display:flex;align-items:center;gap:18px">
+    <div class="meta">
+      {% if as_of_date %}
+        <span style="background:#c2410c;color:#fff;padding:2px 8px;border-radius:3px;font-weight:700;margin-right:8px">BACKTEST &middot; AS OF {{ as_of_date }}</span>
+        Rendered: {{ updated_at }} &middot; {{ row_count }} pairs scored
+      {% else %}
+        Updated: {{ updated_at }} &middot; {{ row_count }} pairs scored
+      {% endif %}
+    </div>
+    <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row);transition:background .15s">COT Detail &rarr;</a>
+  </div>
 </header>
 <div class="filter-bar">
   <label><input type="radio" name="bias-filter" value="all" checked onchange="applyBiasFilter()"><span>All pairs</span></label>
@@ -116,7 +126,7 @@
   <span style="margin-left:auto">Pair score = base currency score - quote currency score, clamped to -2..+2 per cell.</span>
 </div>
 <footer>
-  Self-hosted EdgeFinder clone &middot; Data: FRED, CFTC, Myfxbook, Yahoo Finance &middot; For personal research only, not financial advice.
+  Vector &middot; Data: FRED, CFTC, Myfxbook, Yahoo Finance, TradingEconomics, Investing.com, ForexFactory &middot; For personal research only, not financial advice.
 </footer>
 <script>
 function applyBiasFilter(){

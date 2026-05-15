@@ -25,6 +25,12 @@ data/cache/*.pkl
 !data/cache/investing_cpi.json
 # PPI YoY cache (Investing.com, NZD only; other 7 use TE history). Local refresh.
 !data/cache/investing_ppi.json
+# FF rates outlook (next-meeting consensus forecast per currency). Refreshed
+# every main.py run, cached as fallback.
+!data/cache/ff_rates_outlook.json
+# TE rates outlook (current rate + next-meeting TEForecast per currency).
+# Refreshed every main.py run.
+!data/cache/te_rates_outlook.json
 # AUD Monthly Household Spending Indicator cache (replaces TE retail sales
 # for AUD only). ABS isn't bot-blocked so this gets refreshed every main.py
 # run, but cache it for backtest mode.

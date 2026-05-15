@@ -64,6 +64,7 @@ def build_currency_scores(
     abs_au_mhsi: dict | None = None,
     investing_cpi: dict | None = None,
     investing_ppi: dict | None = None,
+    rates_outlook: dict | None = None,
 ) -> dict:
     """
     Returns: per_ccy[currency][indicator_id] = int score (-2..+2) OR None
@@ -86,6 +87,7 @@ def build_currency_scores(
     investing_spmi = investing_spmi or {}
     investing_cpi = investing_cpi or {}
     investing_ppi = investing_ppi or {}
+    rates_outlook = rates_outlook or {}
     per_ccy: dict[str, dict[str, int | None]] = {}
 
     for ccy in macro_data:
@@ -241,6 +243,195 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = s
                     continue
 
+                # NFP: US-only indicator. TE non-farm-payrolls.
+                # Score USD: Actual vs Consensus (priority), fall back to
+                # TEForecast. Non-USD currencies get 0 (neutral) so USD
+                # pairs reflect USD's NFP direction.
+                if ind_id == "nfp":
+                    if ccy != "USD":
+                        per_ccy[ccy][ind_id] = 0
+                        continue
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
+                # JOLTS (Job Openings): US-only monthly TE release.
+                # Score USD: Actual vs Consensus (priority), fall back to
+                # TEForecast. Non-USD currencies = 0 (neutral) so USD pairs
+                # reflect USD's JOLTS direction. Direction is up_is_bullish
+                # (more openings = strong economy = stronger USD).
+                if ind_id == "jolts":
+                    if ccy != "USD":
+                        per_ccy[ccy][ind_id] = 0
+                        continue
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")  # TEForecast fallback
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
+                # ADP Employment Change: US-only monthly TE release.
+                # Score USD: Actual vs Consensus (priority), fall back to
+                # TEForecast. Non-USD currencies = 0 (neutral) so USD pairs
+                # reflect USD's ADP direction. Direction is up_is_bullish
+                # (more jobs added = stronger USD).
+                if ind_id == "adp":
+                    if ccy != "USD":
+                        per_ccy[ccy][ind_id] = 0
+                        continue
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")  # TEForecast fallback
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
+                # Jobless Claims (Unemployment Claims): US-only weekly TE
+                # release. Score USD: Actual vs Consensus (priority), fall
+                # back to TEForecast. Non-USD currencies get 0 (neutral) so
+                # USD pairs reflect USD's claims direction. Direction is
+                # down_is_bullish (lower claims = bullish USD).
+                if ind_id == "jobless_claims":
+                    if ccy != "USD":
+                        per_ccy[ccy][ind_id] = 0
+                        continue
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")  # TEForecast fallback
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
+                # Unemployment Rate: TE unemployment-rate page for all 8
+                # currencies. Score: Actual vs Consensus (priority), fall back
+                # to TEForecast. Then flipped by direction=down_is_bullish so
+                # that a LOWER actual than expected scores +1 (bullish for the
+                # currency, signals economic strength) and a HIGHER actual
+                # scores -1 (bearish, signals weakness).
+                if ind_id == "unemployment_rate":
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")  # TEForecast fallback
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
+                # PCE YoY: US-only indicator. TE pce-price-index-annual-change.
+                # Score USD: Actual vs Consensus (priority), fall back to
+                # TEForecast. Non-USD currencies get 0 (neutral) so USD
+                # pairs reflect USD's PCE direction in the diff while
+                # non-USD-only pairs (e.g., EURGBP) show 0 as expected.
+                if ind_id == "pce":
+                    if ccy != "USD":
+                        per_ccy[ccy][ind_id] = 0
+                        continue
+                    te_rels = te_history.get(key, [])
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")  # TEForecast fallback
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
+
                 # CPI YoY: Investing.com per-currency Latest Release. Actual
                 # vs Forecast where the forecast is published. Falls back to
                 # Actual vs Previous for JPY (Investing's Japan CPI YoY page
@@ -295,6 +486,34 @@ def build_currency_scores(
                             seen_dates.add(d)
                     combined.sort(key=lambda x: x.get("date", ""), reverse=True)
                     per_ccy[ccy][ind_id] = momentum_score(combined, direction=direction)
+                    continue
+
+                # Interest Rates: EdgeFinder methodology — compare next
+                # meeting's TEForecast to the current central bank rate.
+                # Both values come from TradingEconomics interest-rate
+                # pages (free, scraped fresh every run). If TEForecast is
+                # not yet published for the next meeting, the fetcher uses
+                # current rate as the forecast (so score = 0, "no expected
+                # change"). Updated every main.py run.
+                if ind_id == "rates":
+                    outlook = rates_outlook.get(ccy)
+                    if not outlook:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    current_rate = outlook.get("current")
+                    forecast = outlook.get("forecast")
+                    if current_rate is None or forecast is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if forecast > current_rate:
+                        s = 1
+                    elif forecast < current_rate:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
                     continue
 
                 # Other indicators: combine TE + FF, prefer TE on duplicate dates
@@ -393,7 +612,7 @@ def build_pair_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, rates_outlook=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -402,7 +621,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, rates_outlook=rates_outlook)
     rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date)
     return {
         "indicators": indicator_meta,

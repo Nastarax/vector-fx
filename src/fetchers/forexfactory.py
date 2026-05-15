@@ -32,6 +32,7 @@ CACHE_DIR = Path(__file__).resolve().parents[2] / "data" / "cache"
 HISTORY_FILE = CACHE_DIR / "ff_history.json"
 
 FF_BASE = "https://www.forexfactory.com/calendar"
+RATES_OUTLOOK_FILE = Path(__file__).resolve().parents[2] / "data" / "cache" / "ff_rates_outlook.json"
 
 
 # Event-name patterns -> indicator id.
@@ -47,14 +48,25 @@ INDICATOR_PATTERNS = [
     ("ppi",              ["ppi y/y", "ppi m/m", "ppi yoy", "ppi mom", "producer price"]),
     # Jobs
     ("jobless_claims",   ["unemployment claims", "jobless claims", "initial claims", "claimant count"]),
-    ("employment",       ["non-farm employment", "non farm payrolls", "nonfarm payrolls", "employment change"]),
+    ("nfp",              ["non-farm employment", "non farm payrolls", "nonfarm payrolls", "employment change"]),
     ("unemployment_rate", ["unemployment rate"]),
     # Growth
     ("gdp",              ["gdp y/y", "gdp q/q", "advance gdp", "preliminary gdp", "final gdp"]),
     ("retail_sales",     ["retail sales", "core retail sales"]),
     ("consumer_conf",    ["consumer confidence", "cb consumer confidence", "uom consumer sentiment", "michigan consumer"]),
-    # Rates
-    ("rates",            ["federal funds rate", "official cash rate", "main refinancing", "monetary policy", "boj policy", "snb"]),
+    # Rates - all 8 central banks
+    # Fed: "Federal Funds Rate"
+    # ECB: "Main Refinancing Rate"
+    # BoE: "Official Bank Rate" / "Bank Rate"
+    # BoJ: "Monetary Policy Statement" / "BOJ Policy Rate"
+    # SNB: "SNB Policy Rate"
+    # RBA: "Cash Rate"
+    # BoC: "Overnight Rate" / "BOC Rate"
+    # RBNZ: "Official Cash Rate" / "RBNZ Rate Statement"
+    ("rates",            ["federal funds rate", "fomc statement", "official cash rate", "main refinancing",
+                          "deposit facility rate", "monetary policy", "boj policy", "snb policy",
+                          "official bank rate", "bank rate", "cash rate", "overnight rate",
+                          "boc rate", "rbnz rate", "snb"]),
 ]
 
 
@@ -372,6 +384,114 @@ def fetch_ff() -> dict[str, list[dict]]:
     history = update_history(new)
     print(f"[ff] history now has {sum(len(v) for v in history.values())} releases across {len(history)} indicator/country pairs")
     return history
+
+
+def _generate_future_week_params(weeks_ahead: int) -> list[str]:
+    """Generate FF ?week= parameter strings going FORWARD N weeks."""
+    today = datetime.now(timezone.utc).replace(tzinfo=None)
+    days_to_sunday = (today.weekday() + 1) % 7
+    this_sunday = today - timedelta(days=days_to_sunday)
+    params = []
+    for w in range(weeks_ahead + 1):  # include current week
+        sunday = this_sunday + timedelta(weeks=w)
+        param = sunday.strftime("%b%d.%Y").lower()
+        params.append(param)
+    return params
+
+
+def fetch_upcoming_rate_decisions(weeks_ahead: int = 8) -> dict:
+    """
+    Scrape FF calendar for upcoming "Interest Rate Decision" events.
+
+    Returns dict keyed by currency:
+      {"USD": {"date": "2026-06-17", "forecast": 3.75, "event": "Federal Funds Rate"}, ...}
+
+    Picks the NEXT upcoming rate decision per currency (earliest future date
+    where actual is still None and a forecast is published). Caches to
+    ff_rates_outlook.json so we have a fallback if FF blocks the next run.
+
+    "Updates all the time" means this is called on every main.py run.
+    """
+    cache = _load_rates_outlook()
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    upcoming: dict[str, dict] = {}
+    fresh = 0
+
+    print(f"[ff-rates] scraping next {weeks_ahead} weeks for upcoming rate decisions...")
+    seen_no_forecast: list[tuple[str, str, str]] = []  # (ccy, date, event)
+    for wparam in _generate_future_week_params(weeks_ahead):
+        url = f"{FF_BASE}?week={wparam}"
+        try:
+            status, html = _get_with_session(url)
+            if not html:
+                print(f"[ff-rates] week {wparam}: no html (FF blocked?)")
+                continue
+            releases = parse_calendar_html(html)
+            week_rates_count = sum(1 for r in releases if r.indicator_id == "rates")
+            if week_rates_count > 0:
+                print(f"[ff-rates] week {wparam}: {week_rates_count} rate event(s) found")
+            for r in releases:
+                if r.indicator_id != "rates":
+                    continue
+                if r.actual is not None:
+                    continue  # past decision, skip
+                if not r.date or r.date < today_str:
+                    continue  # not actually future
+                if r.forecast is None:
+                    seen_no_forecast.append((r.country, r.date, r.event))
+                    continue
+                ccy = r.country
+                # Keep the EARLIEST upcoming decision per currency
+                if ccy not in upcoming or r.date < upcoming[ccy]["date"]:
+                    upcoming[ccy] = {
+                        "date": r.date,
+                        "forecast": r.forecast,
+                        "event": r.event,
+                    }
+        except Exception as e:
+            print(f"[ff-rates] week {wparam} failed: {e}")
+            continue
+        time.sleep(1.5)
+
+    if seen_no_forecast:
+        print(f"[ff-rates] found {len(seen_no_forecast)} upcoming rate event(s) without consensus forecast yet:")
+        for ccy, date, ev in seen_no_forecast[:10]:
+            print(f"  {ccy} {date}: {ev}")
+
+    # Merge with cache: prefer fresh data, fall back to cached if missing
+    merged = dict(cache)
+    for ccy, rel in upcoming.items():
+        merged[ccy] = rel
+        fresh += 1
+    # Drop cached entries whose date has passed (no longer "upcoming")
+    merged = {c: r for c, r in merged.items() if r.get("date", "") >= today_str}
+    _save_rates_outlook(merged)
+    print(f"[ff-rates] {fresh} fresh, {len(merged) - fresh} from cache, {len(merged)}/{len(SUPPORTED_CCY)} currencies covered")
+    for ccy in sorted(merged):
+        r = merged[ccy]
+        print(f"  {ccy}: forecast={r.get('forecast')}  meeting={r.get('date')}  ({r.get('event', '')})")
+    return merged
+
+
+def _load_rates_outlook() -> dict:
+    if not RATES_OUTLOOK_FILE.exists():
+        return {}
+    try:
+        with open(RATES_OUTLOOK_FILE) as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _save_rates_outlook(data: dict):
+    RATES_OUTLOOK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(RATES_OUTLOOK_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def load_rates_outlook() -> dict:
+    """Read-only access to cached rates outlook (used in backtest mode)."""
+    return _load_rates_outlook()
 
 
 if __name__ == "__main__":
