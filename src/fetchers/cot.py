@@ -17,12 +17,19 @@ import json
 import time
 import urllib.parse
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 
 CFTC_API = "https://publicreporting.cftc.gov/resource/6dca-aqww.json"
 CACHE_DIR = Path(__file__).resolve().parents[2] / "data" / "cache"
+
+# COT publishes weekly (Friday 3:30 PM ET, reports Tue close). Anything older
+# than 14 days means the market got renamed, the API is broken, or CFTC stopped
+# publishing it. Flag it so it's visible on the heatmap instead of silently
+# scoring with stale data (e.g., USD reading from 2022 that we just fixed).
+MAX_STALE_DAYS = 14  # weekly publish + a buffer week
 
 # Map currencies to their CFTC market_and_exchange_names value (Legacy uses
 # the same labels as TFF for currency futures).
@@ -53,6 +60,8 @@ class CotReading:
     long_pct_change: float
     open_interest: int
     open_interest_change: int
+    is_stale: bool = False
+    days_old: int = 0
 
 
 def _cache_path() -> Path:
@@ -150,6 +159,19 @@ def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
         # Date string: API returns "2026-05-05T00:00:00.000" -> trim to YYYY-MM-DD
         report_date = (latest.get("report_date_as_yyyy_mm_dd") or "")[:10]
 
+        # Freshness check. Compare report_date against the as_of_date in
+        # backtest mode, otherwise against today.
+        ref_date_str = as_of_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        try:
+            ref_dt = datetime.strptime(ref_date_str, "%Y-%m-%d")
+            rep_dt = datetime.strptime(report_date, "%Y-%m-%d")
+            days_old = (ref_dt - rep_dt).days
+        except (ValueError, TypeError):
+            days_old = 0
+        is_stale = days_old > MAX_STALE_DAYS
+        if is_stale:
+            print(f"[cot] WARNING: {ccy} COT is STALE. Last report {report_date} ({days_old} days old). Market may have been renamed.")
+
         out[ccy] = CotReading(
             currency=ccy,
             report_date=report_date,
@@ -164,6 +186,8 @@ def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
             long_pct_change=long_pct_change,
             open_interest=oi,
             open_interest_change=oi_chg,
+            is_stale=is_stale,
+            days_old=days_old,
         )
 
     if not_found:

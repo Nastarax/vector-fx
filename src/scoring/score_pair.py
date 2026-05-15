@@ -538,8 +538,10 @@ def build_currency_scores(
         # in the CFTC Legacy report). If a reading is missing for any reason
         # (API hiccup, market name changed again), fall through to None and
         # the pair-diff logic in build_pair_rows treats either-side-None as 0.
+        # If the reading is older than MAX_STALE_DAYS, treat it as None too —
+        # don't score with stale data. Heatmap will mark it visibly.
         cot_reading = cot_data.get(ccy)
-        if cot_reading:
+        if cot_reading and not getattr(cot_reading, "is_stale", False):
             per_ccy[ccy]["cot"] = cot_score(cot_reading)
         else:
             per_ccy[ccy]["cot"] = None
@@ -552,6 +554,7 @@ def build_pair_rows(
     retail_data: dict,
     prices_4h: dict | None = None,
     as_of_date: str | None = None,
+    cot_data: dict | None = None,
 ) -> list[dict]:
     cfg = load_indicators_cfg()
     pairs_cfg = load_pairs_cfg()
@@ -596,6 +599,17 @@ def build_pair_rows(
         scores["crowd"] = retail_score(retail_data.get(sym))
 
         total = sum(scores.values())
+
+        # Flag the COT cell stale if EITHER currency in the pair has stale COT.
+        # Used by the template to render a visible warning marker on the cell.
+        cot_stale = False
+        if cot_data:
+            base_reading = cot_data.get(base)
+            quote_reading = cot_data.get(quote)
+            if (base_reading and getattr(base_reading, "is_stale", False)) or \
+               (quote_reading and getattr(quote_reading, "is_stale", False)):
+                cot_stale = True
+
         rows.append({
             "symbol": sym,
             "base": base,
@@ -603,6 +617,7 @@ def build_pair_rows(
             "scores": scores,
             "total": total,
             "bias": bias_label(total, thresholds),
+            "cot_stale": cot_stale,
         })
 
     rows.sort(key=lambda r: r["total"], reverse=True)
@@ -619,11 +634,25 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
     per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, rates_outlook=rates_outlook)
-    rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date)
+    rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)
+
+    # COT freshness map: ccy -> {"status": "fresh"|"stale"|"missing", "date": ..., "days_old": ...}
+    # Used by the template to show staleness on the heatmap.
+    cot_status = {}
+    for ccy in ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD"):
+        reading = (cot_data or {}).get(ccy)
+        if reading is None:
+            cot_status[ccy] = {"status": "missing", "date": None, "days_old": None}
+        elif getattr(reading, "is_stale", False):
+            cot_status[ccy] = {"status": "stale", "date": reading.report_date, "days_old": reading.days_old}
+        else:
+            cot_status[ccy] = {"status": "fresh", "date": reading.report_date, "days_old": reading.days_old}
+
     return {
         "indicators": indicator_meta,
         "categories": cat_groups,
         "rows": rows,
         "per_ccy": per_ccy,
         "as_of_date": as_of_date,
+        "cot_status": cot_status,
     }

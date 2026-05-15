@@ -69,6 +69,12 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
             "total_class": _total_class(r["total"]),
         })
 
+    cot_status = heatmap.get("cot_status", {})
+    stale_cots = sorted([
+        (ccy, info) for ccy, info in cot_status.items()
+        if info.get("status") == "stale"
+    ])
+
     tmpl = env.get_template("template.html")
     html = tmpl.render(
         updated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
@@ -77,6 +83,8 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
         categories=heatmap["categories"],
         rows=rows_for_render,
         row_count=len(rows_for_render),
+        cot_status=cot_status,
+        stale_cots=stale_cots,
     )
     output_path.write_text(html, encoding="utf-8")
     return output_path

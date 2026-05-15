@@ -54,6 +54,11 @@
   .filter-bar input[type=radio]:checked + span{color:#aac4ff;font-weight:600}
   .filter-bar .count{color:var(--muted);margin-left:auto;font-size:11px}
   footer{padding:12px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
+  .stale-banner{background:#5a2a05;border:1px solid #f59e0b;color:#fde68a;padding:10px 18px;margin:0 22px 14px;border-radius:6px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px}
+  .stale-banner .icon{font-size:18px;line-height:1}
+  .stale-banner .detail{font-weight:400;color:#fef3c7;font-size:12px}
+  .cell.stale{position:relative;outline:2px solid #f59e0b;outline-offset:-2px}
+  .cell.stale::after{content:"!";position:absolute;top:1px;right:3px;font-size:10px;color:#f59e0b;font-weight:700}
 </style>
 </head>
 <body>
@@ -84,6 +89,15 @@
   <label><input type="radio" name="bias-filter" value="bearish" onchange="applyBiasFilter()"><span>Bearish only</span></label>
   <span class="count" id="visible-count"></span>
 </div>
+{% if stale_cots %}
+<div class="stale-banner">
+  <span class="icon">&#9888;</span>
+  <span>COT data is stale for:
+    {% for ccy, info in stale_cots %}{{ ccy }} ({{ info.days_old }}d old, last {{ info.date }}){% if not loop.last %}, {% endif %}{% endfor %}.
+  </span>
+  <span class="detail">Cells affected are marked with !. Likely cause: market name changed at CFTC. Check src/fetchers/cot.py CFTC_NAMES.</span>
+</div>
+{% endif %}
 <div class="wrap">
   <table>
     <thead>
@@ -110,7 +124,8 @@
         <td class="score {{ r.total_class }}">{{ r.total }}</td>
         {% for ind in indicators %}
           {% set v = r.scores[ind.id] %}
-          <td class="cell {{ cell_class(v) }}">{{ v }}</td>
+          {% set extra = ' stale' if (ind.id == 'cot' and r.cot_stale) else '' %}
+          <td class="cell {{ cell_class(v) }}{{ extra }}"{% if ind.id == 'cot' and r.cot_stale %} title="COT stale for {{ r.base }} or {{ r.quote }}"{% endif %}>{{ v }}</td>
         {% endfor %}
       </tr>
       {% endfor %}
