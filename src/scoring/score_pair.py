@@ -98,21 +98,30 @@ def build_currency_scores(
                 direction = ind.get("direction", "up_is_bullish")
                 key = f"{ccy}|{ind_id}"
 
-                # GDP: use Consensus (analyst median) from TE pages, not TEForecast.
-                # Per user preference. Swap the 'consensus' value into the 'forecast'
-                # field so surprise_score uses it.
+                # GDP: latest TE release. Actual vs Consensus (priority), fall
+                # back to TEForecast if Consensus is missing for that release.
                 if ind_id == "gdp":
                     te_rels = te_history.get(key, [])
-                    te_rels_sorted = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)
-                    consensus_rels = []
-                    for r in te_rels_sorted:
-                        consensus_value = r.get("consensus")
-                        if consensus_value is None:
-                            continue
-                        modified = dict(r)
-                        modified["forecast"] = consensus_value
-                        consensus_rels.append(modified)
-                    per_ccy[ccy][ind_id] = surprise_score(consensus_rels, direction=direction)
+                    if not te_rels:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")  # TEForecast fallback
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
                     continue
 
                 # Retail sales:
