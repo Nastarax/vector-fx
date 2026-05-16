@@ -2,119 +2,246 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>COT Detail · EdgeFinder Clone</title>
+<title>Vector | COT Detail</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   :root{
     --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
     --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
-    --pos:#2153d2; --posLite:#3974e6; --neg:#d23b4a; --negLite:#e07984;
+    --bullish:#3974e6; --bearish:#dd5050;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:13px}
-  header{padding:14px 22px;display:flex;align-items:center;justify-content:space-between;background:var(--panel);border-bottom:1px solid var(--border)}
-  header h1{margin:0;font-size:18px;letter-spacing:.3px}
-  header .meta{color:var(--muted);font-size:12px}
-  header a{color:#aac4ff;text-decoration:none;font-size:13px}
-  header a:hover{text-decoration:underline}
-  .wrap{padding:18px 22px;overflow-x:auto}
-  table{border-collapse:collapse;min-width:100%;background:var(--panel);box-shadow:0 1px 0 var(--border)}
-  thead th{background:var(--panel);color:var(--text);font-weight:600;border-bottom:1px solid var(--border);padding:10px 12px;font-size:12px;text-align:right;white-space:nowrap;cursor:pointer;user-select:none}
-  thead th:first-child{text-align:left}
-  thead th.sorted-asc::after{content:" ▲";color:var(--posLite)}
-  thead th.sorted-desc::after{content:" ▼";color:var(--negLite)}
-  tbody td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
-  tbody td:first-child{text-align:left;font-weight:700}
-  tbody tr:nth-child(odd){background:var(--row)}
-  tbody tr:nth-child(even){background:var(--rowAlt)}
-  .pos{background:var(--pos);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
-  .posLite{background:var(--posLite);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
-  .neg{background:var(--neg);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
-  .negLite{background:var(--negLite);color:#fff;border-radius:2px;padding:2px 6px;display:inline-block;min-width:54px;text-align:right}
-  footer{padding:12px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:13px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:linear-gradient(135deg,#1a2148 0%,#0d1430 100%);border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{font-size:24px;font-weight:800;color:#3974e6}
+  .brand-name{font-size:20px;font-weight:800;letter-spacing:1.5px}
+  h1{font-size:14px;color:var(--muted);font-weight:500;margin:0}
+  a.btn{color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row)}
+  a.btn:hover{background:var(--rowAlt)}
+  .meta{color:var(--muted);font-size:12px}
+  .toolbar{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--border);font-size:13px}
+  .toolbar label{color:var(--muted);margin-right:6px}
+  select{background:var(--row);color:var(--text);border:1px solid var(--border);padding:6px 12px;border-radius:4px;font-size:13px;cursor:pointer}
+  select:hover{border-color:#3a4078}
+  .content{padding:24px;display:flex;flex-direction:column;gap:24px;max-width:1500px;margin:0 auto}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px}
+  .card h2{margin:0 0 6px 0;font-size:16px;font-weight:600}
+  .card .subtitle{color:var(--muted);font-size:11px;margin-bottom:14px}
+  .chart-wrap{position:relative;height:380px}
+  table.history{width:100%;border-collapse:collapse;margin-top:14px;font-size:12px}
+  table.history th{background:var(--row);color:var(--text);font-weight:600;border-bottom:1px solid var(--border);padding:8px 10px;text-align:right;white-space:nowrap}
+  table.history th:first-child{text-align:left}
+  table.history td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+  table.history td:first-child{text-align:left;font-weight:600}
+  table.history tr:nth-child(odd) td{background:var(--row)}
+  table.history tr:nth-child(even) td{background:var(--rowAlt)}
+  .pos{color:#aac4ff}
+  .neg{color:#ffaab4}
+  .chip{display:inline-block;padding:2px 6px;border-radius:3px;font-weight:600;min-width:54px;text-align:right}
+  .chip.pos{background:rgba(57,116,230,0.25);color:#aac4ff}
+  .chip.neg{background:rgba(221,80,80,0.25);color:#ffaab4}
+  footer{padding:16px 24px;color:var(--muted);font-size:11px;border-top:1px solid var(--border);text-align:center}
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <h1>COT Detail · Asset Manager Positioning</h1>
-    <div class="meta">Report date: {{ report_date }} · Source: CFTC Traders in Financial Futures · {{ rows|length }} assets</div>
+  <div class="brand">
+    <div class="brand-mark">V&rarr;</div>
+    <div>
+      <div class="brand-name">VECTOR</div>
+      <h1>COT Detail (Non-Commercial / Large Speculators)</h1>
+    </div>
   </div>
-  <a href="index.html">← Back to Top Setups</a>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="meta">Updated: {{ updated_at }} &middot; Latest report: {{ report_date }}</div>
+    <a class="btn" href="output.html">&larr; Heatmap</a>
+  </div>
 </header>
-<div class="wrap">
-  <table id="cot-table">
-    <thead>
-      <tr>
-        <th data-col="0" data-type="str">Asset</th>
-        <th data-col="1" data-type="num">Long Contracts</th>
-        <th data-col="2" data-type="num">Short Contracts</th>
-        <th data-col="3" data-type="num">Δ Long</th>
-        <th data-col="4" data-type="num">Δ Short</th>
-        <th data-col="5" data-type="num">Long %</th>
-        <th data-col="6" data-type="num">Short %</th>
-        <th data-col="7" data-type="num">Net % Change</th>
-        <th data-col="8" data-type="num">Net Position</th>
-        <th data-col="9" data-type="num">Open Interest</th>
-        <th data-col="10" data-type="num">Δ Open Interest</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in rows %}
-      <tr>
-        <td>{{ r.currency }}</td>
-        <td>{{ "{:,}".format(r.long_contracts) }}</td>
-        <td>{{ "{:,}".format(r.short_contracts) }}</td>
-        <td><span class="{{ 'posLite' if r.long_change > 0 else 'negLite' if r.long_change < 0 else '' }}">{{ "{:+,}".format(r.long_change) if r.long_change else 0 }}</span></td>
-        <td><span class="{{ 'negLite' if r.short_change > 0 else 'posLite' if r.short_change < 0 else '' }}">{{ "{:+,}".format(r.short_change) if r.short_change else 0 }}</span></td>
-        <td><span class="{{ 'pos' if r.long_pct >= 60 else 'posLite' if r.long_pct >= 50 else 'negLite' if r.long_pct >= 40 else 'neg' }}">{{ "{:.2f}%".format(r.long_pct) }}</span></td>
-        <td><span class="{{ 'neg' if r.short_pct >= 60 else 'negLite' if r.short_pct >= 50 else 'posLite' if r.short_pct >= 40 else 'pos' }}">{{ "{:.2f}%".format(r.short_pct) }}</span></td>
-        <td><span class="{{ 'pos' if r.weekly_change_pct >= 1 else 'posLite' if r.weekly_change_pct > 0 else 'neg' if r.weekly_change_pct <= -1 else 'negLite' if r.weekly_change_pct < 0 else '' }}">{{ "{:+.2f}%".format(r.weekly_change_pct) }}</span></td>
-        <td><span class="{{ 'pos' if r.net_position > 0 else 'neg' if r.net_position < 0 else '' }}">{{ "{:+,}".format(r.net_position) }}</span></td>
-        <td>{{ "{:,}".format(r.open_interest) }}</td>
-        <td><span class="{{ 'posLite' if r.open_interest_change > 0 else 'negLite' if r.open_interest_change < 0 else '' }}">{{ "{:+,}".format(r.open_interest_change) }}</span></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+<div class="content">
+
+  <!-- Tool 1: Latest COT Report - stacked bar of Long%/Short% per currency -->
+  <div class="card">
+    <h2>Latest COT Report (Non-Commercial)</h2>
+    <div class="subtitle">Long vs Short positioning as % of total contracts. Sorted by Long% ascending. Latest report: {{ report_date }}.</div>
+    <div class="chart-wrap"><canvas id="latestChart"></canvas></div>
+  </div>
+
+  <!-- Tool 2: COT Data History - per-currency time series + data table -->
+  <div class="card">
+    <h2>COT Data History</h2>
+    <div class="subtitle">
+      52-week history of weekly positioning. Bars = contracts (left axis), yellow line = Long % (right axis).
+      <span style="margin-left:18px"><label>Symbol</label>
+      <select id="historySelect"></select></span>
+    </div>
+    <div class="chart-wrap"><canvas id="historyChart"></canvas></div>
+    <table class="history" id="historyTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Net Change %</th>
+          <th>Long Contracts</th>
+          <th>Short Contracts</th>
+          <th>&Delta; Long</th>
+          <th>&Delta; Short</th>
+          <th>Long %</th>
+          <th>Short %</th>
+          <th>Net Position</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
 </div>
-<footer>
-  Asset Manager category from CFTC TFF report. Higher Long % = more institutional money long that currency. Net % Change tracks weekly change in positioning.
-</footer>
 
+<footer>Vector &middot; Data: CFTC Commitment of Traders (Legacy Non-Commercial) &middot; For personal research only, not financial advice.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-(function(){
-  const table = document.getElementById("cot-table");
-  if (!table) return;
-  const tbody = table.tBodies[0];
-  const ths = table.tHead.rows[0].cells;
-  let lastCol = -1, dir = 1;
+const LATEST = {{ latest_json|safe }};
+const HISTORY = {{ history_json|safe }};
+const CURRENCIES = {{ currencies_json|safe }};
 
-  function parseNum(s) {
-    return parseFloat(String(s).replace(/[+,%\s]/g, ''));
-  }
+// ============ Tool 1: Latest stacked bar ============
+(function() {
+  // Sort by Long% ascending so the most-short asset is on the left (matches EF screenshot)
+  const sorted = [...LATEST].sort((a, b) => a.long_pct - b.long_pct);
+  const labels = sorted.map(r => r.ccy);
+  const longs  = sorted.map(r => Number(r.long_pct.toFixed(2)));
+  const shorts = sorted.map(r => Number(r.short_pct.toFixed(2)));
 
-  for (let i = 0; i < ths.length; i++) {
-    ths[i].addEventListener("click", () => {
-      const col = parseInt(ths[i].dataset.col);
-      const type = ths[i].dataset.type;
-      if (col === lastCol) dir = -dir;
-      else { dir = type === "num" ? -1 : 1; lastCol = col; }
-
-      for (const th of ths) th.classList.remove("sorted-asc", "sorted-desc");
-      ths[i].classList.add(dir > 0 ? "sorted-asc" : "sorted-desc");
-
-      const rows = Array.from(tbody.rows);
-      rows.sort((a, b) => {
-        const av = a.cells[col].textContent.trim();
-        const bv = b.cells[col].textContent.trim();
-        if (type === "num") return (parseNum(av) - parseNum(bv)) * dir;
-        return av.localeCompare(bv) * dir;
-      });
-      for (const r of rows) tbody.appendChild(r);
-    });
-  }
+  const ctx = document.getElementById('latestChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {label: 'Long', data: longs, backgroundColor: 'rgba(57,116,230,0.85)', borderColor: 'rgba(57,116,230,1)', stack: 'a'},
+        {label: 'Short', data: shorts, backgroundColor: 'rgba(221,80,80,0.85)', borderColor: 'rgba(221,80,80,1)', stack: 'a'},
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {labels: {color: '#cfd6f5'}},
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%',
+          }
+        }
+      },
+      scales: {
+        x: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#8893c0'}, stacked: true},
+        y: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#8893c0', callback: v => v + '%'}, stacked: true, max: 100, min: 0},
+      }
+    }
+  });
 })();
+
+// ============ Tool 2: History chart + table ============
+const sel = document.getElementById('historySelect');
+CURRENCIES.forEach(c => {
+  const opt = document.createElement('option');
+  opt.value = c; opt.textContent = c;
+  sel.appendChild(opt);
+});
+sel.value = 'USD';
+
+let historyChart = null;
+
+function fmtSigned(n) {
+  if (n === null || n === undefined) return '';
+  const s = n.toLocaleString('en-US');
+  return n > 0 ? '+' + s : s;
+}
+function fmtPctSigned(n) {
+  if (n === null || n === undefined) return '';
+  return (n > 0 ? '+' : '') + n.toFixed(2) + '%';
+}
+
+function renderHistory(ccy) {
+  const rows = HISTORY[ccy] || [];
+  // Reverse so x-axis goes left=oldest, right=newest
+  const ordered = [...rows].reverse();
+  const labels = ordered.map(r => r.date);
+  const longArr = ordered.map(r => r.long_contracts);
+  const shortArr = ordered.map(r => -r.short_contracts);  // negative so shorts plot below zero
+  const longPctArr = ordered.map(r => r.long_pct);
+
+  const ctx = document.getElementById('historyChart').getContext('2d');
+  if (historyChart) historyChart.destroy();
+  historyChart = new Chart(ctx, {
+    data: {
+      labels: labels,
+      datasets: [
+        {type: 'bar', label: 'Long Positions', data: longArr,
+         backgroundColor: 'rgba(57,116,230,0.78)', borderColor: 'rgba(57,116,230,1)',
+         yAxisID: 'yContracts', stack: 'pos', order: 3},
+        {type: 'bar', label: 'Short Positions', data: shortArr,
+         backgroundColor: 'rgba(221,80,80,0.78)', borderColor: 'rgba(221,80,80,1)',
+         yAxisID: 'yContracts', stack: 'neg', order: 3},
+        {type: 'line', label: 'Long %', data: longPctArr,
+         borderColor: '#facc15', backgroundColor: 'transparent',
+         borderWidth: 2, pointRadius: 0, tension: 0.15,
+         yAxisID: 'yPct', order: 1},
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {mode: 'index', intersect: false},
+      plugins: {
+        legend: {labels: {color: '#cfd6f5'}},
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if (ctx.dataset.yAxisID === 'yPct') return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + '%';
+              const v = Math.abs(ctx.parsed.y);
+              return ctx.dataset.label + ': ' + v.toLocaleString('en-US');
+            }
+          }
+        }
+      },
+      scales: {
+        x: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#8893c0', maxRotation: 50, minRotation: 50}},
+        yContracts: {position: 'right', grid: {color: 'rgba(255,255,255,0.05)'},
+                     ticks: {color: '#8893c0', callback: v => Math.abs(v).toLocaleString('en-US')},
+                     title: {display: true, text: 'Contracts (long above, short below)', color: '#8893c0'}},
+        yPct: {position: 'left', grid: {drawOnChartArea: false}, min: 0, max: 100,
+               ticks: {color: '#facc15', callback: v => v + '%'},
+               title: {display: true, text: 'Long %', color: '#facc15'}},
+      }
+    }
+  });
+
+  // Render data table
+  const tbody = document.querySelector('#historyTable tbody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const chgClass = r.long_pct_change > 0 ? 'pos' : (r.long_pct_change < 0 ? 'neg' : '');
+    const netClass = r.net_position > 0 ? 'pos' : (r.net_position < 0 ? 'neg' : '');
+    tr.innerHTML = `
+      <td>${r.date}</td>
+      <td><span class="chip ${chgClass}">${fmtPctSigned(r.long_pct_change)}</span></td>
+      <td>${r.long_contracts.toLocaleString('en-US')}</td>
+      <td>${r.short_contracts.toLocaleString('en-US')}</td>
+      <td>${fmtSigned(r.long_change)}</td>
+      <td>${fmtSigned(r.short_change)}</td>
+      <td>${r.long_pct.toFixed(2)}%</td>
+      <td>${r.short_pct.toFixed(2)}%</td>
+      <td><span class="chip ${netClass}">${fmtSigned(r.net_position)}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+sel.addEventListener('change', e => renderHistory(e.target.value));
+renderHistory('USD');
 </script>
 </body>
 </html>

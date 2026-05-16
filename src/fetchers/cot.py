@@ -75,10 +75,13 @@ def _is_fresh(path: Path, max_age_hours: int = 24) -> bool:
     return (time.time() - path.stat().st_mtime) < max_age_hours * 3600
 
 
-def _fetch_market(market: str, as_of_date: str | None = None) -> list[dict]:
+def _fetch_market(market: str, as_of_date: str | None = None, limit: int = 4) -> list[dict]:
     """
-    Fetch up to 4 most recent reports for a single market via Socrata API.
+    Fetch up to `limit` most recent reports for a single market via Socrata API.
     If as_of_date is given, restricts to reports on or before that date.
+
+    Default limit=4 is plenty for current scoring (need current + prev week).
+    Use limit=52 for the history dashboard.
     """
     where_parts = [f"market_and_exchange_names = '{market}'"]
     if as_of_date:
@@ -88,7 +91,7 @@ def _fetch_market(market: str, as_of_date: str | None = None) -> list[dict]:
     params = {
         "$where": where,
         "$order": "report_date_as_yyyy_mm_dd DESC",
-        "$limit": "4",
+        "$limit": str(limit),
     }
     url = f"{CFTC_API}?{urllib.parse.urlencode(params)}"
     r = requests.get(url, timeout=20)
@@ -192,6 +195,67 @@ def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
 
     if not_found:
         print(f"[cot] WARNING: not found in CFTC API: {not_found}")
+    return out
+
+
+def fetch_cot_history(weeks: int = 52, as_of_date: str | None = None) -> dict[str, list[dict]]:
+    """
+    Fetch the last `weeks` of COT reports for each of the 8 currencies.
+    Returns dict[ccy] -> list of report dicts (newest first), each shaped:
+      {
+        "date": "YYYY-MM-DD",
+        "long_contracts": int, "short_contracts": int,
+        "long_change": int, "short_change": int,
+        "long_pct": float, "short_pct": float,
+        "long_pct_change": float,        # current week's Long% - prev week's
+        "net_position": int,
+        "open_interest": int, "open_interest_change": int,
+      }
+
+    Used by the COT Detail dashboard. Hits the CFTC Socrata API fresh on
+    every call, no caching (data is small, ~50KB per call for 8 ccys).
+    """
+    out: dict[str, list[dict]] = {}
+    for ccy, market in CFTC_NAMES.items():
+        try:
+            rows = _fetch_market(market, as_of_date, limit=weeks)
+        except Exception as e:
+            print(f"[cot-history] {ccy} ({market}) fetch failed: {e}")
+            continue
+        if not rows:
+            continue
+
+        # Compute per-row Long% and weekly Δ Long% so the frontend can plot
+        # them directly without recomputing.
+        parsed: list[dict] = []
+        for i, x in enumerate(rows):
+            L = _to_int(x.get("noncomm_positions_long_all"))
+            S = _to_int(x.get("noncomm_positions_short_all"))
+            total = L + S
+            long_pct = (100.0 * L / total) if total else 50.0
+            short_pct = 100.0 - long_pct
+            # Prev week (older record) is rows[i+1]
+            if i + 1 < len(rows):
+                pL = _to_int(rows[i + 1].get("noncomm_positions_long_all"))
+                pS = _to_int(rows[i + 1].get("noncomm_positions_short_all"))
+                pt = pL + pS
+                prev_long_pct = (100.0 * pL / pt) if pt else 50.0
+            else:
+                prev_long_pct = long_pct
+            parsed.append({
+                "date": (x.get("report_date_as_yyyy_mm_dd") or "")[:10],
+                "long_contracts": L,
+                "short_contracts": S,
+                "long_change": _to_int(x.get("change_in_noncomm_long_all")),
+                "short_change": _to_int(x.get("change_in_noncomm_short_all")),
+                "long_pct": round(long_pct, 2),
+                "short_pct": round(short_pct, 2),
+                "long_pct_change": round(long_pct - prev_long_pct, 2),
+                "net_position": L - S,
+                "open_interest": _to_int(x.get("open_interest_all")),
+                "open_interest_change": _to_int(x.get("change_in_open_interest_all")),
+            })
+        out[ccy] = parsed
     return out
 
 

@@ -181,7 +181,17 @@ def main():
     print("[5/5] Scoring + rendering...")
     heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, rates_outlook=rates_outlook)
     out_path = build_heatmap.render(heatmap)
-    cot_path = build_cot.render(cot_data) if cot_data else None
+
+    # COT dashboard: fetch 52w of weekly history (separate from the 4w used
+    # by the scoring path) and render both interactive tools.
+    cot_path = None
+    if cot_data:
+        try:
+            cot_history = cot.fetch_cot_history(weeks=52, as_of_date=args.date)
+        except Exception as e:
+            print(f"[cot-history] fetch failed: {e}")
+            cot_history = None
+        cot_path = build_cot.render(cot_data, cot_history=cot_history)
 
     # Seasonality pages (yearly + monthly), all pairs, dropdown-driven.
     seasonality_yearly = seasonality_monthly = None
