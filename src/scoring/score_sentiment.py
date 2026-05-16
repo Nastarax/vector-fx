@@ -7,24 +7,15 @@ from src.fetchers.cot import CotReading
 from src.fetchers.retail import RetailReading
 
 
-# COT noise filter. Week-over-week Long% changes smaller than this (in
-# percentage points) score as 0. Stops trivial drift (e.g. CAD moving
-# -0.24pp) from being treated as a real positioning signal. EdgeFinder's
-# pure sign-of-change methodology is too noisy in lockstep risk-on/off
-# weeks where most currencies move <1pp but all in the same direction.
-# Tune in score_sentiment.py if you want more or less sensitivity.
-COT_DEADZONE_PP = 0.5
-
-
 def cot_score(reading: CotReading | None) -> int:
     """
-    EdgeFinder methodology for COT (per-currency component), with a small
-    deadzone to filter noise.
+    EdgeFinder methodology for COT (per-currency component). Pure sign of
+    the weekly change in Long%, no deadzone or magnitude weighting.
 
-    Score = sign of weekly change in Long%:
-      +1 if Long% change > +COT_DEADZONE_PP  (institutions clearly buying)
-      -1 if Long% change < -COT_DEADZONE_PP  (institutions clearly selling)
-       0 otherwise (no meaningful change)
+    Per the EF spec verbatim:
+      +1 if Long% (current) - Long% (prev week) > 0   (institutions buying)
+      -1 if Long% (current) - Long% (prev week) < 0   (institutions selling)
+       0 only if change is exactly 0 (rare)
 
     Long% = long_contracts / (long_contracts + short_contracts).
 
@@ -35,9 +26,9 @@ def cot_score(reading: CotReading | None) -> int:
     """
     if reading is None:
         return 0
-    if reading.long_pct_change > COT_DEADZONE_PP:
+    if reading.long_pct_change > 0:
         return 1
-    if reading.long_pct_change < -COT_DEADZONE_PP:
+    if reading.long_pct_change < 0:
         return -1
     return 0
 
