@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_cpi, investing_ppi, prices, retail, services_pmi, tradingeconomics
-from src.output import build_cot, build_heatmap
+from src.output import build_cot, build_heatmap, build_seasonality
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
 
@@ -183,10 +183,21 @@ def main():
     out_path = build_heatmap.render(heatmap)
     cot_path = build_cot.render(cot_data) if cot_data else None
 
+    # Seasonality pages (yearly + monthly), all pairs, dropdown-driven.
+    seasonality_yearly = seasonality_monthly = None
+    try:
+        seasonality_yearly, seasonality_monthly = build_seasonality.render_all(px, default_pair="AUDUSD")
+    except Exception as e:
+        print(f"[seasonality] render failed: {e}")
+
     print(f"\nDone in {time.time()-t0:.1f}s")
-    print(f"  Heatmap   -> {out_path}")
+    print(f"  Heatmap        -> {out_path}")
     if cot_path:
-        print(f"  COT page  -> {cot_path}")
+        print(f"  COT page       -> {cot_path}")
+    if seasonality_yearly:
+        print(f"  Yearly seas    -> {seasonality_yearly}")
+    if seasonality_monthly:
+        print(f"  Monthly seas   -> {seasonality_monthly}")
     print("\nTop 5 bullish:")
     for r in heatmap["rows"][:5]:
         print(f"  {r['symbol']:7s}  {r['bias']:13s}  total={r['total']:+d}")

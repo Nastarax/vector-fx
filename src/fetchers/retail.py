@@ -1,13 +1,15 @@
 """
 Retail sentiment fetcher.
 
-Strategy:
-1. Try Myfxbook JSON endpoint with Chrome TLS impersonation (curl_cffi).
-2. Try HTML scrape with same impersonation.
-3. If both fail (e.g., GitHub Actions datacenter IP gets blocked by Cloudflare),
-   fall back to the cached file from a previous successful run, regardless of
-   age. The cache file is committed to the repo so CI runs always have data.
-4. Last resort: neutral 50/50.
+Combines TWO sources of per-pair retail long%/short% positioning:
+  1. Myfxbook Community Outlook (broker-aggregated retail accounts)
+  2. Forexbenchmark Quant Retail Positions (separate broker aggregator)
+
+For each pair, if both sources have data, the long% values are averaged.
+If only one source has it, that one is used. If neither, defaults to 50/50.
+
+Always fetches fresh on every call. Cache files are kept only as a fallback
+for when the live fetch fails (e.g., GitHub Actions IP blocked by Cloudflare).
 """
 from __future__ import annotations
 
@@ -108,44 +110,55 @@ def _load_stale_cache() -> dict | None:
         return None
 
 
-def fetch_retail(pairs: list[str]) -> dict[str, RetailReading]:
+def _fetch_myfxbook() -> dict:
+    """Always-fresh Myfxbook fetch; falls back to cache only on failure."""
     cache = _cache_path()
-    payload: dict | None = None
+    payload = _try_json()
+    source = "json"
+    if not payload:
+        payload = _try_html()
+        source = "html"
+    if payload:
+        with open(cache, "w") as f:
+            json.dump(payload, f)
+        print(f"[retail] myfxbook fresh ({source}); {len(payload)} pairs")
+        return payload
+    stale = _load_stale_cache()
+    if stale:
+        age_h = (time.time() - cache.stat().st_mtime) / 3600
+        print(f"[retail] myfxbook fetch failed; stale cache from {age_h:.1f}h ago ({len(stale)} pairs)")
+        return stale
+    print("[retail] myfxbook unavailable, no cache")
+    return {}
 
-    # Use fresh cache if recent
-    if _is_fresh(cache):
-        with open(cache) as f:
-            payload = json.load(f)
-        print(f"[retail] using fresh cache; {len(payload)} pairs")
-    else:
-        # Try fresh fetch
-        payload = _try_json()
-        source = "json"
-        if not payload:
-            payload = _try_html()
-            source = "html"
 
-        if payload:
-            with open(cache, "w") as f:
-                json.dump(payload, f)
-            print(f"[retail] sourced from myfxbook ({source}); {len(payload)} pairs")
-        else:
-            # Fresh fetch failed (e.g., CI IP blocked). Use stale cache if any.
-            stale = _load_stale_cache()
-            if stale:
-                age_h = (time.time() - cache.stat().st_mtime) / 3600
-                print(f"[retail] fresh fetch failed; using stale cache from {age_h:.1f}h ago ({len(stale)} pairs)")
-                payload = stale
-            else:
-                print("[retail] all sources failed AND no cache; using neutral 50/50")
-                payload = {}
+def fetch_retail(pairs: list[str]) -> dict[str, RetailReading]:
+    """
+    Combine Myfxbook + Forexbenchmark per-pair long%/short%.
+    For each pair, average long% across whichever sources have it.
+    Defaults to neutral 50/50 if neither source covers the pair.
+    """
+    # Avoid circular import: keep this import local.
+    from src.fetchers.forexbenchmark import fetch_forexbenchmark
+
+    mfx = _fetch_myfxbook()
+    fxb = fetch_forexbenchmark()
 
     out: dict[str, RetailReading] = {}
     for sym in pairs:
-        if sym in payload:
-            out[sym] = RetailReading(sym, payload[sym]["long"], payload[sym]["short"])
+        longs: list[float] = []
+        if sym in mfx:
+            longs.append(float(mfx[sym]["long"]))
+        if sym in fxb:
+            longs.append(float(fxb[sym]["long"]))
+        if longs:
+            avg_long = sum(longs) / len(longs)
+            out[sym] = RetailReading(sym, avg_long, 100.0 - avg_long)
         else:
             out[sym] = RetailReading(sym, 50.0, 50.0)
+    print(f"[retail] combined: {sum(1 for s in pairs if s in mfx and s in fxb)} pairs with both sources, "
+          f"{sum(1 for s in pairs if (s in mfx) != (s in fxb))} with one, "
+          f"{sum(1 for s in pairs if s not in mfx and s not in fxb)} neutral fallback")
     return out
 
 
