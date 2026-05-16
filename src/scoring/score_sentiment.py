@@ -9,28 +9,29 @@ from src.fetchers.retail import RetailReading
 
 def cot_score(reading: CotReading | None) -> int:
     """
-    EdgeFinder methodology for COT (per-currency component). Pure sign of
-    the weekly change in Long%, no deadzone or magnitude weighting.
+    EdgeFinder methodology for COT (per-currency component). Combines two
+    independent ±1 signals into a per-currency score of -2..+2:
 
-    Per the EF spec verbatim:
-      +1 if Long% (current) - Long% (prev week) > 0   (institutions buying)
-      -1 if Long% (current) - Long% (prev week) < 0   (institutions selling)
-       0 only if change is exactly 0 (rare)
+      1. Weekly Positioning Change:
+           +1 if Long% (current) - Long% (prev week) > 0
+           -1 otherwise
 
-    Long% = long_contracts / (long_contracts + short_contracts).
+      2. Overall Net Positioning:
+           +1 if long_contracts > short_contracts
+           -1 otherwise
+
+    Per-currency range: -2 (both bearish) to +2 (both bullish).
 
     The pair-level COT cell is then base_score - quote_score (handled in
-    build_pair_rows), clamped to -2..+2. This automatically inverts the
-    quote currency's signal exactly as EdgeFinder specifies: a positive
-    week-over-week change for the quote currency reduces the pair COT by 1.
+    build_pair_rows), clamped to -2..+2.
     """
     if reading is None:
         return 0
-    if reading.long_pct_change > 0:
-        return 1
-    if reading.long_pct_change < 0:
-        return -1
-    return 0
+    # Component 1: weekly change in Long%
+    change_score = 1 if reading.long_pct_change > 0 else -1
+    # Component 2: overall net positioning
+    net_score = 1 if reading.long_contracts > reading.short_contracts else -1
+    return change_score + net_score
 
 
 def retail_score(reading: RetailReading | None) -> int:
