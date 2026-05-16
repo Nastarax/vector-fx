@@ -38,3 +38,4 @@ data/cache/*.pkl
 # for AUD only). ABS isn't bot-blocked so this gets refreshed every main.py
 # run, but cache it for backtest mode.
 !data/cache/abs_au_household.json
+scripts/.last_refresh

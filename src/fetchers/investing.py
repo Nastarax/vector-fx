@@ -194,6 +194,12 @@ def _save_cache(cache: dict):
         json.dump(cache, f, indent=2)
 
 
+# Tracks which currencies were freshly fetched on the most recent fetch_mpmi
+# call. Cleared at start of each call. Used by refresh_investing.py to know
+# which truly need retry vs which just fell back to cache.
+_LAST_FRESH: set[str] = set()
+
+
 def fetch_mpmi(sleep_between: float = 4.0) -> dict[str, dict]:
     """
     Hit all 8 PMI pages, return dict keyed by currency.
@@ -206,6 +212,8 @@ def fetch_mpmi(sleep_between: float = 4.0) -> dict[str, dict]:
     blank the whole mPMI column. Adds 4s sleep between currencies to avoid
     triggering Investing's rate limiter.
     """
+    global _LAST_FRESH
+    _LAST_FRESH = set()
     cache = _load_cache()
     results: dict[str, dict] = {}
     fresh_count = 0
@@ -232,6 +240,7 @@ def fetch_mpmi(sleep_between: float = 4.0) -> dict[str, dict]:
             results[ccy] = parsed
             cache[ccy] = parsed
             fresh_count += 1
+            _LAST_FRESH.add(ccy)
             print(f"[investing] {ccy} {parsed}")
         except Exception as e:
             print(f"[investing] {ccy} error: {e}, using cache")

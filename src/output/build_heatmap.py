@@ -75,6 +75,20 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
         if info.get("status") == "stale"
     ])
 
+    # All stale items across COT + Investing-sourced indicators, grouped by
+    # indicator for cleaner banner display.
+    stale_items = heatmap.get("stale_items", [])
+    stale_by_indicator: dict[str, list[dict]] = {}
+    for item in stale_items:
+        stale_by_indicator.setdefault(item["indicator"], []).append(item)
+    # Stable display order
+    indicator_order = ["COT", "CPI YoY", "PPI YoY", "mPMI", "sPMI"]
+    stale_groups = [
+        (ind, sorted(stale_by_indicator[ind], key=lambda x: x["ccy"]))
+        for ind in indicator_order
+        if ind in stale_by_indicator
+    ]
+
     tmpl = env.get_template("template.html")
     html = tmpl.render(
         updated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
@@ -85,6 +99,7 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
         row_count=len(rows_for_render),
         cot_status=cot_status,
         stale_cots=stale_cots,
+        stale_groups=stale_groups,
     )
     output_path.write_text(html, encoding="utf-8")
     return output_path

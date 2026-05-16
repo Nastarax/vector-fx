@@ -203,6 +203,13 @@ def _save_cache(cache):
         json.dump(cache, f, indent=2)
 
 
+# Tracks which currencies were freshly fetched on the most recent fetch_cpi
+# call. Cleared at the start of each call. Used by refresh_investing.py to
+# know which currencies actually came back from Investing.com vs fell back
+# to cache (results dict merges both, so it can't tell them apart on its own).
+_LAST_FRESH: set[str] = set()
+
+
 def fetch_cpi(sleep_between=4.0):
     """
     Hit all 8 CPI YoY pages, return dict keyed by currency.
@@ -210,6 +217,8 @@ def fetch_cpi(sleep_between=4.0):
     Each value: {"date": "2026-05-01", "actual": 2.3, "forecast": 2.4, "previous": 2.4}
     forecast may be None for JPY (never published) or CHF (not out yet).
     """
+    global _LAST_FRESH
+    _LAST_FRESH = set()
     cache = _load_cache()
     results = {}
     fresh_count = 0
@@ -242,6 +251,7 @@ def fetch_cpi(sleep_between=4.0):
             results[ccy] = parsed
             cache[ccy] = parsed
             fresh_count += 1
+            _LAST_FRESH.add(ccy)
             print(f"[cpi] {ccy} {parsed}")
         except Exception as e:
             print(f"[cpi] {ccy} error: {e}, using cache")

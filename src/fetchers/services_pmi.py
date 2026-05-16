@@ -1,20 +1,18 @@
 """
 Services PMI (sPMI) fetcher.
 
-Scoring methodology is identical to mPMI: momentum (Actual vs Previous).
-The data sources differ from mPMI though:
-  - USD, EUR, GBP, AUD, JPY, CAD: Investing.com (Latest Release box, same as mPMI)
-  - CHF, NZD: TradingEconomics (parsed from the meta description text)
+Data sources by currency:
+  - USD, EUR, GBP, AUD, JPY, CAD: Investing.com  (momentum scoring: Actual vs Previous)
+  - CHF: Investing.com procure.ch PMI page       (Actual vs Forecast scoring)
+  - NZD: Myfxbook NZ Services PSI calendar       (Actual vs Forecast scoring)
 
-Why two sources: TE's "Switzerland Services PMI" and "New Zealand Services PMI"
-pages have the data we want in a clean format. Investing.com doesn't have
-dedicated pages for the procure.ch CH Services or BusinessNZ Services PMI.
+CHF and NZD use Actual vs Forecast scoring per user preference; the other 6
+keep the standard Investing.com momentum methodology used for mPMI. Scoring
+branch lives in score_pair.py.
 
 The cache lives at data/cache/spmi.json (separate from mPMI's investing_pmi.json).
-Refresh runs locally via scripts/refresh_investing.py because both Investing.com
-and TE block GitHub Actions IPs.
-
-Reuses the warmed-session + retry logic from investing.py for Investing URLs.
+Refresh runs locally via scripts/refresh_investing.py because Investing.com
+and Myfxbook both block GitHub Actions IPs (Cloudflare).
 """
 from __future__ import annotations
 
@@ -51,13 +49,17 @@ SPMI_INVESTING_URLS: dict[str, str] = {
     "AUD": "https://www.investing.com/economic-calendar/services-pmi-1839",       # S&P Global Australia Services PMI
     "JPY": "https://www.investing.com/economic-calendar/services-pmi-1912",       # S&P Global Japan Services PMI
     "CAD": "https://www.investing.com/economic-calendar/services-pmi-2265",       # Canada Services PMI
+    "CHF": "https://www.investing.com/economic-calendar/procure.ch-pmi-278",      # procure.ch PMI (CHF)
 }
 
-# TradingEconomics pages. Parsed from meta description text.
-SPMI_TE_URLS: dict[str, str] = {
-    "CHF": "https://tradingeconomics.com/switzerland/services-pmi",
-    "NZD": "https://tradingeconomics.com/new-zealand/services-pmi",
+# Myfxbook calendar pages. Different parser; needs curl_cffi Chrome impersonation.
+SPMI_MYFXBOOK_URLS: dict[str, str] = {
+    "NZD": "https://www.myfxbook.com/forex-economic-calendar/new-zealand/services-nz-psi",
 }
+
+# TradingEconomics pages. Empty now that CHF moved to Investing and NZD moved
+# to Myfxbook. Kept as a hook in case we want to add TE-sourced sPMI in future.
+SPMI_TE_URLS: dict[str, str] = {}
 
 
 _TE_HEADERS = {
@@ -157,6 +159,84 @@ def _fetch_te(url: str, max_attempts: int = 3) -> str | None:
     return None
 
 
+def _fetch_myfxbook(url: str, max_attempts: int = 3) -> str | None:
+    """Cloudflare-protected, needs Chrome TLS impersonation."""
+    profiles = ["chrome120", "chrome124", "safari17_2"]
+    for attempt in range(max_attempts):
+        profile = profiles[attempt % len(profiles)]
+        try:
+            if HAS_CFFI:
+                r = cffi_requests.get(url, impersonate=profile, timeout=20)
+            else:
+                r = cffi_requests.get(url, headers=_TE_HEADERS, timeout=20)
+            if r.status_code == 200:
+                return r.text
+        except Exception:
+            pass
+        time.sleep(2 ** (attempt + 1))
+    return None
+
+
+def _parse_myfxbook_calendar(html: str) -> dict | None:
+    """
+    Parse the latest release from a Myfxbook economic calendar event page.
+    The page has a table of releases with columns: Date | Actual | Forecast |
+    Previous. We grab the most recent row that has Actual filled in.
+
+    Returns {"date": "YYYY-MM-DD", "actual": float, "forecast": float|None,
+             "previous": float|None} or None on failure.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Find any table with Actual/Forecast/Previous header cells. Myfxbook
+    # styles the header text in span elements inside <th>.
+    target_table = None
+    for table in soup.find_all("table"):
+        header_text = " ".join(th.get_text(strip=True).lower() for th in table.find_all("th"))
+        if "actual" in header_text and "forecast" in header_text and "previous" in header_text:
+            target_table = table
+            break
+    if not target_table:
+        return None
+
+    headers = [th.get_text(strip=True).lower() for th in target_table.find_all("th")]
+    def col(label: str) -> int:
+        for i, h in enumerate(headers):
+            if label in h:
+                return i
+        return -1
+
+    i_date = col("date")
+    i_actual = col("actual")
+    i_forecast = col("forecast")
+    i_previous = col("previous")
+    if i_actual < 0:
+        return None
+
+    body = target_table.find("tbody") or target_table
+    for row in body.find_all("tr"):
+        cells = row.find_all("td")
+        if not cells or i_actual >= len(cells):
+            continue
+        actual_raw = cells[i_actual].get_text(strip=True)
+        actual = _parse_num(actual_raw)
+        if actual is None:
+            continue
+        forecast = _parse_num(cells[i_forecast].get_text(strip=True)) if i_forecast >= 0 and i_forecast < len(cells) else None
+        previous = _parse_num(cells[i_previous].get_text(strip=True)) if i_previous >= 0 and i_previous < len(cells) else None
+        date_str = None
+        if i_date >= 0 and i_date < len(cells):
+            raw_date = cells[i_date].get_text(strip=True)
+            date_str = _parse_date(raw_date)
+        return {
+            "date": date_str or "",
+            "actual": actual,
+            "forecast": forecast,
+            "previous": previous,
+        }
+    return None
+
+
 def _load_cache() -> dict:
     if not CACHE_FILE.exists():
         return {}
@@ -173,11 +253,18 @@ def _save_cache(cache: dict):
         json.dump(cache, f, indent=2)
 
 
+# Tracks which currencies were freshly fetched on the most recent fetch_spmi
+# call. Cleared at start of each call. Read by refresh_investing.py.
+_LAST_FRESH: set[str] = set()
+
+
 def fetch_spmi(sleep_between: float = 4.0) -> dict[str, dict]:
     """
     Hit all 8 sPMI pages (6 Investing + 2 TE), return dict keyed by currency.
     Falls back to cache on per-URL failure.
     """
+    global _LAST_FRESH
+    _LAST_FRESH = set()
     cache = _load_cache()
     results: dict[str, dict] = {}
     fresh_count = 0
@@ -205,6 +292,7 @@ def fetch_spmi(sleep_between: float = 4.0) -> dict[str, dict]:
             results[ccy] = parsed
             cache[ccy] = parsed
             fresh_count += 1
+            _LAST_FRESH.add(ccy)
             print(f"[spmi] {ccy} (Investing) {parsed}")
         except Exception as e:
             print(f"[spmi] {ccy} (Investing) error: {e}, using cache")
@@ -235,6 +323,7 @@ def fetch_spmi(sleep_between: float = 4.0) -> dict[str, dict]:
             results[ccy] = parsed
             cache[ccy] = parsed
             fresh_count += 1
+            _LAST_FRESH.add(ccy)
             print(f"[spmi] {ccy} (TE) {parsed}")
         except Exception as e:
             print(f"[spmi] {ccy} (TE) error: {e}, using cache")
@@ -243,8 +332,39 @@ def fetch_spmi(sleep_between: float = 4.0) -> dict[str, dict]:
                 cached_count += 1
         time.sleep(sleep_between)
 
+    # Myfxbook pages (NZD currently)
+    for ccy, url in SPMI_MYFXBOOK_URLS.items():
+        try:
+            html = _fetch_myfxbook(url)
+            if not html:
+                print(f"[spmi] {ccy} (Myfxbook) fetch failed, using cache")
+                if ccy in cache:
+                    results[ccy] = cache[ccy]
+                    cached_count += 1
+                time.sleep(sleep_between)
+                continue
+            parsed = _parse_myfxbook_calendar(html)
+            if not parsed or parsed.get("actual") is None:
+                print(f"[spmi] {ccy} (Myfxbook) parse failed, using cache")
+                if ccy in cache:
+                    results[ccy] = cache[ccy]
+                    cached_count += 1
+                time.sleep(sleep_between)
+                continue
+            results[ccy] = parsed
+            cache[ccy] = parsed
+            fresh_count += 1
+            _LAST_FRESH.add(ccy)
+            print(f"[spmi] {ccy} (Myfxbook) {parsed}")
+        except Exception as e:
+            print(f"[spmi] {ccy} (Myfxbook) error: {e}, using cache")
+            if ccy in cache:
+                results[ccy] = cache[ccy]
+                cached_count += 1
+        time.sleep(sleep_between)
+
     _save_cache(cache)
-    total_urls = len(SPMI_INVESTING_URLS) + len(SPMI_TE_URLS)
+    total_urls = len(SPMI_INVESTING_URLS) + len(SPMI_TE_URLS) + len(SPMI_MYFXBOOK_URLS)
     print(f"[spmi] {fresh_count} fresh, {cached_count} from cache, {len(results)}/{total_urls} total")
     return results
 

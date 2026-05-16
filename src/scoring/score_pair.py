@@ -474,6 +474,28 @@ def build_currency_scores(
                     rel = investing_mpmi[ccy]
                     per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
                     continue
+                # sPMI special case: CHF (procure.ch) and NZD (Myfxbook NZ PSI)
+                # score Actual vs Forecast (priority), fall back to Previous.
+                # The other 6 currencies keep the standard momentum approach.
+                if ind_id == "spmi" and ccy in ("CHF", "NZD") and investing_spmi.get(ccy):
+                    rel = investing_spmi[ccy]
+                    actual = rel.get("actual")
+                    benchmark = rel.get("forecast")
+                    if benchmark is None:
+                        benchmark = rel.get("previous")
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
                 if ind_id == "spmi" and investing_spmi.get(ccy):
                     rel = investing_spmi[ccy]
                     per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
@@ -657,6 +679,19 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         else:
             cot_status[ccy] = {"status": "fresh", "date": reading.report_date, "days_old": reading.days_old}
 
+    # Aggregated freshness check across COT + all Investing-sourced indicators.
+    # Different release cadences need different thresholds: weekly for COT,
+    # monthly for CPI/PMI in most countries, quarterly for AUD/NZD CPI and
+    # NZD PPI. Anything past its max-age window goes in the banner.
+    stale_items = _compute_data_staleness(
+        cot_data=cot_data,
+        investing_cpi=investing_cpi,
+        investing_ppi=investing_ppi,
+        investing_mpmi=investing_mpmi,
+        investing_spmi=investing_spmi,
+        as_of_date=as_of_date,
+    )
+
     return {
         "indicators": indicator_meta,
         "categories": cat_groups,
@@ -664,4 +699,83 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         "per_ccy": per_ccy,
         "as_of_date": as_of_date,
         "cot_status": cot_status,
+        "stale_items": stale_items,
     }
+
+
+# Per-indicator max age (in days) before we flag the data as stale.
+# Tune here if any of these change publishing cadence.
+_MAX_AGE_DAYS = {
+    "COT":     14,   # weekly publish + buffer week
+    "CPI YoY": 40,   # monthly for most; quarterly handled separately below
+    "PPI YoY": 110,  # NZD only, quarterly release
+    "mPMI":    40,   # monthly
+    "sPMI":    40,   # monthly
+}
+_QUARTERLY_CPI_CCYS = {"AUD", "NZD"}
+_MAX_AGE_CPI_QUARTERLY = 110
+
+
+def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
+                            investing_mpmi, investing_spmi, as_of_date) -> list:
+    """
+    Return a flat list of stale data entries across COT + Investing-sourced
+    indicators. Each entry: {indicator, ccy, date, days_old, max_age}.
+    Caller iterates and renders them in the banner.
+    """
+    from datetime import datetime, timezone
+    today_str = as_of_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    try:
+        today = datetime.strptime(today_str, "%Y-%m-%d")
+    except (TypeError, ValueError):
+        today = datetime.now(timezone.utc).replace(tzinfo=None)
+
+    out: list[dict] = []
+
+    def _check(indicator: str, ccy: str, date_str: str, max_age: int):
+        if not date_str:
+            return
+        try:
+            d = datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError:
+            return
+        days_old = (today - d).days
+        if days_old > max_age:
+            out.append({
+                "indicator": indicator,
+                "ccy": ccy,
+                "date": date_str,
+                "days_old": int(days_old),
+                "max_age": max_age,
+            })
+
+    # COT: already has is_stale flag computed in cot.py.
+    if cot_data:
+        for ccy, r in cot_data.items():
+            if getattr(r, "is_stale", False):
+                out.append({
+                    "indicator": "COT",
+                    "ccy": ccy,
+                    "date": r.report_date,
+                    "days_old": int(getattr(r, "days_old", 0)),
+                    "max_age": _MAX_AGE_DAYS["COT"],
+                })
+
+    # CPI YoY: per-currency, with quarterly handling for AUD/NZD.
+    for ccy, reading in (investing_cpi or {}).items():
+        max_age = _MAX_AGE_CPI_QUARTERLY if ccy in _QUARTERLY_CPI_CCYS else _MAX_AGE_DAYS["CPI YoY"]
+        _check("CPI YoY", ccy, (reading or {}).get("date"), max_age)
+
+    # PPI YoY (Investing): NZD only, quarterly.
+    for ccy, reading in (investing_ppi or {}).items():
+        _check("PPI YoY", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["PPI YoY"])
+
+    # mPMI: monthly for all 8.
+    for ccy, reading in (investing_mpmi or {}).items():
+        _check("mPMI", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["mPMI"])
+
+    # sPMI: monthly for all 8.
+    for ccy, reading in (investing_spmi or {}).items():
+        _check("sPMI", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["sPMI"])
+
+    return out

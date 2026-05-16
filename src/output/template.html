@@ -104,13 +104,17 @@
   <label><input type="radio" name="bias-filter" value="bearish" onchange="applyBiasFilter()"><span>Bearish only</span></label>
   <span class="count" id="visible-count"></span>
 </div>
-{% if stale_cots %}
+{% if stale_groups %}
 <div class="stale-banner">
   <span class="icon">&#9888;</span>
-  <span>COT data is stale for:
-    {% for ccy, info in stale_cots %}{{ ccy }} ({{ info.days_old }}d old, last {{ info.date }}){% if not loop.last %}, {% endif %}{% endfor %}.
+  <span>
+    Stale data detected:
+    {% for indicator, items in stale_groups %}
+      <strong>{{ indicator }}</strong>:
+      {% for it in items %}{{ it.ccy }} ({{ it.days_old }}d old, last {{ it.date }}){% if not loop.last %}, {% endif %}{% endfor %}{% if not loop.last %}; {% endif %}
+    {% endfor %}
   </span>
-  <span class="detail">Cells affected are marked with !. Likely cause: market name changed at CFTC. Check src/fetchers/cot.py CFTC_NAMES.</span>
+  <span class="detail">COT cells affected marked with !. For CPI/PPI/PMI: run scripts/refresh_investing.py from your laptop; if 403s persist, your IP may be Cloudflare-flagged (try a different network).</span>
 </div>
 {% endif %}
 <div class="wrap">

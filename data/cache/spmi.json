@@ -36,10 +36,10 @@
     "previous": 47.2
   },
   "CHF": {
-    "date": "2026-04-01",
-    "actual": 54.8,
-    "previous": 57.2,
-    "forecast": null
+    "date": "2026-05-04",
+    "actual": 54.5,
+    "forecast": 52.0,
+    "previous": 53.3
   },
   "NZD": {
     "date": "2026-03-01",

@@ -174,8 +174,15 @@ def _save_cache(cache):
         json.dump(cache, f, indent=2)
 
 
+# Tracks which currencies were freshly fetched on the most recent fetch_ppi
+# call. Cleared at start of each call. Read by refresh_investing.py.
+_LAST_FRESH: set[str] = set()
+
+
 def fetch_ppi(sleep_between=4.0):
     """Hit PPI page(s) and return dict keyed by currency."""
+    global _LAST_FRESH
+    _LAST_FRESH = set()
     cache = _load_cache()
     results = {}
     fresh_count = 0
@@ -205,6 +212,7 @@ def fetch_ppi(sleep_between=4.0):
             results[ccy] = parsed
             cache[ccy] = parsed
             fresh_count += 1
+            _LAST_FRESH.add(ccy)
             print(f"[ppi] {ccy} {parsed}")
         except Exception as e:
             print(f"[ppi] {ccy} error: {e}, using cache")
