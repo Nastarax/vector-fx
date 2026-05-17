@@ -51,8 +51,14 @@
   .filter-bar label{cursor:pointer;color:var(--text);display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--row);transition:background .15s,border-color .15s}
   .filter-bar label:hover{background:var(--rowAlt);border-color:#3a4078}
   .filter-bar input[type=radio]{accent-color:#3974e6;margin:0}
+  .filter-bar input[type=checkbox]{accent-color:#3974e6;margin:0}
   .filter-bar input[type=radio]:checked + span{color:#aac4ff;font-weight:600}
+  .filter-bar input[type=checkbox]:checked + span{color:#aac4ff;font-weight:600}
   .filter-bar .count{color:var(--muted);margin-left:auto;font-size:11px}
+  /* Individual currency rows (USD, EUR, etc.) — keep cell colors normal,
+     just distinguish the symbol column with an accent border + bold italic. */
+  tr.currency-row td.symbol{color:#a8b8f0;font-weight:800;font-style:italic;border-left:3px solid #5a72c8}
+  td.cell.na{background:transparent;color:#555;font-style:italic}
   footer{padding:12px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
   /* Seasonality dropdown menu in the header */
   .dropdown{position:relative;display:inline-block}
@@ -103,6 +109,9 @@
   <label><input type="radio" name="bias-filter" value="directional" onchange="applyBiasFilter()"><span>Bullish / Bearish only</span></label>
   <label><input type="radio" name="bias-filter" value="bullish" onchange="applyBiasFilter()"><span>Bullish only</span></label>
   <label><input type="radio" name="bias-filter" value="bearish" onchange="applyBiasFilter()"><span>Bearish only</span></label>
+  <span style="margin:0 6px 0 12px;color:var(--border)">|</span>
+  <label><input type="checkbox" id="show-pairs" checked onchange="applyBiasFilter()"><span>Show pairs</span></label>
+  <label><input type="checkbox" id="show-currencies" onchange="applyBiasFilter()"><span>Show individual currencies</span></label>
   <span class="count" id="visible-count"></span>
 </div>
 {% if stale_groups %}
@@ -138,14 +147,18 @@
     </thead>
     <tbody>
       {% for r in rows %}
-      <tr data-bias="{{ r.bias_class }}">
+      <tr data-bias="{{ r.bias_class }}" data-row-type="{% if r.is_currency %}currency{% else %}pair{% endif %}"{% if r.is_currency %} class="currency-row"{% endif %}>
         <td class="symbol">{{ r.symbol }}</td>
         <td class="bias {{ r.bias_class }}">{{ r.bias }}</td>
         <td class="score {{ r.total_class }}">{{ r.total }}</td>
         {% for ind in indicators %}
           {% set v = r.scores[ind.id] %}
-          {% set extra = ' stale' if (ind.id == 'cot' and r.cot_stale) else '' %}
-          <td class="cell {{ cell_class(v) }}{{ extra }}"{% if ind.id == 'cot' and r.cot_stale %} title="COT stale for {{ r.base }} or {{ r.quote }}"{% endif %}>{{ v }}</td>
+          {% if v is none %}
+            <td class="cell na">&mdash;</td>
+          {% else %}
+            {% set extra = ' stale' if (ind.id == 'cot' and r.cot_stale) else '' %}
+            <td class="cell {{ cell_class(v) }}{{ extra }}"{% if ind.id == 'cot' and r.cot_stale %} title="COT stale for {{ r.base }}{% if r.quote %} or {{ r.quote }}{% endif %}"{% endif %}>{{ v }}</td>
+          {% endif %}
         {% endfor %}
       </tr>
       {% endfor %}
@@ -167,10 +180,15 @@
 function applyBiasFilter(){
   var sel = document.querySelector('input[name="bias-filter"]:checked');
   var mode = sel ? sel.value : 'all';
+  var showPairs = document.getElementById('show-pairs');
+  var showCcys  = document.getElementById('show-currencies');
+  var pairsOn = showPairs ? showPairs.checked : true;
+  var ccysOn  = showCcys  ? showCcys.checked  : false;
   var rows = document.querySelectorAll('tbody tr');
   var shown = 0;
   rows.forEach(function(tr){
     var bias = tr.getAttribute('data-bias') || '';
+    var rowType = tr.getAttribute('data-row-type') || 'pair';
     var show = true;
     if(mode === 'directional'){
       show = bias !== 'b-neut';
@@ -179,11 +197,14 @@ function applyBiasFilter(){
     } else if(mode === 'bearish'){
       show = (bias === 'b-bear' || bias === 'b-vbear');
     }
+    // Independent row-type toggles. Both off = nothing shown.
+    if(rowType === 'pair'     && !pairsOn) show = false;
+    if(rowType === 'currency' && !ccysOn)  show = false;
     tr.style.display = show ? '' : 'none';
     if(show) shown++;
   });
   var c = document.getElementById('visible-count');
-  if(c) c.textContent = shown + ' / ' + rows.length + ' pairs shown';
+  if(c) c.textContent = shown + ' rows shown';
 }
 document.addEventListener('DOMContentLoaded', applyBiasFilter);
 // Close the Seasonality dropdown when clicking outside it.

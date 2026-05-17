@@ -655,6 +655,60 @@ def build_pair_rows(
     return rows
 
 
+def build_currency_rows(
+    per_ccy: dict,
+    cot_data: dict | None = None,
+) -> list[dict]:
+    """
+    Return one row per individual currency (USD, EUR, GBP, ...) showing the
+    per-currency macro scores directly (no pair-diff calculation). Pair-only
+    indicators (trend, seasonality, crowd) are set to None so the template
+    renders them as 'n/a' instead of misleading zeros.
+    """
+    cfg = load_indicators_cfg()
+    thresholds = cfg["bias_thresholds"]
+
+    indicator_ids: list[str] = []
+    for cat_name, inds in cfg["categories"].items():
+        for ind in inds:
+            indicator_ids.append(ind["id"])
+    pair_level = {"trend", "seasonality", "crowd"}
+
+    rows = []
+    for ccy in ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD"):
+        ccy_scores = per_ccy.get(ccy, {})
+        scores: dict[str, int | None] = {}
+        for ind_id in indicator_ids:
+            if ind_id in pair_level:
+                scores[ind_id] = None  # not applicable to a single currency
+            else:
+                s = ccy_scores.get(ind_id)
+                scores[ind_id] = s if s is not None else 0
+
+        total = sum(v for v in scores.values() if v is not None)
+
+        # Flag the COT cell stale if this currency's COT reading is stale
+        cot_stale = False
+        if cot_data:
+            reading = cot_data.get(ccy)
+            if reading and getattr(reading, "is_stale", False):
+                cot_stale = True
+
+        rows.append({
+            "symbol": ccy,
+            "base": ccy,
+            "quote": "",
+            "scores": scores,
+            "total": total,
+            "bias": bias_label(total, thresholds),
+            "cot_stale": cot_stale,
+            "is_currency": True,
+        })
+    # Sort by total descending, same ordering convention as pair rows
+    rows.sort(key=lambda r: r["total"], reverse=True)
+    return rows
+
+
 def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, rates_outlook=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
@@ -665,7 +719,11 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
     per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, rates_outlook=rates_outlook)
-    rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)
+    pair_rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)
+    for r in pair_rows:
+        r["is_currency"] = False
+    currency_rows = build_currency_rows(per_ccy, cot_data=cot_data)
+    rows = pair_rows + currency_rows
 
     # COT freshness map: ccy -> {"status": "fresh"|"stale"|"missing", "date": ..., "days_old": ...}
     # Used by the template to show staleness on the heatmap.

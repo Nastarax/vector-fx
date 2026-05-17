@@ -51,8 +51,14 @@
   .filter-bar label{cursor:pointer;color:var(--text);display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--row);transition:background .15s,border-color .15s}
   .filter-bar label:hover{background:var(--rowAlt);border-color:#3a4078}
   .filter-bar input[type=radio]{accent-color:#3974e6;margin:0}
+  .filter-bar input[type=checkbox]{accent-color:#3974e6;margin:0}
   .filter-bar input[type=radio]:checked + span{color:#aac4ff;font-weight:600}
+  .filter-bar input[type=checkbox]:checked + span{color:#aac4ff;font-weight:600}
   .filter-bar .count{color:var(--muted);margin-left:auto;font-size:11px}
+  /* Individual currency rows (USD, EUR, etc.) — keep cell colors normal,
+     just distinguish the symbol column with an accent border + bold italic. */
+  tr.currency-row td.symbol{color:#a8b8f0;font-weight:800;font-style:italic;border-left:3px solid #5a72c8}
+  td.cell.na{background:transparent;color:#555;font-style:italic}
   footer{padding:12px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
   /* Seasonality dropdown menu in the header */
   .dropdown{position:relative;display:inline-block}
@@ -81,7 +87,7 @@
   <div style="display:flex;align-items:center;gap:18px">
     <div class="meta">
       
-        Updated: 2026-05-17 03:29 UTC &middot; 28 pairs scored
+        Updated: 2026-05-17 14:02 UTC &middot; 36 pairs scored
       
     </div>
     <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row);transition:background .15s">COT Detail &rarr;</a>
@@ -100,6 +106,9 @@
   <label><input type="radio" name="bias-filter" value="directional" onchange="applyBiasFilter()"><span>Bullish / Bearish only</span></label>
   <label><input type="radio" name="bias-filter" value="bullish" onchange="applyBiasFilter()"><span>Bullish only</span></label>
   <label><input type="radio" name="bias-filter" value="bearish" onchange="applyBiasFilter()"><span>Bearish only</span></label>
+  <span style="margin:0 6px 0 12px;color:var(--border)">|</span>
+  <label><input type="checkbox" id="show-pairs" checked onchange="applyBiasFilter()"><span>Show pairs</span></label>
+  <label><input type="checkbox" id="show-currencies" onchange="applyBiasFilter()"><span>Show individual currencies</span></label>
   <span class="count" id="visible-count"></span>
 </div>
 
@@ -177,2215 +186,4119 @@
     </thead>
     <tbody>
       
-      <tr data-bias="b-bull">
+      <tr data-bias="b-bull" data-row-type="pair">
         <td class="symbol">AUDNZD</td>
         <td class="bias b-bull">Bullish</td>
         <td class="score total-c1">8</td>
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bull">
+      <tr data-bias="b-bull" data-row-type="pair">
         <td class="symbol">USDCAD</td>
         <td class="bias b-bull">Bullish</td>
         <td class="score total-c1">6</td>
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bull">
+      <tr data-bias="b-bull" data-row-type="pair">
         <td class="symbol">USDJPY</td>
         <td class="bias b-bull">Bullish</td>
         <td class="score total-c1">5</td>
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bull">
+      <tr data-bias="b-bull" data-row-type="pair">
         <td class="symbol">EURNZD</td>
         <td class="bias b-bull">Bullish</td>
         <td class="score total-c1">5</td>
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bull">
+      <tr data-bias="b-bull" data-row-type="pair">
         <td class="symbol">GBPCAD</td>
         <td class="bias b-bull">Bullish</td>
         <td class="score total-c1">5</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bull">
+      <tr data-bias="b-bull" data-row-type="pair">
         <td class="symbol">AUDCAD</td>
         <td class="bias b-bull">Bullish</td>
         <td class="score total-c1">5</td>
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bull">
+      <tr data-bias="b-bull" data-row-type="pair">
         <td class="symbol">CHFJPY</td>
         <td class="bias b-bull">Bullish</td>
         <td class="score total-c1">4</td>
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">EURGBP</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">3</td>
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">EURCAD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">3</td>
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">EURJPY</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">2</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">AUDJPY</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">2</td>
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">GBPJPY</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">1</td>
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">GBPNZD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">1</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">NZDCAD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">1</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">EURUSD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">0</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">AUDUSD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">0</td>
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">NZDJPY</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">-1</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">EURAUD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">-1</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">USDCHF</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">-2</td>
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">GBPUSD</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">-3</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
       </tr>
       
-      <tr data-bias="b-neut">
+      <tr data-bias="b-neut" data-row-type="pair">
         <td class="symbol">CADJPY</td>
         <td class="bias b-neut">Neutral</td>
         <td class="score ">-3</td>
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bear">
+      <tr data-bias="b-bear" data-row-type="pair">
         <td class="symbol">GBPAUD</td>
         <td class="bias b-bear">Bearish</td>
         <td class="score total-cn1">-4</td>
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bear">
+      <tr data-bias="b-bear" data-row-type="pair">
         <td class="symbol">GBPCHF</td>
         <td class="bias b-bear">Bearish</td>
         <td class="score total-cn1">-4</td>
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bear">
+      <tr data-bias="b-bear" data-row-type="pair">
         <td class="symbol">AUDCHF</td>
         <td class="bias b-bear">Bearish</td>
         <td class="score total-cn1">-4</td>
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bear">
+      <tr data-bias="b-bear" data-row-type="pair">
         <td class="symbol">EURCHF</td>
         <td class="bias b-bear">Bearish</td>
         <td class="score total-cn1">-5</td>
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bear">
+      <tr data-bias="b-bear" data-row-type="pair">
         <td class="symbol">NZDUSD</td>
         <td class="bias b-bear">Bearish</td>
         <td class="score total-cn1">-7</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell c1">1</td>
+            
+            <td class="cell c1">1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
       </tr>
       
-      <tr data-bias="b-bear">
+      <tr data-bias="b-bear" data-row-type="pair">
         <td class="symbol">NZDCHF</td>
         <td class="bias b-bear">Bearish</td>
         <td class="score total-cn1">-7</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c2">2</td>
+            
+            <td class="cell c2">2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
-      <tr data-bias="b-vbear">
+      <tr data-bias="b-vbear" data-row-type="pair">
         <td class="symbol">CADCHF</td>
         <td class="bias b-vbear">Very Bearish</td>
         <td class="score total-cn2">-9</td>
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn1">-1</td>
+            
+            <td class="cell cn1">-1</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell cn2">-2</td>
+            
+            <td class="cell cn2">-2</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
         
           
           
-          <td class="cell c0">0</td>
+            
+            <td class="cell c0">0</td>
+          
+        
+      </tr>
+      
+      <tr data-bias="b-bull" data-row-type="currency" class="currency-row">
+        <td class="symbol">USD</td>
+        <td class="bias b-bull">Bullish</td>
+        <td class="score total-c1">5</td>
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c2">2</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+      </tr>
+      
+      <tr data-bias="b-bull" data-row-type="currency" class="currency-row">
+        <td class="symbol">EUR</td>
+        <td class="bias b-bull">Bullish</td>
+        <td class="score total-c1">4</td>
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c2">2</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+        <td class="symbol">CHF</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">3</td>
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell cn2">-2</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+        <td class="symbol">AUD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">3</td>
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c2">2</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+        <td class="symbol">GBP</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">2</td>
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+        <td class="symbol">JPY</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">0</td>
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell cn2">-2</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+        <td class="symbol">NZD</td>
+        <td class="bias b-neut">Neutral</td>
+        <td class="score ">-2</td>
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+      </tr>
+      
+      <tr data-bias="b-bear" data-row-type="currency" class="currency-row">
+        <td class="symbol">CAD</td>
+        <td class="bias b-bear">Bearish</td>
+        <td class="score total-cn1">-4</td>
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell cn2">-2</td>
+          
+        
+          
+          
+            <td class="cell na">&mdash;</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c1">1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell cn1">-1</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
+        
+          
+          
+            
+            <td class="cell c0">0</td>
+          
         
       </tr>
       
@@ -2407,10 +4320,15 @@
 function applyBiasFilter(){
   var sel = document.querySelector('input[name="bias-filter"]:checked');
   var mode = sel ? sel.value : 'all';
+  var showPairs = document.getElementById('show-pairs');
+  var showCcys  = document.getElementById('show-currencies');
+  var pairsOn = showPairs ? showPairs.checked : true;
+  var ccysOn  = showCcys  ? showCcys.checked  : false;
   var rows = document.querySelectorAll('tbody tr');
   var shown = 0;
   rows.forEach(function(tr){
     var bias = tr.getAttribute('data-bias') || '';
+    var rowType = tr.getAttribute('data-row-type') || 'pair';
     var show = true;
     if(mode === 'directional'){
       show = bias !== 'b-neut';
@@ -2419,11 +4337,14 @@ function applyBiasFilter(){
     } else if(mode === 'bearish'){
       show = (bias === 'b-bear' || bias === 'b-vbear');
     }
+    // Independent row-type toggles. Both off = nothing shown.
+    if(rowType === 'pair'     && !pairsOn) show = false;
+    if(rowType === 'currency' && !ccysOn)  show = false;
     tr.style.display = show ? '' : 'none';
     if(show) shown++;
   });
   var c = document.getElementById('visible-count');
-  if(c) c.textContent = shown + ' / ' + rows.length + ' pairs shown';
+  if(c) c.textContent = shown + ' rows shown';
 }
 document.addEventListener('DOMContentLoaded', applyBiasFilter);
 // Close the Seasonality dropdown when clicking outside it.
