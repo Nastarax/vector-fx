@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_cpi, investing_ppi, prices, retail, services_pmi, tradingeconomics
-from src.output import build_cot, build_heatmap, build_seasonality
+from src.output import build_cot, build_economic_heatmap, build_heatmap, build_seasonality
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
 
@@ -200,6 +200,22 @@ def main():
     except Exception as e:
         print(f"[seasonality] render failed: {e}")
 
+    # Economic Heatmap (per-currency macro release tables)
+    econ_path = None
+    try:
+        econ_data = build_economic_heatmap.build_all(
+            te_history=te_history,
+            investing_cpi=investing_cpi_data,
+            investing_ppi=investing_ppi_data,
+            investing_mpmi=investing_mpmi,
+            investing_spmi=investing_spmi,
+            abs_au_mhsi=abs_au_mhsi,
+            rates_outlook=rates_outlook,
+        )
+        econ_path = build_economic_heatmap.render(econ_data)
+    except Exception as e:
+        print(f"[econ-heatmap] render failed: {e}")
+
     print(f"\nDone in {time.time()-t0:.1f}s")
     print(f"  Heatmap        -> {out_path}")
     if cot_path:
@@ -208,6 +224,8 @@ def main():
         print(f"  Yearly seas    -> {seasonality_yearly}")
     if seasonality_monthly:
         print(f"  Monthly seas   -> {seasonality_monthly}")
+    if econ_path:
+        print(f"  Econ heatmap   -> {econ_path}")
     print("\nTop 5 bullish:")
     for r in heatmap["rows"][:5]:
         print(f"  {r['symbol']:7s}  {r['bias']:13s}  total={r['total']:+d}")
