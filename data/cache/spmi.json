@@ -42,7 +42,8 @@
     "previous": 53.3
   },
   "NZD": {
-    "date": "2026-04-01",
+    "date": "2026-05-18",
+    "reference_month": "2026-04-01",
     "actual": 48.9,
     "previous": 46.2,
     "forecast": null

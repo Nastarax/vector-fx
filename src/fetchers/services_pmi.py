@@ -295,10 +295,9 @@ def _parse_businessnz_article(html: str) -> dict | None:
       "The PSI for <Month> was <value>"
       "The PSI reading for <Month> was <value>"
 
-    Date is taken from the article:published_time meta. The reported month
-    determines the YYYY-MM-01 release date. If the reported month is later in
-    the calendar than the publish month (e.g. December reported in a January
-    article), the report belongs to the previous year.
+    `date` is the article's publish date (release date), to match the
+    convention used by the Investing.com PMI parsers. We also keep
+    `reference_month` (YYYY-MM-01) for the data period itself.
     """
     # Pattern 1: latest reading (e.g. "The PSI for April was 48.9")
     m_latest = re.search(
@@ -321,25 +320,35 @@ def _parse_businessnz_article(html: str) -> dict | None:
     if latest_month is None or latest_val is None:
         return None
 
-    # Determine year from published_time meta
-    year = None
+    # Pull the full release (publish) date from article:published_time meta.
+    # Format is "YYYY-MM-DDThh:mm:ss+TZ"; we just need the YYYY-MM-DD part.
+    release_date = None
+    ref_year = None
     pub_match = re.search(
-        r'article:published_time"[^>]*content="(\d{4})-(\d{2})',
+        r'article:published_time"[^>]*content="(\d{4})-(\d{2})-(\d{2})',
         html,
     )
     if pub_match:
         pub_year = int(pub_match.group(1))
         pub_month = int(pub_match.group(2))
-        # If reported month is ahead of publish month, it's last year's data
-        year = pub_year - 1 if latest_month > pub_month else pub_year
-    if year is None:
-        # Fall back: assume current year, but skip if we can't be sure
+        pub_day = int(pub_match.group(3))
+        release_date = f"{pub_year:04d}-{pub_month:02d}-{pub_day:02d}"
+        # If reported month is ahead of publish month, the reference period
+        # belongs to the previous year (e.g. December report published in
+        # early January).
+        ref_year = pub_year - 1 if latest_month > pub_month else pub_year
+    if ref_year is None:
         from datetime import datetime
-        year = datetime.utcnow().year
+        now = datetime.utcnow()
+        ref_year = now.year
+        release_date = now.strftime("%Y-%m-%d")
 
-    date_str = f"{year:04d}-{latest_month:02d}-01"
+    reference_month = f"{ref_year:04d}-{latest_month:02d}-01"
     return {
-        "date": date_str,
+        # date = publish/release date so freshness checks match Investing.com
+        # convention. The actual data period is in reference_month.
+        "date": release_date,
+        "reference_month": reference_month,
         "actual": latest_val,
         "previous": prev_val,
         "forecast": None,  # BusinessNZ does not publish a consensus forecast
