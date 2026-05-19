@@ -83,10 +83,12 @@ def refresh_spmi():
     print("============================================")
     all_keys = (list(services_pmi.SPMI_INVESTING_URLS.keys())
                 + list(services_pmi.SPMI_TE_URLS.keys())
+                + list(services_pmi.SPMI_BUSINESSNZ_URLS.keys())
                 + list(services_pmi.SPMI_MYFXBOOK_URLS.keys()))
     print(f"Targeting {len(all_keys)} currencies "
           f"({len(services_pmi.SPMI_INVESTING_URLS)} Investing + "
           f"{len(services_pmi.SPMI_TE_URLS)} TE + "
+          f"{len(services_pmi.SPMI_BUSINESSNZ_URLS)} BusinessNZ + "
           f"{len(services_pmi.SPMI_MYFXBOOK_URLS)} Myfxbook)\n")
 
     print("--- Pass 1: full fetch ---")
@@ -103,6 +105,7 @@ def refresh_spmi():
     time.sleep(60)
     orig_investing = services_pmi.SPMI_INVESTING_URLS.copy()
     orig_te = services_pmi.SPMI_TE_URLS.copy()
+    orig_bnz = services_pmi.SPMI_BUSINESSNZ_URLS.copy()
     orig_myfx = services_pmi.SPMI_MYFXBOOK_URLS.copy()
     try:
         for k in list(services_pmi.SPMI_INVESTING_URLS.keys()):
@@ -111,6 +114,9 @@ def refresh_spmi():
         for k in list(services_pmi.SPMI_TE_URLS.keys()):
             if k not in failed:
                 del services_pmi.SPMI_TE_URLS[k]
+        for k in list(services_pmi.SPMI_BUSINESSNZ_URLS.keys()):
+            if k not in failed:
+                del services_pmi.SPMI_BUSINESSNZ_URLS[k]
         for k in list(services_pmi.SPMI_MYFXBOOK_URLS.keys()):
             if k not in failed:
                 del services_pmi.SPMI_MYFXBOOK_URLS[k]
@@ -121,6 +127,8 @@ def refresh_spmi():
         services_pmi.SPMI_INVESTING_URLS.update(orig_investing)
         services_pmi.SPMI_TE_URLS.clear()
         services_pmi.SPMI_TE_URLS.update(orig_te)
+        services_pmi.SPMI_BUSINESSNZ_URLS.clear()
+        services_pmi.SPMI_BUSINESSNZ_URLS.update(orig_bnz)
         services_pmi.SPMI_MYFXBOOK_URLS.clear()
         services_pmi.SPMI_MYFXBOOK_URLS.update(orig_myfx)
 

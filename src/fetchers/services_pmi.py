@@ -4,15 +4,17 @@ Services PMI (sPMI) fetcher.
 Data sources by currency:
   - USD, EUR, GBP, AUD, JPY, CAD: Investing.com  (momentum scoring: Actual vs Previous)
   - CHF: Investing.com procure.ch PMI page       (Actual vs Forecast scoring)
-  - NZD: Myfxbook NZ Services PSI calendar       (Actual vs Forecast scoring)
+  - NZD: BusinessNZ official PSI page            (Actual vs Previous scoring, no forecast)
 
-CHF and NZD use Actual vs Forecast scoring per user preference; the other 6
-keep the standard Investing.com momentum methodology used for mPMI. Scoring
-branch lives in score_pair.py.
+CHF uses Actual vs Forecast (forecast available); NZD falls back to Actual vs
+Previous because BusinessNZ doesn't publish a consensus forecast. Scoring
+branch in score_pair.py already handles the fallback (forecast -> previous).
+The other 6 keep the standard Investing.com momentum methodology used for mPMI.
 
 The cache lives at data/cache/spmi.json (separate from mPMI's investing_pmi.json).
 Refresh runs locally via scripts/refresh_investing.py because Investing.com
-and Myfxbook both block GitHub Actions IPs (Cloudflare).
+blocks GitHub Actions IPs (Cloudflare). BusinessNZ is open and could be moved
+to GH Actions, but staying local for now to keep one refresh path.
 """
 from __future__ import annotations
 
@@ -52,10 +54,16 @@ SPMI_INVESTING_URLS: dict[str, str] = {
     "CHF": "https://www.investing.com/economic-calendar/procure.ch-pmi-278",      # procure.ch PMI (CHF)
 }
 
-# Myfxbook calendar pages. Different parser; needs curl_cffi Chrome impersonation.
-SPMI_MYFXBOOK_URLS: dict[str, str] = {
-    "NZD": "https://www.myfxbook.com/forex-economic-calendar/new-zealand/services-nz-psi",
+# BusinessNZ PSI landing page. We scrape the landing page, find the latest
+# release article, then parse the headline value, previous month value, and
+# reported month from the article body. No forecast is published.
+SPMI_BUSINESSNZ_URLS: dict[str, str] = {
+    "NZD": "https://businessnz.org.nz/psi",
 }
+
+# Myfxbook calendar pages. Kept empty (NZD moved to BusinessNZ direct).
+# Hook left in place in case we want to add a Myfxbook-sourced sPMI again.
+SPMI_MYFXBOOK_URLS: dict[str, str] = {}
 
 # TradingEconomics pages. Empty now that CHF moved to Investing and NZD moved
 # to Myfxbook. Kept as a hook in case we want to add TE-sourced sPMI in future.
@@ -237,6 +245,121 @@ def _parse_myfxbook_calendar(html: str) -> dict | None:
     return None
 
 
+def _fetch_businessnz(url: str, max_attempts: int = 3) -> str | None:
+    """BusinessNZ uses Cloudflare too; chrome impersonation is safest."""
+    profiles = ["chrome120", "chrome124", "safari17_2"]
+    for attempt in range(max_attempts):
+        profile = profiles[attempt % len(profiles)]
+        try:
+            if HAS_CFFI:
+                r = cffi_requests.get(url, impersonate=profile, timeout=30)
+            else:
+                r = cffi_requests.get(url, headers=_TE_HEADERS, timeout=30)
+            if r.status_code == 200:
+                return r.text
+        except Exception:
+            pass
+        time.sleep(2 ** (attempt + 1))
+    return None
+
+
+def _find_latest_businessnz_article_url(landing_html: str) -> str | None:
+    """The landing page lists every PSI release post. The first link that
+    points to /psi/<slug> (not /psi/ itself, not /our-resources/psi/) is the
+    most recent release."""
+    soup = BeautifulSoup(landing_html, "html.parser")
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if "/psi/" not in href:
+            continue
+        # Skip the index page and the resources hub
+        if href.rstrip("/").endswith("/psi"):
+            continue
+        if "/our-resources/" in href:
+            continue
+        # Skip pagination, category links, etc.
+        if any(seg in href for seg in ["/page/", "/category/", "/tag/", "?"]):
+            continue
+        # Must have actual link text (skip empty <a> wrappers)
+        if not a.get_text(strip=True):
+            continue
+        return href
+    return None
+
+
+def _parse_businessnz_article(html: str) -> dict | None:
+    """
+    Pull (latest, previous, date) from a BusinessNZ PSI release article.
+
+    The body always contains two sentences in the form:
+      "The PSI for <Month> was <value>"
+      "The PSI reading for <Month> was <value>"
+
+    Date is taken from the article:published_time meta. The reported month
+    determines the YYYY-MM-01 release date. If the reported month is later in
+    the calendar than the publish month (e.g. December reported in a January
+    article), the report belongs to the previous year.
+    """
+    # Pattern 1: latest reading (e.g. "The PSI for April was 48.9")
+    m_latest = re.search(
+        r"The PSI for\s+([A-Za-z]+)\s+was\s+(\d+(?:[.,]\d+)?)",
+        html, re.IGNORECASE,
+    )
+    # Pattern 2: previous month reading
+    m_prev = re.search(
+        r"The PSI reading for\s+([A-Za-z]+)\s+was\s+(\d+(?:[.,]\d+)?)",
+        html, re.IGNORECASE,
+    )
+    if not m_latest:
+        return None
+
+    latest_month_name = m_latest.group(1).lower()
+    latest_val = _parse_num(m_latest.group(2))
+    prev_val = _parse_num(m_prev.group(2)) if m_prev else None
+
+    latest_month = _MONTHS.get(latest_month_name)
+    if latest_month is None or latest_val is None:
+        return None
+
+    # Determine year from published_time meta
+    year = None
+    pub_match = re.search(
+        r'article:published_time"[^>]*content="(\d{4})-(\d{2})',
+        html,
+    )
+    if pub_match:
+        pub_year = int(pub_match.group(1))
+        pub_month = int(pub_match.group(2))
+        # If reported month is ahead of publish month, it's last year's data
+        year = pub_year - 1 if latest_month > pub_month else pub_year
+    if year is None:
+        # Fall back: assume current year, but skip if we can't be sure
+        from datetime import datetime
+        year = datetime.utcnow().year
+
+    date_str = f"{year:04d}-{latest_month:02d}-01"
+    return {
+        "date": date_str,
+        "actual": latest_val,
+        "previous": prev_val,
+        "forecast": None,  # BusinessNZ does not publish a consensus forecast
+    }
+
+
+def fetch_businessnz_psi(url: str) -> dict | None:
+    """Two-step fetch: landing page -> latest article URL -> article body."""
+    landing = _fetch_businessnz(url)
+    if not landing:
+        return None
+    article_url = _find_latest_businessnz_article_url(landing)
+    if not article_url:
+        return None
+    article_html = _fetch_businessnz(article_url)
+    if not article_html:
+        return None
+    return _parse_businessnz_article(article_html)
+
+
 def _load_cache() -> dict:
     if not CACHE_FILE.exists():
         return {}
@@ -332,7 +455,30 @@ def fetch_spmi(sleep_between: float = 4.0) -> dict[str, dict]:
                 cached_count += 1
         time.sleep(sleep_between)
 
-    # Myfxbook pages (NZD currently)
+    # BusinessNZ (NZD)
+    for ccy, url in SPMI_BUSINESSNZ_URLS.items():
+        try:
+            parsed = fetch_businessnz_psi(url)
+            if not parsed or parsed.get("actual") is None:
+                print(f"[spmi] {ccy} (BusinessNZ) parse failed, using cache")
+                if ccy in cache:
+                    results[ccy] = cache[ccy]
+                    cached_count += 1
+                time.sleep(sleep_between)
+                continue
+            results[ccy] = parsed
+            cache[ccy] = parsed
+            fresh_count += 1
+            _LAST_FRESH.add(ccy)
+            print(f"[spmi] {ccy} (BusinessNZ) {parsed}")
+        except Exception as e:
+            print(f"[spmi] {ccy} (BusinessNZ) error: {e}, using cache")
+            if ccy in cache:
+                results[ccy] = cache[ccy]
+                cached_count += 1
+        time.sleep(sleep_between)
+
+    # Myfxbook pages (kept for future use; SPMI_MYFXBOOK_URLS is empty now)
     for ccy, url in SPMI_MYFXBOOK_URLS.items():
         try:
             html = _fetch_myfxbook(url)
@@ -364,7 +510,12 @@ def fetch_spmi(sleep_between: float = 4.0) -> dict[str, dict]:
         time.sleep(sleep_between)
 
     _save_cache(cache)
-    total_urls = len(SPMI_INVESTING_URLS) + len(SPMI_TE_URLS) + len(SPMI_MYFXBOOK_URLS)
+    total_urls = (
+        len(SPMI_INVESTING_URLS)
+        + len(SPMI_TE_URLS)
+        + len(SPMI_BUSINESSNZ_URLS)
+        + len(SPMI_MYFXBOOK_URLS)
+    )
     print(f"[spmi] {fresh_count} fresh, {cached_count} from cache, {len(results)}/{total_urls} total")
     return results
 

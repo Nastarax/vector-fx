@@ -474,8 +474,10 @@ def build_currency_scores(
                     rel = investing_mpmi[ccy]
                     per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
                     continue
-                # sPMI special case: CHF (procure.ch) and NZD (Myfxbook NZ PSI)
+                # sPMI special case: CHF (procure.ch) and NZD (BusinessNZ PSI)
                 # score Actual vs Forecast (priority), fall back to Previous.
+                # BusinessNZ doesn't publish a consensus forecast for NZD, so
+                # NZD always uses the Previous fallback in practice.
                 # The other 6 currencies keep the standard momentum approach.
                 if ind_id == "spmi" and ccy in ("CHF", "NZD") and investing_spmi.get(ccy):
                     rel = investing_spmi[ccy]
