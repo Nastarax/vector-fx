@@ -164,7 +164,14 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             previous = rel.get("previous")
             date = rel.get("date") or ""
 
-    surprise = _surprise_pct(actual, forecast)
+    # Benchmark for surprise / impact. PMI is scored as momentum (Actual vs
+    # Previous) when no forecast is published, so fall back to previous for
+    # mpmi/spmi to keep the row from collapsing to n/a.
+    benchmark = forecast
+    if ind_id in ("mpmi", "spmi") and benchmark is None:
+        benchmark = previous
+
+    surprise = _surprise_pct(actual, benchmark)
     return {
         "indicator": ind["label"],
         "date": date,
@@ -172,8 +179,8 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
         "actual": actual,
         "forecast": forecast,
         "previous": previous,
-        "currency_impact": _impact_label(actual, forecast, direction),
-        "stocks_impact": _impact_label(actual, forecast, stocks_dir),
+        "currency_impact": _impact_label(actual, benchmark, direction),
+        "stocks_impact": _impact_label(actual, benchmark, stocks_dir),
     }
 
 
@@ -262,7 +269,7 @@ _HTML_TEMPLATE = """<!doctype html>
 <div class="content">
   <div class="card">
     <h2 id="heatTitle">USD Economic Heatmap</h2>
-    <div class="subtitle">Latest release per indicator. Surprise = (Actual - Forecast) / |Forecast|. Currency impact and Stocks impact use indicator-specific direction logic.</div>
+    <div class="subtitle">Latest release per indicator. Surprise = (Actual - Forecast) / |Forecast|; PMI rows without a forecast fall back to (Actual - Previous) / |Previous|. Currency impact and Stocks impact use indicator-specific direction logic.</div>
     <table class="heat" id="heatTable">
       <thead>
         <tr>
