@@ -95,6 +95,7 @@
     </div>
     <a href="cot.html" style="color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row);transition:background .15s">COT Detail &rarr;</a>
     <a href="economic_heatmap.html" style="color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row);transition:background .15s">Economic Heatmap &rarr;</a>
+    <a href="scorecard.html" style="color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row);transition:background .15s">Asset Scorecard &rarr;</a>
     <div class="dropdown">
       <a class="dropbtn" href="#" onclick="event.preventDefault();this.parentElement.classList.toggle('open')">Seasonality &#9662;</a>
       <div class="dropdown-content">
@@ -148,7 +149,11 @@
     <tbody>
       {% for r in rows %}
       <tr data-bias="{{ r.bias_class }}" data-row-type="{% if r.is_currency %}currency{% else %}pair{% endif %}"{% if r.is_currency %} class="currency-row"{% endif %}>
+        {% if r.is_currency %}
+        <td class="symbol"><a href="scorecard.html#{{ r.symbol }}" style="color:inherit;text-decoration:none">{{ r.symbol }} &rsaquo;</a></td>
+        {% else %}
         <td class="symbol">{{ r.symbol }}</td>
+        {% endif %}
         <td class="bias {{ r.bias_class }}">{{ r.bias }}</td>
         <td class="score {{ r.total_class }}">{{ r.total }}</td>
         {% for ind in indicators %}

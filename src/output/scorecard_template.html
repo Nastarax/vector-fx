@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vector | Asset Scorecard</title>
+<style>
+  :root{
+    --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
+    --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
+    --bullish:#3974e6; --bearish:#dd5050; --neutral:#5a6385;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:13px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:linear-gradient(135deg,#1a2148 0%,#0d1430 100%);border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{font-size:24px;font-weight:800;color:#3974e6}
+  .brand-name{font-size:20px;font-weight:800;letter-spacing:1.5px}
+  h1{font-size:14px;color:var(--muted);font-weight:500;margin:0}
+  a.btn{color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row)}
+  a.btn:hover{background:var(--rowAlt)}
+  .meta{color:var(--muted);font-size:12px}
+
+  .toolbar{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--border);font-size:13px}
+  .toolbar label{color:var(--muted);margin-right:6px}
+  select{background:var(--row);color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:4px;font-size:13px;min-width:120px}
+
+  .layout{display:grid;grid-template-columns:340px 1fr;gap:18px;padding:20px;max-width:1480px;margin:0 auto}
+
+  /* Left column */
+  .left-panel{display:flex;flex-direction:column;gap:16px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px}
+  .card-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px}
+
+  .symbol-header{display:flex;align-items:baseline;justify-content:space-between}
+  .symbol-name{font-size:22px;font-weight:700;letter-spacing:1px}
+  .overall-bias{font-size:15px;font-weight:600;text-align:center;margin:8px 0 4px 0}
+
+  .gauge-wrap{display:flex;justify-content:center;align-items:center;padding:6px 0}
+  .gauge-svg{width:240px;height:150px}
+  .gauge-score{text-align:center;font-size:28px;font-weight:800;margin-top:-12px}
+
+  .score-line{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+  .score-line:last-child{border-bottom:none}
+  .score-line .label{color:var(--muted)}
+  .score-line .val{font-weight:600}
+  .score-pill{display:inline-block;min-width:42px;text-align:center;padding:3px 10px;border-radius:3px;font-weight:700}
+  .score-pill.bull{background:var(--bullish);color:#fff}
+  .score-pill.bear{background:var(--bearish);color:#fff}
+  .score-pill.neutral{background:var(--neutral);color:#fff}
+
+  /* Right column */
+  .right-panel{display:flex;flex-direction:column;gap:14px}
+  .section{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .section-header{display:grid;grid-template-columns:1.4fr 130px 0.9fr 0.9fr 0.9fr 0.9fr;align-items:center;padding:11px 14px;background:#1f254a;font-weight:600;font-size:13px}
+  .section-header .section-name{color:var(--text)}
+  .section-header .section-bias{font-style:italic;font-weight:700;text-align:center}
+  .section-header .col-actual,.section-header .col-forecast,.section-header .col-previous,.section-header .col-surprise{color:var(--muted);font-style:italic;font-weight:500;text-align:right;font-size:12px;padding-right:6px}
+
+  .section-rows{}
+  .row{display:grid;grid-template-columns:1.4fr 130px 0.9fr 0.9fr 0.9fr 0.9fr;align-items:center;padding:9px 14px;border-top:1px solid var(--border);font-size:13px}
+  .row:nth-child(even){background:var(--rowAlt)}
+  .row .ind-name{color:var(--text)}
+  .row .impact{text-align:center}
+  .row .actual,.row .forecast,.row .previous,.row .surprise{text-align:right;padding-right:6px}
+  .impact-pill{display:inline-block;padding:4px 14px;border-radius:3px;font-weight:600;font-size:12px;min-width:80px;text-align:center}
+  .impact-pill.bull{background:var(--bullish);color:#fff}
+  .impact-pill.bear{background:var(--bearish);color:#fff}
+  .impact-pill.neutral{background:var(--neutral);color:#fff}
+  .surprise.pos{color:#aac4ff}
+  .surprise.neg{color:#ffaab4}
+  .surprise.flat{color:var(--muted)}
+  .num{color:var(--text)}
+  .num.na{color:#5a6385}
+
+  /* Two-col header for Sentiment+COT (has Long/Short/Change columns) */
+  .cot-grid{display:grid;grid-template-columns:1.4fr 130px 0.9fr 0.9fr 0.9fr 0.9fr;align-items:center;padding:11px 14px;font-weight:600;border-top:1px solid var(--border);background:#1f254a;color:var(--muted);font-style:italic;font-size:12px}
+  .cot-grid .ind-name{font-weight:600}
+  .cot-grid .head-num{text-align:right;padding-right:6px}
+
+  footer{padding:18px;color:var(--muted);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="brand-mark">V→</div>
+    <div>
+      <div class="brand-name">VECTOR</div>
+      <h1>Asset Scorecard</h1>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;align-items:center">
+    <div class="meta">Updated: __UPDATED_STR__</div>
+    <a class="btn" href="output.html">← Heatmap</a>
+  </div>
+</header>
+
+<div class="toolbar">
+  <label for="ccy">Currency</label>
+  <select id="ccy"></select>
+</div>
+
+<div class="layout">
+  <div class="left-panel">
+    <div class="card">
+      <div class="symbol-header">
+        <span class="card-title" style="margin:0">Symbol</span>
+        <span class="symbol-name" id="symbol-name">--</span>
+      </div>
+      <div class="overall-bias" id="overall-bias">--</div>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 200 130">
+          <!-- Bearish red arc -->
+          <path d="M 20 110 A 80 80 0 0 1 100 30" fill="none" stroke="#dd5050" stroke-width="22"/>
+          <!-- Neutral gray segment -->
+          <path d="M 100 30 A 80 80 0 0 1 105 30.1" fill="none" stroke="#5a6385" stroke-width="22"/>
+          <!-- Bullish blue arc -->
+          <path d="M 100 30 A 80 80 0 0 1 180 110" fill="none" stroke="#3974e6" stroke-width="22"/>
+          <!-- Labels -->
+          <text x="22" y="118" fill="#dd5050" font-size="11" font-weight="700">Bear</text>
+          <text x="100" y="22" fill="#aac4ff" font-size="11" font-weight="700" text-anchor="middle">Neutral</text>
+          <text x="160" y="118" fill="#3974e6" font-size="11" font-weight="700">Bull</text>
+          <!-- Needle (rotated via JS) -->
+          <g id="needle">
+            <line x1="100" y1="110" x2="100" y2="45" stroke="#e8ecff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="100" cy="110" r="6" fill="#3974e6" stroke="#e8ecff" stroke-width="2"/>
+          </g>
+        </svg>
+      </div>
+      <div class="gauge-score" id="gauge-score">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Score Breakdown</div>
+      <div class="score-line"><span class="label">Overall score</span><span class="val" id="sb-overall">0</span></div>
+      <div class="score-line"><span class="label">Technical</span><span class="val" id="sb-technical">0</span></div>
+      <div class="score-line"><span class="label">Sentiment + COT</span><span class="val" id="sb-sentiment">0</span></div>
+      <div class="score-line"><span class="label">Fundamentals</span><span class="val" id="sb-fundamentals">0</span></div>
+    </div>
+  </div>
+
+  <div class="right-panel" id="right-panel"></div>
+</div>
+
+<footer>
+  Vector &middot; Data: FRED, CFTC, TradingEconomics, Investing.com, ForexFactory, BusinessNZ, Myfxbook &middot; For personal research only, not financial advice.
+</footer>
+
+<script>
+const DATA = __SCORECARDS_JSON__;
+const CURRENCIES = ["USD","EUR","GBP","JPY","CHF","AUD","CAD","NZD"];
+
+function biasClass(label){
+  if(!label) return 'neutral';
+  if(label.indexOf('Bull') >= 0) return 'bull';
+  if(label.indexOf('Bear') >= 0) return 'bear';
+  return 'neutral';
+}
+
+function impactPill(label){
+  const cls = biasClass(label);
+  if(label === 'n/a' || !label) return '<span class="num na">n/a</span>';
+  return '<span class="impact-pill '+cls+'">'+label+'</span>';
+}
+
+function scorePill(score){
+  if(score === null || score === undefined) return '<span class="num na">n/a</span>';
+  const cls = score > 0 ? 'bull' : (score < 0 ? 'bear' : 'neutral');
+  return '<span class="score-pill '+cls+'">'+(score > 0 ? '+' : '')+score+'</span>';
+}
+
+function fmtNum(v){
+  if(v === null || v === undefined) return '<span class="num na">n/a</span>';
+  return '<span class="num">'+v+'</span>';
+}
+
+function fmtPct(v, suffix){
+  if(v === null || v === undefined) return '<span class="num na">n/a</span>';
+  suffix = suffix || '%';
+  return '<span class="num">'+(typeof v === 'number' ? v.toFixed(2) : v)+suffix+'</span>';
+}
+
+function fmtSurprise(s){
+  if(s === null || s === undefined) return '<span class="surprise flat">n/a</span>';
+  const cls = s > 0 ? 'pos' : (s < 0 ? 'neg' : 'flat');
+  return '<span class="surprise '+cls+'">'+(s > 0 ? '+' : '')+s.toFixed(2)+'%</span>';
+}
+
+function renderSection(title, biasLabel, rows){
+  let html = '<div class="section">';
+  html += '<div class="section-header">';
+  html += '<span class="section-name">'+title+'</span>';
+  html += '<span class="section-bias '+biasClass(biasLabel)+'" style="color:'+(biasLabel.indexOf('Bull')>=0?'#aac4ff':(biasLabel.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+biasLabel+'</span>';
+  html += '<span class="col-actual">Actual</span>';
+  html += '<span class="col-forecast">Forecast</span>';
+  html += '<span class="col-previous">Previous</span>';
+  html += '<span class="col-surprise">Surprise</span>';
+  html += '</div>';
+  html += '<div class="section-rows">';
+  for(const r of rows){
+    html += '<div class="row">';
+    html += '<span class="ind-name">'+r.indicator+'</span>';
+    html += '<span class="impact">'+impactPill(r.currency_impact)+'</span>';
+    html += '<span class="actual">'+fmtNum(r.actual)+'</span>';
+    html += '<span class="forecast">'+fmtNum(r.forecast)+'</span>';
+    html += '<span class="previous">'+fmtNum(r.previous)+'</span>';
+    html += '<span class="surprise">'+fmtSurprise(r.surprise)+'</span>';
+    html += '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function renderTechnicalSentiment(scData){
+  // Combined: Technical bias section + Crowd sentiment + Institutional (COT)
+  let html = '';
+
+  // Technical bias
+  html += '<div class="section">';
+  html += '<div class="section-header">';
+  html += '<span class="section-name">Technical bias</span>';
+  const tBias = scData.sub_bias.technical;
+  html += '<span class="section-bias" style="color:'+(tBias.indexOf('Bull')>=0?'#aac4ff':(tBias.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+tBias+'</span>';
+  html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-previous"></span><span class="col-surprise"></span>';
+  html += '</div>';
+  html += '<div class="row"><span class="ind-name">4H / Daily Chart Trend</span><span class="impact">'+impactPill(scData.technical.trend_label)+'</span><span></span><span></span><span></span><span></span></div>';
+  html += '<div class="row"><span class="ind-name">Current Month\'s Seasonality</span><span class="impact">'+impactPill(scData.technical.seasonality_label)+'</span><span></span><span></span><span></span><span></span></div>';
+  html += '</div>';
+
+  // Crowd sentiment + Institutional bias combined (two distinct sections like the screenshot)
+  html += '<div class="section">';
+  html += '<div class="section-header">';
+  html += '<span class="section-name">Crowd sentiment signal</span>';
+  html += '<span class="section-bias" style="color:'+(scData.sentiment_cot.crowd_label.indexOf('Bull')>=0?'#aac4ff':(scData.sentiment_cot.crowd_label.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+scData.sentiment_cot.crowd_label+'</span>';
+  html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-previous"></span><span class="col-surprise"></span>';
+  html += '</div>';
+  html += '<div class="row"><span class="ind-name" style="grid-column:span 6;color:var(--muted);font-style:italic">Retail crowd sentiment averaged across this currency\'s 7 pairs. Sign reflects contrarian read: heavy long crowd = bearish, heavy short crowd = bullish.</span></div>';
+  html += '</div>';
+
+  // Institutional activity (COT)
+  html += '<div class="section">';
+  html += '<div class="section-header">';
+  html += '<span class="section-name">Institutional activity bias</span>';
+  html += '<span class="section-bias" style="color:'+(scData.sentiment_cot.cot_label.indexOf('Bull')>=0?'#aac4ff':(scData.sentiment_cot.cot_label.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+scData.sentiment_cot.cot_label+'</span>';
+  html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-previous"></span><span class="col-surprise"></span>';
+  html += '</div>';
+  // Header for cot detail columns (4 numeric headers to match the 4 numeric data cells)
+  html += '<div class="cot-grid"><span class="ind-name"></span><span></span><span class="head-num">Long %</span><span class="head-num">Short %</span><span class="head-num"></span><span class="head-num">Change %</span></div>';
+  html += '<div class="row">';
+  html += '<span class="ind-name">COT - Net Positioning</span>';
+  html += '<span class="impact">'+impactPill(scData.sentiment_cot.cot_label)+'</span>';
+  html += '<span class="actual">'+fmtPct(scData.sentiment_cot.long_pct)+'</span>';
+  html += '<span class="forecast">'+fmtPct(scData.sentiment_cot.short_pct)+'</span>';
+  html += '<span class="previous"></span>';
+  html += '<span class="surprise">'+(scData.sentiment_cot.change_pct === null || scData.sentiment_cot.change_pct === undefined ? '<span class="num na">n/a</span>' : '<span class="surprise '+(scData.sentiment_cot.change_pct > 0 ? 'pos':'neg')+'">'+(scData.sentiment_cot.change_pct > 0 ? '+':'')+scData.sentiment_cot.change_pct.toFixed(2)+'%</span>')+'</span>';
+  html += '</div>';
+  html += '</div>';
+
+  return html;
+}
+
+function render(ccy){
+  const sc = DATA[ccy];
+  if(!sc) return;
+
+  document.getElementById('symbol-name').textContent = ccy;
+  document.getElementById('overall-bias').textContent = sc.bias;
+  document.getElementById('overall-bias').style.color = sc.bias.indexOf('Bull')>=0 ? '#aac4ff' : (sc.bias.indexOf('Bear')>=0 ? '#ffaab4' : '#8893c0');
+  document.getElementById('gauge-score').textContent = sc.total_score;
+
+  // Needle rotation: -180 (full left = -max) to 0 (center neutral) to +180 (full right = +max)
+  // SVG path goes from -90 (left) to +90 (right). Map total to that range.
+  const SCALE_MAX = 20; // arbitrary; clamps gauge sensitivity
+  const clamped = Math.max(-SCALE_MAX, Math.min(SCALE_MAX, sc.total_score));
+  const angle = (clamped / SCALE_MAX) * 90;
+  document.getElementById('needle').setAttribute('transform', 'rotate('+angle+' 100 110)');
+
+  document.getElementById('sb-overall').innerHTML = scorePill(sc.total_score);
+  document.getElementById('sb-technical').innerHTML = scorePill(sc.sub_scores.technical);
+  document.getElementById('sb-sentiment').innerHTML = scorePill(sc.sub_scores.sentiment_cot);
+  document.getElementById('sb-fundamentals').innerHTML = scorePill(sc.sub_scores.fundamentals);
+
+  let html = '';
+  html += renderTechnicalSentiment(sc);
+  html += renderSection('Economic growth bias', sc.sub_bias.growth, sc.fundamentals.growth_rows);
+  html += renderSection('Inflation bias', sc.sub_bias.inflation, sc.fundamentals.inflation_rows);
+  html += renderSection('Jobs market bias', sc.sub_bias.jobs, sc.fundamentals.jobs_rows);
+  document.getElementById('right-panel').innerHTML = html;
+
+  // Update URL hash without scrolling
+  if(history.replaceState){
+    history.replaceState(null, '', '#'+ccy);
+  }
+}
+
+// Init
+const sel = document.getElementById('ccy');
+for(const c of CURRENCIES){
+  const opt = document.createElement('option');
+  opt.value = c; opt.textContent = c;
+  sel.appendChild(opt);
+}
+sel.addEventListener('change', () => render(sel.value));
+
+// Read initial currency from hash
+const initial = (location.hash || '').replace('#','').toUpperCase();
+const startCcy = CURRENCIES.indexOf(initial) >= 0 ? initial : 'USD';
+sel.value = startCcy;
+render(startCcy);
+</script>
+</body>
+</html>

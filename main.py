@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_cpi, investing_ppi, prices, retail, services_pmi, tradingeconomics
-from src.output import build_cot, build_economic_heatmap, build_heatmap, build_seasonality
+from src.output import build_cot, build_economic_heatmap, build_heatmap, build_scorecard, build_seasonality
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
 
@@ -202,6 +202,7 @@ def main():
 
     # Economic Heatmap (per-currency macro release tables)
     econ_path = None
+    econ_data = None
     try:
         econ_data = build_economic_heatmap.build_all(
             te_history=te_history,
@@ -216,6 +217,22 @@ def main():
     except Exception as e:
         print(f"[econ-heatmap] render failed: {e}")
 
+    # Asset Scorecard (per-currency deep dive with gauge + sub-scores)
+    scorecard_path = None
+    try:
+        if econ_data is None:
+            print("[scorecard] skipping - econ_data unavailable")
+        else:
+            scorecards = build_scorecard.build_all(
+                per_ccy=heatmap["per_ccy"],
+                pair_rows=heatmap["rows"],
+                cot_data=cot_data,
+                econ_data=econ_data,
+            )
+            scorecard_path = build_scorecard.render(scorecards)
+    except Exception as e:
+        print(f"[scorecard] render failed: {e}")
+
     print(f"\nDone in {time.time()-t0:.1f}s")
     print(f"  Heatmap        -> {out_path}")
     if cot_path:
@@ -226,6 +243,8 @@ def main():
         print(f"  Monthly seas   -> {seasonality_monthly}")
     if econ_path:
         print(f"  Econ heatmap   -> {econ_path}")
+    if scorecard_path:
+        print(f"  Asset scorecard-> {scorecard_path}")
     print("\nTop 5 bullish:")
     for r in heatmap["rows"][:5]:
         print(f"  {r['symbol']:7s}  {r['bias']:13s}  total={r['total']:+d}")

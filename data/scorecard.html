@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vector | Asset Scorecard</title>
+<style>
+  :root{
+    --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
+    --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
+    --bullish:#3974e6; --bearish:#dd5050; --neutral:#5a6385;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:13px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:linear-gradient(135deg,#1a2148 0%,#0d1430 100%);border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{font-size:24px;font-weight:800;color:#3974e6}
+  .brand-name{font-size:20px;font-weight:800;letter-spacing:1.5px}
+  h1{font-size:14px;color:var(--muted);font-weight:500;margin:0}
+  a.btn{color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row)}
+  a.btn:hover{background:var(--rowAlt)}
+  .meta{color:var(--muted);font-size:12px}
+
+  .toolbar{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--border);font-size:13px}
+  .toolbar label{color:var(--muted);margin-right:6px}
+  select{background:var(--row);color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:4px;font-size:13px;min-width:120px}
+
+  .layout{display:grid;grid-template-columns:340px 1fr;gap:18px;padding:20px;max-width:1480px;margin:0 auto}
+
+  /* Left column */
+  .left-panel{display:flex;flex-direction:column;gap:16px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px}
+  .card-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px}
+
+  .symbol-header{display:flex;align-items:baseline;justify-content:space-between}
+  .symbol-name{font-size:22px;font-weight:700;letter-spacing:1px}
+  .overall-bias{font-size:15px;font-weight:600;text-align:center;margin:8px 0 4px 0}
+
+  .gauge-wrap{display:flex;justify-content:center;align-items:center;padding:6px 0}
+  .gauge-svg{width:240px;height:150px}
+  .gauge-score{text-align:center;font-size:28px;font-weight:800;margin-top:-12px}
+
+  .score-line{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+  .score-line:last-child{border-bottom:none}
+  .score-line .label{color:var(--muted)}
+  .score-line .val{font-weight:600}
+  .score-pill{display:inline-block;min-width:42px;text-align:center;padding:3px 10px;border-radius:3px;font-weight:700}
+  .score-pill.bull{background:var(--bullish);color:#fff}
+  .score-pill.bear{background:var(--bearish);color:#fff}
+  .score-pill.neutral{background:var(--neutral);color:#fff}
+
+  /* Right column */
+  .right-panel{display:flex;flex-direction:column;gap:14px}
+  .section{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .section-header{display:grid;grid-template-columns:1fr 130px 1fr 1fr 1fr;align-items:center;padding:11px 14px;background:#1f254a;font-weight:600;font-size:13px}
+  .section-header .section-name{color:var(--text)}
+  .section-header .section-bias{font-style:italic;font-weight:700;text-align:center}
+  .section-header .col-actual,.section-header .col-forecast,.section-header .col-surprise{color:var(--muted);font-style:italic;font-weight:500;text-align:right;font-size:12px;padding-right:6px}
+
+  .section-rows{}
+  .row{display:grid;grid-template-columns:1fr 130px 1fr 1fr 1fr;align-items:center;padding:9px 14px;border-top:1px solid var(--border);font-size:13px}
+  .row:nth-child(even){background:var(--rowAlt)}
+  .row .ind-name{color:var(--text)}
+  .row .impact{text-align:center}
+  .row .actual,.row .forecast,.row .surprise{text-align:right;padding-right:6px}
+  .impact-pill{display:inline-block;padding:4px 14px;border-radius:3px;font-weight:600;font-size:12px;min-width:80px;text-align:center}
+  .impact-pill.bull{background:var(--bullish);color:#fff}
+  .impact-pill.bear{background:var(--bearish);color:#fff}
+  .impact-pill.neutral{background:var(--neutral);color:#fff}
+  .surprise.pos{color:#aac4ff}
+  .surprise.neg{color:#ffaab4}
+  .surprise.flat{color:var(--muted)}
+  .num{color:var(--text)}
+  .num.na{color:#5a6385}
+
+  /* Two-col header for Sentiment+COT (has Long/Short/Change columns) */
+  .cot-grid{display:grid;grid-template-columns:1fr 130px 1fr 1fr 1fr;align-items:center;padding:11px 14px;font-weight:600;border-top:1px solid var(--border);background:#1f254a;color:var(--muted);font-style:italic;font-size:12px}
+  .cot-grid .ind-name{font-weight:600}
+  .cot-grid .head-num{text-align:right;padding-right:6px}
+
+  footer{padding:18px;color:var(--muted);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="brand-mark">V→</div>
+    <div>
+      <div class="brand-name">VECTOR</div>
+      <h1>Asset Scorecard</h1>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;align-items:center">
+    <div class="meta">Updated: 2026-05-19 10:07 UTC</div>
+    <a class="btn" href="output.html">← Heatmap</a>
+  </div>
+</header>
+
+<div class="toolbar">
+  <label for="ccy">Currency</label>
+  <select id="ccy"></select>
+</div>
+
+<div class="layout">
+  <div class="left-panel">
+    <div class="card">
+      <div class="symbol-header">
+        <span class="card-title" style="margin:0">Symbol</span>
+        <span class="symbol-name" id="symbol-name">--</span>
+      </div>
+      <div class="overall-bias" id="overall-bias">--</div>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 200 130">
+          <!-- Bearish red arc -->
+          <path d="M 20 110 A 80 80 0 0 1 100 30" fill="none" stroke="#dd5050" stroke-width="22"/>
+          <!-- Neutral gray segment -->
+          <path d="M 100 30 A 80 80 0 0 1 105 30.1" fill="none" stroke="#5a6385" stroke-width="22"/>
+          <!-- Bullish blue arc -->
+          <path d="M 100 30 A 80 80 0 0 1 180 110" fill="none" stroke="#3974e6" stroke-width="22"/>
+          <!-- Labels -->
+          <text x="22" y="118" fill="#dd5050" font-size="11" font-weight="700">Bear</text>
+          <text x="100" y="22" fill="#aac4ff" font-size="11" font-weight="700" text-anchor="middle">Neutral</text>
+          <text x="160" y="118" fill="#3974e6" font-size="11" font-weight="700">Bull</text>
+          <!-- Needle (rotated via JS) -->
+          <g id="needle">
+            <line x1="100" y1="110" x2="100" y2="45" stroke="#e8ecff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="100" cy="110" r="6" fill="#3974e6" stroke="#e8ecff" stroke-width="2"/>
+          </g>
+        </svg>
+      </div>
+      <div class="gauge-score" id="gauge-score">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Score Breakdown</div>
+      <div class="score-line"><span class="label">Overall score</span><span class="val" id="sb-overall">0</span></div>
+      <div class="score-line"><span class="label">Technical</span><span class="val" id="sb-technical">0</span></div>
+      <div class="score-line"><span class="label">Sentiment + COT</span><span class="val" id="sb-sentiment">0</span></div>
+      <div class="score-line"><span class="label">Fundamentals</span><span class="val" id="sb-fundamentals">0</span></div>
+    </div>
+  </div>
+
+  <div class="right-panel" id="right-panel"></div>
+</div>
+
+<footer>
+  Vector &middot; Data: FRED, CFTC, TradingEconomics, Investing.com, ForexFactory, BusinessNZ, Myfxbook &middot; For personal research only, not financial advice.
+</footer>
+
+<script>
+const DATA = {"USD": {"ccy": "USD", "total_score": 2, "bias": "Bullish", "sub_scores": {"technical": 1, "sentiment_cot": 1, "fundamentals": 0, "growth": -4, "inflation": 2, "jobs": 2}, "sub_bias": {"technical": "Bullish", "sentiment_cot": "Bullish", "fundamentals": "Neutral", "growth": "Very Bearish", "inflation": "Very Bullish", "jobs": "Bullish"}, "technical": {"trend": 1, "seasonality": 0, "trend_label": "Very Bullish", "seasonality_label": "Neutral"}, "sentiment_cot": {"cot": 2, "crowd": -1, "cot_label": "Very Bullish", "crowd_label": "Very Bearish", "long_pct": 54.60057164304068, "short_pct": 45.39942835695932, "change_pct": null, "cot_stale": false}, "fundamentals": {"growth_rows": [{"indicator": "GDP Growth", "date": "2026-04-30", "surprise": -13.04, "actual": 2.0, "forecast": 2.3, "previous": 0.5, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "gdp"}, {"indicator": "Manufacturing PMI", "date": "2026-05-01", "surprise": -0.75, "actual": 52.7, "forecast": 53.1, "previous": 52.7, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "mpmi"}, {"indicator": "Services PMI", "date": "2026-05-05", "surprise": -0.58, "actual": 51.0, "forecast": 51.3, "previous": 49.8, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "spmi"}, {"indicator": "Retail Sales", "date": "2026-05-14", "surprise": 0.0, "actual": 0.5, "forecast": 0.5, "previous": 1.6, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "retail_sales"}, {"indicator": "Consumer Confidence", "date": "2026-05-08", "surprise": -3.21, "actual": 48.2, "forecast": 49.8, "previous": 49.8, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "consumer_conf"}], "inflation_rows": [{"indicator": "CPI YoY", "date": "2026-05-12", "surprise": 2.7, "actual": 3.8, "forecast": 3.7, "previous": 3.3, "currency_impact": "Bullish", "stocks_impact": "Bearish", "ind_id": "cpi"}, {"indicator": "PPI YoY", "date": "2026-05-13", "surprise": 22.45, "actual": 6.0, "forecast": 4.9, "previous": 4.3, "currency_impact": "Bullish", "stocks_impact": "Bearish", "ind_id": "ppi"}, {"indicator": "PCE YoY", "date": "2026-04-30", "surprise": 0.0, "actual": 3.5, "forecast": 3.5, "previous": 2.8, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "pce"}, {"indicator": "Interest Rate", "date": "2026-06-03", "surprise": 0.0, "actual": 3.75, "forecast": 3.75, "previous": 3.75, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "rates"}], "jobs_rows": [{"indicator": "Unemployment Rate", "date": "2026-05-08", "surprise": 0.0, "actual": 4.3, "forecast": 4.3, "previous": 4.3, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "unemployment_rate"}, {"indicator": "Jobless Claims", "date": "2026-05-14", "surprise": 2.93, "actual": 211000.0, "forecast": 205000.0, "previous": 199000.0, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "jobless_claims"}, {"indicator": "Non-Farm Payrolls", "date": "2026-05-08", "surprise": 85.48, "actual": 115000.0, "forecast": 62000.0, "previous": 185000.0, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "nfp"}, {"indicator": "ADP Employment", "date": "2026-05-06", "surprise": 10.1, "actual": 109000.0, "forecast": 99000.0, "previous": 61000.0, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "adp"}, {"indicator": "JOLTS Job Openings", "date": "2026-05-05", "surprise": 0.38, "actual": 6866000.0, "forecast": 6840000.0, "previous": 6922000.0, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "jolts"}]}}, "EUR": {"ccy": "EUR", "total_score": 2, "bias": "Bullish", "sub_scores": {"technical": -1, "sentiment_cot": 2, "fundamentals": 1, "growth": 1, "inflation": 0, "jobs": 0}, "sub_bias": {"technical": "Bearish", "sentiment_cot": "Very Bullish", "fundamentals": "Bullish", "growth": "Bullish", "inflation": "Neutral", "jobs": "Neutral"}, "technical": {"trend": -1, "seasonality": 0, "trend_label": "Very Bearish", "seasonality_label": "Neutral"}, "sentiment_cot": {"cot": 2, "crowd": 0, "cot_label": "Very Bullish", "crowd_label": "Neutral", "long_pct": 54.928838363527575, "short_pct": 45.071161636472425, "change_pct": null, "cot_stale": false}, "fundamentals": {"growth_rows": [{"indicator": "GDP Growth", "date": "2026-05-13", "surprise": 0.0, "actual": 0.1, "forecast": 0.1, "previous": 0.2, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "gdp"}, {"indicator": "Manufacturing PMI", "date": "2026-05-04", "surprise": 0.0, "actual": 52.2, "forecast": 52.2, "previous": 51.6, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "mpmi"}, {"indicator": "Services PMI", "date": "2026-05-06", "surprise": 0.42, "actual": 47.6, "forecast": 47.4, "previous": 50.2, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "spmi"}, {"indicator": "Retail Sales", "date": "2026-05-07", "surprise": 66.67, "actual": -0.1, "forecast": -0.3, "previous": -0.3, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "retail_sales"}, {"indicator": "Consumer Confidence", "date": "2026-04-29", "surprise": -26.38, "actual": -20.6, "forecast": -16.3, "previous": -16.3, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "consumer_conf"}], "inflation_rows": [{"indicator": "CPI YoY", "date": "2026-04-30", "surprise": 0.0, "actual": 3.0, "forecast": 3.0, "previous": 2.6, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "cpi"}, {"indicator": "PPI YoY", "date": "2026-05-06", "surprise": 16.67, "actual": 2.1, "forecast": 1.8, "previous": -3.0, "currency_impact": "Bullish", "stocks_impact": "Bearish", "ind_id": "ppi"}, {"indicator": "Interest Rate", "date": "2026-05-20", "surprise": -10.42, "actual": 2.15, "forecast": 2.4, "previous": 2.15, "currency_impact": "Bearish", "stocks_impact": "Bullish", "ind_id": "rates"}], "jobs_rows": [{"indicator": "Unemployment Rate", "date": "2026-04-30", "surprise": 0.0, "actual": 6.2, "forecast": 6.2, "previous": 6.3, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "unemployment_rate"}]}}, "GBP": {"ccy": "GBP", "total_score": -1, "bias": "Bearish", "sub_scores": {"technical": -1, "sentiment_cot": 0, "fundamentals": 0, "growth": 2, "inflation": -1, "jobs": -1}, "sub_bias": {"technical": "Bearish", "sentiment_cot": "Neutral", "fundamentals": "Neutral", "growth": "Bullish", "inflation": "Bearish", "jobs": "Very Bearish"}, "technical": {"trend": 0, "seasonality": -1, "trend_label": "Neutral", "seasonality_label": "Very Bearish"}, "sentiment_cot": {"cot": 0, "crowd": 0, "cot_label": "Neutral", "crowd_label": "Neutral", "long_pct": 39.3560061106744, "short_pct": 60.6439938893256, "change_pct": null, "cot_stale": false}, "fundamentals": {"growth_rows": [{"indicator": "GDP Growth", "date": "2026-05-14", "surprise": 0.0, "actual": 0.6, "forecast": 0.6, "previous": 0.2, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "gdp"}, {"indicator": "Manufacturing PMI", "date": "2026-05-01", "surprise": 0.19, "actual": 53.7, "forecast": 53.6, "previous": 51.0, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "mpmi"}, {"indicator": "Services PMI", "date": "2026-05-06", "surprise": 1.35, "actual": 52.7, "forecast": 52.0, "previous": 50.5, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "spmi"}, {"indicator": "Retail Sales", "date": "2026-04-24", "surprise": 250.0, "actual": 0.7, "forecast": 0.2, "previous": -0.6, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "retail_sales"}, {"indicator": "Consumer Confidence", "date": "2026-04-23", "surprise": -19.05, "actual": -25.0, "forecast": -21.0, "previous": -21.0, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "consumer_conf"}], "inflation_rows": [{"indicator": "CPI YoY", "date": "2026-04-22", "surprise": 0.0, "actual": 3.3, "forecast": 3.3, "previous": 3.0, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "cpi"}, {"indicator": "PPI YoY", "date": "2026-04-22", "surprise": -10.34, "actual": 2.6, "forecast": 2.9, "previous": 1.8, "currency_impact": "Bearish", "stocks_impact": "Bullish", "ind_id": "ppi"}, {"indicator": "Interest Rate", "date": "2026-06-18", "surprise": 0.0, "actual": 3.75, "forecast": 3.75, "previous": 3.75, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "rates"}], "jobs_rows": [{"indicator": "Unemployment Rate", "date": "2026-05-19", "surprise": 2.04, "actual": 5.0, "forecast": 4.9, "previous": 4.9, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "unemployment_rate"}]}}, "JPY": {"ccy": "JPY", "total_score": -2, "bias": "Bearish", "sub_scores": {"technical": 0, "sentiment_cot": -2, "fundamentals": 0, "growth": 1, "inflation": 0, "jobs": -1}, "sub_bias": {"technical": "Neutral", "sentiment_cot": "Very Bearish", "fundamentals": "Neutral", "growth": "Bullish", "inflation": "Neutral", "jobs": "Very Bearish"}, "technical": {"trend": 0, "seasonality": 0, "trend_label": "Neutral", "seasonality_label": "Neutral"}, "sentiment_cot": {"cot": -2, "crowd": 0, "cot_label": "Very Bearish", "crowd_label": "Neutral", "long_pct": 36.36551784235981, "short_pct": 63.63448215764019, "change_pct": null, "cot_stale": false}, "fundamentals": {"growth_rows": [{"indicator": "GDP Growth", "date": "2026-05-18", "surprise": 25.0, "actual": 0.5, "forecast": 0.4, "previous": 0.2, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "gdp"}, {"indicator": "Manufacturing PMI", "date": "2026-05-01", "surprise": 0.36, "actual": 55.1, "forecast": 54.9, "previous": 51.6, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "mpmi"}, {"indicator": "Services PMI", "date": "2026-05-08", "surprise": -0.39, "actual": 51.0, "forecast": 51.2, "previous": 53.4, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "spmi"}, {"indicator": "Retail Sales", "date": "2026-04-29", "surprise": 112.5, "actual": 1.7, "forecast": 0.8, "previous": -0.1, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "retail_sales"}, {"indicator": "Consumer Confidence", "date": "2026-04-30", "surprise": -3.3, "actual": 32.2, "forecast": 33.3, "previous": 33.3, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "consumer_conf"}], "inflation_rows": [{"indicator": "CPI YoY", "date": "2026-04-23", "surprise": null, "actual": 1.5, "forecast": null, "previous": 1.3, "currency_impact": "n/a", "stocks_impact": "n/a", "ind_id": "cpi"}, {"indicator": "PPI YoY", "date": "2026-05-14", "surprise": 63.33, "actual": 4.9, "forecast": 3.0, "previous": 2.9, "currency_impact": "Bullish", "stocks_impact": "Bearish", "ind_id": "ppi"}, {"indicator": "Interest Rate", "date": "2026-06-16", "surprise": -25.0, "actual": 0.75, "forecast": 1.0, "previous": 0.75, "currency_impact": "Bearish", "stocks_impact": "Bullish", "ind_id": "rates"}], "jobs_rows": [{"indicator": "Unemployment Rate", "date": "2026-04-27", "surprise": 3.85, "actual": 2.7, "forecast": 2.6, "previous": 2.6, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "unemployment_rate"}]}}, "CHF": {"ccy": "CHF", "total_score": 5, "bias": "Bullish", "sub_scores": {"technical": 2, "sentiment_cot": -2, "fundamentals": 5, "growth": 3, "inflation": 1, "jobs": 1}, "sub_bias": {"technical": "Very Bullish", "sentiment_cot": "Very Bearish", "fundamentals": "Very Bullish", "growth": "Very Bullish", "inflation": "Bullish", "jobs": "Very Bullish"}, "technical": {"trend": 1, "seasonality": 1, "trend_label": "Very Bullish", "seasonality_label": "Very Bullish"}, "sentiment_cot": {"cot": -2, "crowd": 0, "cot_label": "Very Bearish", "crowd_label": "Neutral", "long_pct": 11.81831606928124, "short_pct": 88.18168393071876, "change_pct": null, "cot_stale": false}, "fundamentals": {"growth_rows": [{"indicator": "GDP Growth", "date": "2026-05-18", "surprise": 66.67, "actual": 0.5, "forecast": 0.3, "previous": 0.2, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "gdp"}, {"indicator": "Manufacturing PMI", "date": "2026-05-04", "surprise": 4.81, "actual": 54.5, "forecast": 52.0, "previous": 53.3, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "mpmi"}, {"indicator": "Services PMI", "date": "2026-05-04", "surprise": 4.81, "actual": 54.5, "forecast": 52.0, "previous": 53.3, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "spmi"}, {"indicator": "Retail Sales", "date": "2026-05-01", "surprise": -50.0, "actual": 0.5, "forecast": 1.0, "previous": 0.4, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "retail_sales"}, {"indicator": "Consumer Confidence", "date": "2026-05-08", "surprise": 6.98, "actual": -40.0, "forecast": -43.0, "previous": -43.0, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "consumer_conf"}], "inflation_rows": [{"indicator": "CPI YoY", "date": "2026-05-05", "surprise": null, "actual": 0.6, "forecast": null, "previous": 0.3, "currency_impact": "n/a", "stocks_impact": "n/a", "ind_id": "cpi"}, {"indicator": "PPI YoY", "date": "2026-05-12", "surprise": 23.08, "actual": -2.0, "forecast": -2.6, "previous": -2.7, "currency_impact": "Bullish", "stocks_impact": "Bearish", "ind_id": "ppi"}, {"indicator": "Interest Rate", "date": "2026-06-18", "surprise": 0.0, "actual": 0.0, "forecast": 0.0, "previous": 0.0, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "rates"}], "jobs_rows": [{"indicator": "Unemployment Rate", "date": "2026-05-07", "surprise": -3.23, "actual": 3.0, "forecast": 3.1, "previous": 3.1, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "unemployment_rate"}]}}, "AUD": {"ccy": "AUD", "total_score": 3, "bias": "Bullish", "sub_scores": {"technical": -1, "sentiment_cot": 2, "fundamentals": 2, "growth": 4, "inflation": -2, "jobs": 0}, "sub_bias": {"technical": "Bearish", "sentiment_cot": "Very Bullish", "fundamentals": "Bullish", "growth": "Very Bullish", "inflation": "Very Bearish", "jobs": "Neutral"}, "technical": {"trend": 0, "seasonality": -1, "trend_label": "Neutral", "seasonality_label": "Very Bearish"}, "sentiment_cot": {"cot": 2, "crowd": 0, "cot_label": "Very Bullish", "crowd_label": "Neutral", "long_pct": 69.61820783897328, "short_pct": 30.381792161026723, "change_pct": null, "cot_stale": false}, "fundamentals": {"growth_rows": [{"indicator": "GDP Growth", "date": "2026-03-04", "surprise": 33.33, "actual": 0.8, "forecast": 0.6, "previous": 0.5, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "gdp"}, {"indicator": "Manufacturing PMI", "date": "2026-04-30", "surprise": 0.59, "actual": 51.3, "forecast": 51.0, "previous": 49.8, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "mpmi"}, {"indicator": "Services PMI", "date": "2026-05-04", "surprise": 0.8, "actual": 50.7, "forecast": 50.3, "previous": 46.3, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "spmi"}, {"indicator": "Retail Sales", "date": "2026-03-01", "surprise": null, "actual": 1.6, "forecast": null, "previous": 0.3, "currency_impact": "n/a", "stocks_impact": "n/a", "ind_id": "retail_sales"}, {"indicator": "Consumer Confidence", "date": "2026-05-19", "surprise": 3.62, "actual": 83.0, "forecast": 80.1, "previous": 80.1, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "consumer_conf"}], "inflation_rows": [{"indicator": "CPI YoY", "date": "2026-04-29", "surprise": -2.38, "actual": 4.1, "forecast": 4.2, "previous": 3.6, "currency_impact": "Bearish", "stocks_impact": "Bullish", "ind_id": "cpi"}, {"indicator": "PPI YoY", "date": "2026-05-01", "surprise": -26.83, "actual": 3.0, "forecast": 4.1, "previous": 3.5, "currency_impact": "Bearish", "stocks_impact": "Bullish", "ind_id": "ppi"}, {"indicator": "Interest Rate", "date": "2026-06-04", "surprise": 0.0, "actual": 4.35, "forecast": 4.35, "previous": 4.35, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "rates"}], "jobs_rows": [{"indicator": "Unemployment Rate", "date": "2026-04-16", "surprise": 0.0, "actual": 4.3, "forecast": 4.3, "previous": 4.3, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "unemployment_rate"}]}}, "CAD": {"ccy": "CAD", "total_score": -3, "bias": "Bearish", "sub_scores": {"technical": 1, "sentiment_cot": -2, "fundamentals": -2, "growth": -1, "inflation": 0, "jobs": -1}, "sub_bias": {"technical": "Bullish", "sentiment_cot": "Very Bearish", "fundamentals": "Bearish", "growth": "Bearish", "inflation": "Neutral", "jobs": "Very Bearish"}, "technical": {"trend": 1, "seasonality": 0, "trend_label": "Very Bullish", "seasonality_label": "Neutral"}, "sentiment_cot": {"cot": -2, "crowd": 0, "cot_label": "Very Bearish", "crowd_label": "Neutral", "long_pct": 45.23208435588225, "short_pct": 54.76791564411775, "change_pct": null, "cot_stale": false}, "fundamentals": {"growth_rows": [{"indicator": "GDP Growth", "date": "2026-02-27", "surprise": -100.0, "actual": -0.2, "forecast": -0.1, "previous": 0.6, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "gdp"}, {"indicator": "Manufacturing PMI", "date": "2026-05-01", "surprise": 6.6, "actual": 53.3, "forecast": null, "previous": 50.0, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "mpmi"}, {"indicator": "Services PMI", "date": "2026-05-05", "surprise": 4.24, "actual": 49.2, "forecast": null, "previous": 47.2, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "spmi"}, {"indicator": "Retail Sales", "date": "2026-04-24", "surprise": -22.22, "actual": 0.7, "forecast": 0.9, "previous": 1.2, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "retail_sales"}, {"indicator": "Consumer Confidence", "date": "2026-05-01", "surprise": -7.32, "actual": 45.6, "forecast": 49.2, "previous": 49.2, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "consumer_conf"}], "inflation_rows": [{"indicator": "CPI YoY", "date": "2026-04-20", "surprise": -4.0, "actual": 2.4, "forecast": 2.5, "previous": 1.8, "currency_impact": "Bearish", "stocks_impact": "Bullish", "ind_id": "cpi"}, {"indicator": "PPI YoY", "date": "2026-04-23", "surprise": 20.0, "actual": 7.8, "forecast": 6.5, "previous": 5.6, "currency_impact": "Bullish", "stocks_impact": "Bearish", "ind_id": "ppi"}, {"indicator": "Interest Rate", "date": "2026-05-22", "surprise": 0.0, "actual": 2.25, "forecast": 2.25, "previous": 2.25, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "rates"}], "jobs_rows": [{"indicator": "Unemployment Rate", "date": "2026-05-08", "surprise": 2.99, "actual": 6.9, "forecast": 6.7, "previous": 6.7, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "unemployment_rate"}]}}, "NZD": {"ccy": "NZD", "total_score": 3, "bias": "Bullish", "sub_scores": {"technical": 0, "sentiment_cot": 1, "fundamentals": 2, "growth": -1, "inflation": 2, "jobs": 1}, "sub_bias": {"technical": "Neutral", "sentiment_cot": "Bullish", "fundamentals": "Bullish", "growth": "Bearish", "inflation": "Very Bullish", "jobs": "Very Bullish"}, "technical": {"trend": -1, "seasonality": 1, "trend_label": "Very Bearish", "seasonality_label": "Very Bullish"}, "sentiment_cot": {"cot": 0, "crowd": 1, "cot_label": "Neutral", "crowd_label": "Very Bullish", "long_pct": 18.850450335762705, "short_pct": 81.1495496642373, "change_pct": null, "cot_stale": false}, "fundamentals": {"growth_rows": [{"indicator": "GDP Growth", "date": "2026-03-18", "surprise": -50.0, "actual": 0.2, "forecast": 0.4, "previous": 0.9, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "gdp"}, {"indicator": "Manufacturing PMI", "date": "2026-05-14", "surprise": -4.36, "actual": 50.5, "forecast": null, "previous": 52.8, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "mpmi"}, {"indicator": "Services PMI", "date": "2026-04-01", "surprise": 5.84, "actual": 48.9, "forecast": null, "previous": 46.2, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "spmi"}, {"indicator": "Retail Sales", "date": "2026-02-22", "surprise": 50.0, "actual": 0.9, "forecast": 0.6, "previous": 1.9, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "retail_sales"}, {"indicator": "Consumer Confidence", "date": "2026-03-17", "surprise": -1.87, "actual": 94.7, "forecast": 96.5, "previous": 96.5, "currency_impact": "Bearish", "stocks_impact": "Bearish", "ind_id": "consumer_conf"}], "inflation_rows": [{"indicator": "CPI YoY", "date": "2026-04-20", "surprise": 6.9, "actual": 3.1, "forecast": 2.9, "previous": 3.1, "currency_impact": "Bullish", "stocks_impact": "Bearish", "ind_id": "cpi"}, {"indicator": "PPI YoY", "date": "2026-05-18", "surprise": 60.0, "actual": 0.8, "forecast": 0.5, "previous": 0.1, "currency_impact": "Bullish", "stocks_impact": "Bearish", "ind_id": "ppi"}, {"indicator": "Interest Rate", "date": "2026-05-27", "surprise": 0.0, "actual": 2.25, "forecast": 2.25, "previous": 2.25, "currency_impact": "Neutral", "stocks_impact": "Neutral", "ind_id": "rates"}], "jobs_rows": [{"indicator": "Unemployment Rate", "date": "2026-05-05", "surprise": -1.85, "actual": 5.3, "forecast": 5.4, "previous": 5.4, "currency_impact": "Bullish", "stocks_impact": "Bullish", "ind_id": "unemployment_rate"}]}}};
+const CURRENCIES = ["USD","EUR","GBP","JPY","CHF","AUD","CAD","NZD"];
+
+function biasClass(label){
+  if(!label) return 'neutral';
+  if(label.indexOf('Bull') >= 0) return 'bull';
+  if(label.indexOf('Bear') >= 0) return 'bear';
+  return 'neutral';
+}
+
+function impactPill(label){
+  const cls = biasClass(label);
+  if(label === 'n/a' || !label) return '<span class="num na">n/a</span>';
+  return '<span class="impact-pill '+cls+'">'+label+'</span>';
+}
+
+function scorePill(score){
+  if(score === null || score === undefined) return '<span class="num na">n/a</span>';
+  const cls = score > 0 ? 'bull' : (score < 0 ? 'bear' : 'neutral');
+  return '<span class="score-pill '+cls+'">'+(score > 0 ? '+' : '')+score+'</span>';
+}
+
+function fmtNum(v){
+  if(v === null || v === undefined) return '<span class="num na">n/a</span>';
+  return '<span class="num">'+v+'</span>';
+}
+
+function fmtPct(v, suffix){
+  if(v === null || v === undefined) return '<span class="num na">n/a</span>';
+  suffix = suffix || '%';
+  return '<span class="num">'+(typeof v === 'number' ? v.toFixed(2) : v)+suffix+'</span>';
+}
+
+function fmtSurprise(s){
+  if(s === null || s === undefined) return '<span class="surprise flat">n/a</span>';
+  const cls = s > 0 ? 'pos' : (s < 0 ? 'neg' : 'flat');
+  return '<span class="surprise '+cls+'">'+(s > 0 ? '+' : '')+s.toFixed(2)+'%</span>';
+}
+
+function renderSection(title, biasLabel, rows){
+  let html = '<div class="section">';
+  html += '<div class="section-header">';
+  html += '<span class="section-name">'+title+'</span>';
+  html += '<span class="section-bias '+biasClass(biasLabel)+'" style="color:'+(biasLabel.indexOf('Bull')>=0?'#aac4ff':(biasLabel.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+biasLabel+'</span>';
+  html += '<span class="col-actual">Actual</span>';
+  html += '<span class="col-forecast">Forecast</span>';
+  html += '<span class="col-surprise">Surprise</span>';
+  html += '</div>';
+  html += '<div class="section-rows">';
+  for(const r of rows){
+    html += '<div class="row">';
+    html += '<span class="ind-name">'+r.indicator+'</span>';
+    html += '<span class="impact">'+impactPill(r.currency_impact)+'</span>';
+    html += '<span class="actual">'+fmtNum(r.actual)+'</span>';
+    html += '<span class="forecast">'+fmtNum(r.forecast)+'</span>';
+    html += '<span class="surprise">'+fmtSurprise(r.surprise)+'</span>';
+    html += '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function renderTechnicalSentiment(scData){
+  // Combined: Technical bias section + Crowd sentiment + Institutional (COT)
+  let html = '';
+
+  // Technical bias
+  html += '<div class="section">';
+  html += '<div class="section-header">';
+  html += '<span class="section-name">Technical bias</span>';
+  const tBias = scData.sub_bias.technical;
+  html += '<span class="section-bias" style="color:'+(tBias.indexOf('Bull')>=0?'#aac4ff':(tBias.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+tBias+'</span>';
+  html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-surprise"></span>';
+  html += '</div>';
+  html += '<div class="row"><span class="ind-name">4H / Daily Chart Trend</span><span class="impact">'+impactPill(scData.technical.trend_label)+'</span><span></span><span></span><span></span></div>';
+  html += '<div class="row"><span class="ind-name">Current Month\'s Seasonality</span><span class="impact">'+impactPill(scData.technical.seasonality_label)+'</span><span></span><span></span><span></span></div>';
+  html += '</div>';
+
+  // Crowd sentiment + Institutional bias combined (two distinct sections like the screenshot)
+  html += '<div class="section">';
+  html += '<div class="section-header">';
+  html += '<span class="section-name">Crowd sentiment signal</span>';
+  html += '<span class="section-bias" style="color:'+(scData.sentiment_cot.crowd_label.indexOf('Bull')>=0?'#aac4ff':(scData.sentiment_cot.crowd_label.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+scData.sentiment_cot.crowd_label+'</span>';
+  html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-surprise"></span>';
+  html += '</div>';
+  html += '<div class="row"><span class="ind-name" style="grid-column:span 5;color:var(--muted);font-style:italic">Retail crowd sentiment averaged across this currency\'s 7 pairs. Sign reflects contrarian read: heavy long crowd = bearish, heavy short crowd = bullish.</span></div>';
+  html += '</div>';
+
+  // Institutional activity (COT)
+  html += '<div class="section">';
+  html += '<div class="section-header">';
+  html += '<span class="section-name">Institutional activity bias</span>';
+  html += '<span class="section-bias" style="color:'+(scData.sentiment_cot.cot_label.indexOf('Bull')>=0?'#aac4ff':(scData.sentiment_cot.cot_label.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+scData.sentiment_cot.cot_label+'</span>';
+  html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-surprise"></span>';
+  html += '</div>';
+  // Header for cot detail columns
+  html += '<div class="cot-grid"><span class="ind-name"></span><span></span><span class="head-num">Long %</span><span class="head-num">Short %</span><span class="head-num">Change %</span></div>';
+  html += '<div class="row">';
+  html += '<span class="ind-name">COT - Net Positioning</span>';
+  html += '<span class="impact">'+impactPill(scData.sentiment_cot.cot_label)+'</span>';
+  html += '<span class="actual">'+fmtPct(scData.sentiment_cot.long_pct)+'</span>';
+  html += '<span class="forecast">'+fmtPct(scData.sentiment_cot.short_pct)+'</span>';
+  html += '<span class="surprise">'+(scData.sentiment_cot.change_pct === null || scData.sentiment_cot.change_pct === undefined ? '<span class="num na">n/a</span>' : '<span class="surprise '+(scData.sentiment_cot.change_pct > 0 ? 'pos':'neg')+'">'+(scData.sentiment_cot.change_pct > 0 ? '+':'')+scData.sentiment_cot.change_pct.toFixed(2)+'%</span>')+'</span>';
+  html += '</div>';
+  html += '</div>';
+
+  return html;
+}
+
+function render(ccy){
+  const sc = DATA[ccy];
+  if(!sc) return;
+
+  document.getElementById('symbol-name').textContent = ccy;
+  document.getElementById('overall-bias').textContent = sc.bias;
+  document.getElementById('overall-bias').style.color = sc.bias.indexOf('Bull')>=0 ? '#aac4ff' : (sc.bias.indexOf('Bear')>=0 ? '#ffaab4' : '#8893c0');
+  document.getElementById('gauge-score').textContent = sc.total_score;
+
+  // Needle rotation: -180 (full left = -max) to 0 (center neutral) to +180 (full right = +max)
+  // SVG path goes from -90 (left) to +90 (right). Map total to that range.
+  const SCALE_MAX = 20; // arbitrary; clamps gauge sensitivity
+  const clamped = Math.max(-SCALE_MAX, Math.min(SCALE_MAX, sc.total_score));
+  const angle = (clamped / SCALE_MAX) * 90;
+  document.getElementById('needle').setAttribute('transform', 'rotate('+angle+' 100 110)');
+
+  document.getElementById('sb-overall').innerHTML = scorePill(sc.total_score);
+  document.getElementById('sb-technical').innerHTML = scorePill(sc.sub_scores.technical);
+  document.getElementById('sb-sentiment').innerHTML = scorePill(sc.sub_scores.sentiment_cot);
+  document.getElementById('sb-fundamentals').innerHTML = scorePill(sc.sub_scores.fundamentals);
+
+  let html = '';
+  html += renderTechnicalSentiment(sc);
+  html += renderSection('Economic growth bias', sc.sub_bias.growth, sc.fundamentals.growth_rows);
+  html += renderSection('Inflation bias', sc.sub_bias.inflation, sc.fundamentals.inflation_rows);
+  html += renderSection('Jobs market bias', sc.sub_bias.jobs, sc.fundamentals.jobs_rows);
+  document.getElementById('right-panel').innerHTML = html;
+
+  // Update URL hash without scrolling
+  if(history.replaceState){
+    history.replaceState(null, '', '#'+ccy);
+  }
+}
+
+// Init
+const sel = document.getElementById('ccy');
+for(const c of CURRENCIES){
+  const opt = document.createElement('option');
+  opt.value = c; opt.textContent = c;
+  sel.appendChild(opt);
+}
+sel.addEventListener('change', () => render(sel.value));
+
+// Read initial currency from hash
+const initial = (location.hash || '').replace('#','').toUpperCase();
+const startCcy = CURRENCIES.indexOf(initial) >= 0 ? initial : 'USD';
+sel.value = startCcy;
+render(startCcy);
+</script>
+</body>
+</html>
