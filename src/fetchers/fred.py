@@ -32,9 +32,10 @@ def load_series_map() -> dict:
         return yaml.safe_load(f)
 
 
-def _cache_path(series_id: str) -> Path:
+def _cache_path(series_id: str, suffix: str = "") -> Path:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    return CACHE_DIR / f"fred_{series_id}.json"
+    tag = f"_{suffix}" if suffix else ""
+    return CACHE_DIR / f"fred_{series_id}{tag}.json"
 
 
 def _is_fresh(path: Path, max_age_hours: int = 6) -> bool:
@@ -45,12 +46,18 @@ def _is_fresh(path: Path, max_age_hours: int = 6) -> bool:
     return age < max_age_hours * 3600
 
 
-def fetch_series(series_id: str, api_key: str, force: bool = False) -> list[FredObservation]:
+def fetch_series(series_id: str, api_key: str, force: bool = False,
+                 limit: int = 60, cache_suffix: str = "") -> list[FredObservation]:
     """
     Fetch one FRED series, with disk cache.
     Retries transient 500/503 errors with exponential backoff (1s, 2s, 4s).
+
+    limit: number of most-recent observations to pull. Default 60 (enough for
+    scoring momentum/z-score). The inflation history chart uses a larger limit.
+    cache_suffix: keeps high-limit history caches separate from the default
+    60-obs scoring caches so the two don't overwrite each other.
     """
-    cache = _cache_path(series_id)
+    cache = _cache_path(series_id, cache_suffix)
     if not force and _is_fresh(cache):
         with open(cache) as f:
             data = json.load(f)
@@ -60,7 +67,7 @@ def fetch_series(series_id: str, api_key: str, force: bool = False) -> list[Fred
             "api_key": api_key,
             "file_type": "json",
             "sort_order": "desc",
-            "limit": 60,
+            "limit": limit,
         }
         last_err: Exception | None = None
         for attempt in range(3):
@@ -133,6 +140,40 @@ def fetch_all_macro(api_key: Optional[str] = None, as_of_date: Optional[str] = N
                 print(f"[fred] {ccy}/{ind} ({series_id}) failed: {e}")
                 out[ccy][ind] = []
             time.sleep(0.05)
+    return out
+
+
+def fetch_cpi_history(api_key: Optional[str] = None, force: bool = False,
+                      limit: int = 240, as_of_date: Optional[str] = None) -> dict:
+    """
+    Fetch a long CPI *index* history for each currency, for the inflation page
+    line chart. Returns {ccy: list[FredObservation]} (newest first).
+
+    Uses a separate "hist" cache so it doesn't clobber the 60-obs scoring cache.
+    limit=240 gives 20 years monthly / 60 years quarterly (FRED returns
+    whatever it actually has).
+    """
+    api_key = api_key or os.getenv("FRED_API_KEY")
+    if not api_key:
+        raise RuntimeError("FRED_API_KEY missing. Add it to your .env file.")
+
+    series_map = load_series_map()
+    out: dict = {}
+    for ccy, indicators in series_map.items():
+        series_id = indicators.get("cpi")
+        if not series_id:
+            out[ccy] = []
+            continue
+        try:
+            obs = fetch_series(series_id, api_key, force=bool(as_of_date) or force,
+                               limit=limit, cache_suffix="hist")
+            if as_of_date:
+                obs = [o for o in obs if o.date <= as_of_date]
+            out[ccy] = obs
+        except Exception as e:
+            print(f"[fred-hist] {ccy}/cpi ({series_id}) failed: {e}")
+            out[ccy] = []
+        time.sleep(0.05)
     return out
 
 

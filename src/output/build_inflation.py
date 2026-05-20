@@ -35,6 +35,11 @@ CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD")
 # Currencies whose FRED CPI series is quarterly (YoY = 4 periods back).
 _QUARTERLY = {"AUD", "NZD"}
 
+# How many years of CPI history to show on the line chart. Long enough to
+# capture the 2020-2022 inflation cycle plus prior baseline, short enough that
+# the recent moves aren't visually compressed.
+_DISPLAY_YEARS = 12
+
 
 def _yoy_from_index(obs: list, periods: int) -> list[dict]:
     """Given FRED index observations (FredObservation objects, any order),
@@ -71,19 +76,35 @@ def _latest_from_econ(econ_data: dict, indicator_label: str) -> dict:
     return out
 
 
-def build_all(econ_data: dict, macro_data: dict) -> dict:
-    """Assemble the inflation page payload."""
+def build_all(econ_data: dict, cpi_index_by_ccy: dict) -> dict:
+    """Assemble the inflation page payload.
+
+    cpi_index_by_ccy: {ccy: list[FredObservation]} of CPI *index* levels (the
+    long history from fred.fetch_cpi_history). YoY is computed here.
+    """
     cpi_latest = _latest_from_econ(econ_data, "CPI YoY")
     ppi_latest = _latest_from_econ(econ_data, "PPI YoY")
 
-    # Historical CPI YoY from FRED index series (already in macro_data)
+    # Historical CPI YoY computed from the FRED index series
     cpi_history = {}
     for ccy in CURRENCIES:
-        obs = (macro_data.get(ccy, {}) or {}).get("cpi", []) or []
+        obs = (cpi_index_by_ccy or {}).get(ccy, []) or []
         periods = 4 if ccy in _QUARTERLY else 12
         series = _yoy_from_index(obs, periods)
         if series:
             cpi_history[ccy] = series
+
+    # Trim every series to a common recent window so the left edge lines up.
+    # Monthly series reach back ~19yr and quarterly even further; without this
+    # the chart's left side would be ragged (only AUD/NZD that far back).
+    if cpi_history:
+        all_newest = max(s[-1]["date"] for s in cpi_history.values() if s)
+        cutoff_year = int(all_newest[:4]) - _DISPLAY_YEARS
+        cutoff = f"{cutoff_year:04d}{all_newest[4:]}"  # same MM-DD, N years back
+        for ccy in list(cpi_history.keys()):
+            cpi_history[ccy] = [p for p in cpi_history[ccy] if p["date"] >= cutoff]
+            if not cpi_history[ccy]:
+                del cpi_history[ccy]
 
     # Drop hopelessly stale series so the line chart doesn't draw stub lines
     # that end years before the others (e.g. the deprecated JPY FRED series

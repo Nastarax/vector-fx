@@ -239,9 +239,17 @@ def main():
         if econ_data is None:
             print("[inflation] skipping - econ_data unavailable")
         else:
+            # Long CPI index history (separate high-limit fetch, own cache) so
+            # the line chart reaches back ~20 years instead of the 5-year
+            # window the scoring fetch uses.
+            try:
+                cpi_index_hist = fred.fetch_cpi_history(as_of_date=args.date)
+            except Exception as e:
+                print(f"[inflation] CPI history fetch failed: {e}; falling back to scoring CPI window")
+                cpi_index_hist = {ccy: macro.get(ccy, {}).get("cpi", []) for ccy in macro}
             inflation_payload = build_inflation.build_all(
                 econ_data=econ_data,
-                macro_data=macro,
+                cpi_index_by_ccy=cpi_index_hist,
             )
             inflation_path = build_inflation.render(inflation_payload)
     except Exception as e:
