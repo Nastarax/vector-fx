@@ -12,16 +12,16 @@
     "previous": 2.4
   },
   "EUR": {
-    "date": "2026-04-30",
+    "date": "2026-05-20",
     "actual": 3.0,
     "forecast": 3.0,
     "previous": 2.6
   },
   "GBP": {
-    "date": "2026-04-22",
-    "actual": 3.3,
-    "forecast": 3.3,
-    "previous": 3.0
+    "date": "2026-05-20",
+    "actual": 2.8,
+    "forecast": 3.0,
+    "previous": 3.3
   },
   "AUD": {
     "date": "2026-04-29",
