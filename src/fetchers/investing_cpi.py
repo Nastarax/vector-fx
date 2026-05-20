@@ -269,6 +269,108 @@ def load_cached():
     return _load_cache()
 
 
+# ---------------------------------------------------------------------------
+# Japan Tokyo Core CPI YoY (event id 328). Used as the JPY CPI source for both
+# scoring (Actual vs Forecast/consensus) and the inflation page history chart.
+# The full monthly series (~100 releases back to 2018) is embedded in the
+# page's Next.js __NEXT_DATA__ blob, so one page fetch gives latest + history.
+# ---------------------------------------------------------------------------
+TOKYO_CORE_CPI_URL = (
+    "https://www.investing.com/economic-calendar/"
+    "japan-tokyo-core-consumer-price-index-(cpi)-yoy-328"
+)
+TOKYO_CORE_CACHE = CACHE_DIR / "tokyo_core_cpi.json"
+
+_MONTH_ABBR = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+
+def _occ_ref_date(occ: dict) -> str | None:
+    """Reference-month date (YYYY-MM-01) for one occurrence, using its
+    reference_period plus the release year. Tokyo CPI is a same-month release,
+    but guard the Dec-data-released-in-Jan edge by rolling the year back."""
+    t = occ.get("occurrence_time") or ""
+    if len(t) < 7:
+        return None
+    rel_y, rel_m = int(t[:4]), int(t[5:7])
+    ref = (occ.get("reference_period") or "").strip().lower()[:3]
+    mo = _MONTH_ABBR.get(ref)
+    if mo is None:
+        return f"{rel_y:04d}-{rel_m:02d}-01"
+    year = rel_y - 1 if mo > rel_m else rel_y
+    return f"{year:04d}-{mo:02d}-01"
+
+
+def fetch_tokyo_core_cpi() -> dict | None:
+    """
+    Fetch Japan Tokyo Core CPI YoY from Investing.com.
+
+    Returns a dict that drops into the same scoring path as the per-currency
+    CPI cache (Actual vs Forecast), plus a deep history list for the chart:
+      {date, actual, forecast, consensus, previous, ref_month,
+       history:[{date:'YYYY-MM-01', value:float}, ...ascending]}
+    Falls back to the local cache on failure. Returns None if nothing usable.
+    """
+    status, html = _fetch_with_retries(TOKYO_CORE_CPI_URL)
+    if status != 200 or not html:
+        print(f"[cpi] Tokyo Core CPI fetch failed (status {status}), using cache")
+        return load_tokyo_core_cpi()
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL)
+    if not m:
+        print("[cpi] Tokyo Core CPI: __NEXT_DATA__ not found, using cache")
+        return load_tokyo_core_cpi()
+    try:
+        data = json.loads(m.group(1))
+        occ = data["props"]["pageProps"]["state"]["economicCalendarEventStore"]["occurrences"]
+    except Exception as e:
+        print(f"[cpi] Tokyo Core CPI: __NEXT_DATA__ parse failed ({e}), using cache")
+        return load_tokyo_core_cpi()
+
+    released = [o for o in occ if o.get("actual") is not None]
+    released.sort(key=lambda o: o.get("occurrence_time") or "")
+    history = []
+    for o in released:
+        d = _occ_ref_date(o)
+        if d:
+            history.append({"date": d, "value": o["actual"]})
+    if not history:
+        print("[cpi] Tokyo Core CPI: no released occurrences, using cache")
+        return load_tokyo_core_cpi()
+
+    latest = released[-1]
+    result = {
+        "date": (latest.get("occurrence_time") or "")[:10],
+        "actual": latest.get("actual"),
+        "forecast": latest.get("forecast"),     # consensus -> scoring benchmark
+        "consensus": latest.get("forecast"),
+        "previous": latest.get("previous"),
+        "ref_month": latest.get("reference_period"),
+        "history": history,
+    }
+    try:
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        with open(TOKYO_CORE_CACHE, "w") as f:
+            json.dump(result, f, indent=2)
+    except Exception:
+        pass
+    print(f"[cpi] Tokyo Core CPI: {result['ref_month']} actual={result['actual']} "
+          f"forecast={result['forecast']} prev={result['previous']} "
+          f"({result['date']}); {len(history)} history pts {history[0]['date']}..{history[-1]['date']}")
+    return result
+
+
+def load_tokyo_core_cpi() -> dict | None:
+    if not TOKYO_CORE_CACHE.exists():
+        return None
+    try:
+        with open(TOKYO_CORE_CACHE) as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
 if __name__ == "__main__":
     print(f"curl_cffi installed: {HAS_CFFI}")
     data = fetch_cpi()

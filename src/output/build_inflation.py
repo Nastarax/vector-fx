@@ -30,6 +30,11 @@ from pathlib import Path
 
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
+# Persistent CPI YoY history archive. Accumulates points from every run and
+# never drops old ones, so the line chart survives a source going dark (TE
+# changing pages, FRED deprecating a series, etc.).
+ARCHIVE_FILE = OUTPUT_DIR / "cache" / "cpi_history_archive.json"
+
 CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD")
 
 # Currencies whose FRED CPI series is quarterly (YoY = 4 periods back).
@@ -39,6 +44,57 @@ _QUARTERLY = {"AUD", "NZD"}
 # capture the 2020-2022 inflation cycle plus prior baseline, short enough that
 # the recent moves aren't visually compressed.
 _DISPLAY_YEARS = 12
+
+_MONTH_ABBR = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+
+def _load_archive() -> dict:
+    if not ARCHIVE_FILE.exists():
+        return {}
+    try:
+        with open(ARCHIVE_FILE) as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _save_archive(arch: dict) -> None:
+    try:
+        ARCHIVE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(ARCHIVE_FILE, "w") as f:
+            json.dump(arch, f, indent=2, sort_keys=True)
+    except Exception:
+        pass
+
+
+def _merge_points(arch: dict, ccy: str, points: list[dict]) -> None:
+    """Merge [{date, value}] into arch[ccy] keyed by date (YYYY-MM-01).
+    New points overwrite same-date values (latest fetch wins); old dates kept."""
+    bucket = arch.setdefault(ccy, {})
+    for p in points:
+        d, v = p.get("date"), p.get("value")
+        if d and v is not None:
+            bucket[d] = v
+
+
+def _tokyo_recent_to_points(tokyo_core: dict) -> list[dict]:
+    """Convert TE Tokyo Core CPI 'recent' rows to [{date(YYYY-MM-01), value}].
+    The reported month (e.g. 'Apr') maps to the reference period; the year comes
+    from the release date."""
+    out = []
+    for row in (tokyo_core or {}).get("recent", []) or []:
+        actual = row.get("actual")
+        rel_date = row.get("date") or ""
+        ref = (row.get("ref_month") or "").strip().lower()[:3]
+        mo = _MONTH_ABBR.get(ref)
+        if actual is None or mo is None or len(rel_date) < 4:
+            continue
+        year = int(rel_date[:4])
+        out.append({"date": f"{year:04d}-{mo:02d}-01", "value": actual})
+    return out
 
 
 def _yoy_from_index(obs: list, periods: int) -> list[dict]:
@@ -76,40 +132,79 @@ def _latest_from_econ(econ_data: dict, indicator_label: str) -> dict:
     return out
 
 
-def build_all(econ_data: dict, cpi_index_by_ccy: dict) -> dict:
+def build_all(econ_data: dict, cpi_index_by_ccy: dict, tokyo_core: dict | None = None) -> dict:
     """Assemble the inflation page payload.
 
     cpi_index_by_ccy: {ccy: list[FredObservation]} of CPI *index* levels (the
     long history from fred.fetch_cpi_history). YoY is computed here.
+    tokyo_core: TE Tokyo Core CPI dict (JPY source) with a 'recent' table.
+
+    Sources are merged into a persistent archive so history is never lost when
+    a source goes dark, then the line chart is rebuilt from the archive.
     """
     cpi_latest = _latest_from_econ(econ_data, "CPI YoY")
     ppi_latest = _latest_from_econ(econ_data, "PPI YoY")
 
-    # Historical CPI YoY computed from the FRED index series
-    cpi_history = {}
+    # ---- 1. Gather this run's points from every source ----
+    fresh: dict[str, list[dict]] = {}
+    # FRED index -> YoY for the 7 non-JPY currencies
     for ccy in CURRENCIES:
+        if ccy == "JPY":
+            continue
         obs = (cpi_index_by_ccy or {}).get(ccy, []) or []
         periods = 4 if ccy in _QUARTERLY else 12
         series = _yoy_from_index(obs, periods)
         if series:
-            cpi_history[ccy] = series
+            fresh[ccy] = series
+    # JPY from Investing Tokyo Core CPI: deep history list ({date,value}) when
+    # present, else fall back to the older 'recent' row shape.
+    jpy_pts = list((tokyo_core or {}).get("history") or [])
+    if not jpy_pts:
+        jpy_pts = _tokyo_recent_to_points(tokyo_core or {})
+    if jpy_pts:
+        fresh["JPY"] = jpy_pts
+    # Hybrid splice: append the current reported CPI YoY (from cpi_latest) so
+    # each line reaches "now", closing the FRED publication-lag gap.
+    for ccy in CURRENCIES:
+        latest = cpi_latest.get(ccy)
+        if latest and latest.get("actual") is not None and latest.get("date"):
+            ym = str(latest["date"])[:7]  # YYYY-MM
+            if len(ym) == 7:
+                fresh.setdefault(ccy, []).append({"date": f"{ym}-01", "value": latest["actual"]})
 
-    # Trim every series to a common recent window so the left edge lines up.
-    # Monthly series reach back ~19yr and quarterly even further; without this
-    # the chart's left side would be ragged (only AUD/NZD that far back).
+    # ---- 2. Merge into the persistent archive, then save ----
+    archive = _load_archive()
+    for ccy, pts in fresh.items():
+        _merge_points(archive, ccy, pts)
+    _save_archive(archive)
+
+    # ---- 3. Rebuild history series from the archive (union over all runs) ----
+    cpi_history: dict[str, list[dict]] = {}
+    for ccy in CURRENCIES:
+        bucket = archive.get(ccy, {})
+        if not bucket:
+            continue
+        series = [{"date": d, "value": v} for d, v in sorted(bucket.items())]
+        cpi_history[ccy] = series
+
+    # ---- 4. Trim to a common window so the left edge lines up ----
+    # Prefer aligning everything to JPY's earliest point (per design: show all
+    # currencies back to where JPY history begins). Fall back to a fixed
+    # N-year window if JPY is unavailable.
     if cpi_history:
-        all_newest = max(s[-1]["date"] for s in cpi_history.values() if s)
-        cutoff_year = int(all_newest[:4]) - _DISPLAY_YEARS
-        cutoff = f"{cutoff_year:04d}{all_newest[4:]}"  # same MM-DD, N years back
+        jpy = cpi_history.get("JPY")
+        if jpy:
+            cutoff = jpy[0]["date"]
+        else:
+            all_newest = max(s[-1]["date"] for s in cpi_history.values() if s)
+            cutoff_year = int(all_newest[:4]) - _DISPLAY_YEARS
+            cutoff = f"{cutoff_year:04d}{all_newest[4:]}"
         for ccy in list(cpi_history.keys()):
             cpi_history[ccy] = [p for p in cpi_history[ccy] if p["date"] >= cutoff]
             if not cpi_history[ccy]:
                 del cpi_history[ccy]
 
-    # Drop hopelessly stale series so the line chart doesn't draw stub lines
-    # that end years before the others (e.g. the deprecated JPY FRED series
-    # stops in 2021). Cutoff: latest point more than ~18 months behind the
-    # freshest currency gets excluded.
+    # ---- 5. Drop hopelessly stale series (latest point >18mo behind freshest) ----
     if cpi_history:
         newest_per_ccy = {c: s[-1]["date"] for c, s in cpi_history.items() if s}
         global_newest = max(newest_per_ccy.values())

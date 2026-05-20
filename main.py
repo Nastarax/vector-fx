@@ -108,6 +108,10 @@ def main():
             c: r for c, r in cached_cpi.items()
             if r.get("date") and r["date"] <= args.date
         }
+        # JPY CPI: use cached Tokyo Core snapshot if its date fits the window.
+        tokyo_core = investing_cpi.load_tokyo_core_cpi()
+        if tokyo_core and tokyo_core.get("date") and tokyo_core["date"] <= args.date:
+            investing_cpi_data["JPY"] = tokyo_core
         # PPI (NZD) cache: same filter
         cached_ppi = investing_ppi.load_cached()
         investing_ppi_data = {
@@ -166,6 +170,15 @@ def main():
             print(f"[cpi] using cached CPI: {len(investing_cpi_data)} currencies")
         else:
             print("[cpi] no CPI cache - run scripts/refresh_investing.py to populate")
+
+        # JPY CPI override: use Investing.com Tokyo Core CPI (Actual vs
+        # Forecast/consensus) instead of national CPI. One fetch gives the
+        # latest release (scoring) plus ~100 months of history (chart).
+        tokyo_core = investing_cpi.fetch_tokyo_core_cpi() or investing_cpi.load_tokyo_core_cpi()
+        if tokyo_core and tokyo_core.get("actual") is not None:
+            investing_cpi_data = dict(investing_cpi_data or {})
+            investing_cpi_data["JPY"] = tokyo_core
+            print(f"[cpi] JPY overridden with Tokyo Core CPI ({tokyo_core.get('date')})")
 
         # PPI YoY cache (NZD only via Investing). Other 7 use TE history.
         investing_ppi_data = investing_ppi.load_cached()
@@ -250,6 +263,7 @@ def main():
             inflation_payload = build_inflation.build_all(
                 econ_data=econ_data,
                 cpi_index_by_ccy=cpi_index_hist,
+                tokyo_core=tokyo_core,
             )
             inflation_path = build_inflation.render(inflation_payload)
     except Exception as e:
