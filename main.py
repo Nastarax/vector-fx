@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_cpi, investing_ppi, prices, retail, services_pmi, tradingeconomics
-from src.output import build_cot, build_economic_heatmap, build_heatmap, build_scorecard, build_seasonality
+from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_scorecard, build_seasonality
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
 
@@ -233,6 +233,20 @@ def main():
     except Exception as e:
         print(f"[scorecard] render failed: {e}")
 
+    # Inflation Data page (CPI + PPI bars/tables + historical CPI line)
+    inflation_path = None
+    try:
+        if econ_data is None:
+            print("[inflation] skipping - econ_data unavailable")
+        else:
+            inflation_payload = build_inflation.build_all(
+                econ_data=econ_data,
+                macro_data=macro,
+            )
+            inflation_path = build_inflation.render(inflation_payload)
+    except Exception as e:
+        print(f"[inflation] render failed: {e}")
+
     print(f"\nDone in {time.time()-t0:.1f}s")
     print(f"  Heatmap        -> {out_path}")
     if cot_path:
@@ -245,6 +259,8 @@ def main():
         print(f"  Econ heatmap   -> {econ_path}")
     if scorecard_path:
         print(f"  Asset scorecard-> {scorecard_path}")
+    if inflation_path:
+        print(f"  Inflation page -> {inflation_path}")
     print("\nTop 5 bullish:")
     for r in heatmap["rows"][:5]:
         print(f"  {r['symbol']:7s}  {r['bias']:13s}  total={r['total']:+d}")

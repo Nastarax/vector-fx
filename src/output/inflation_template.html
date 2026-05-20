@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vector | Inflation Data</title>
+<style>
+  :root{
+    --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
+    --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
+    --bullish:#3974e6; --bearish:#dd5050; --neutral:#5a6385;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:13px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:linear-gradient(135deg,#1a2148 0%,#0d1430 100%);border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{font-size:24px;font-weight:800;color:#3974e6}
+  .brand-name{font-size:20px;font-weight:800;letter-spacing:1.5px}
+  h1{font-size:14px;color:var(--muted);font-weight:500;margin:0}
+  a.btn{color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row)}
+  a.btn:hover{background:var(--rowAlt)}
+  .meta{color:var(--muted);font-size:12px}
+
+  .wrap{max-width:1480px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:18px}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px}
+  .panel-title{font-size:15px;font-weight:700;margin:0 0 4px 0}
+  .panel-sub{font-size:12px;color:var(--muted);margin:0 0 14px 0}
+  .grid-2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+  @media(max-width:1000px){.grid-2{grid-template-columns:1fr}}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--border)}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
+  td.num,th.num{text-align:right}
+  tr:last-child td{border-bottom:none}
+  .delta-up{color:#ffaab4}    /* inflation rising = red (hawkish/cost pressure) */
+  .delta-dn{color:#aac4ff}    /* inflation falling = blue */
+  .delta-flat{color:var(--muted)}
+  .ccy-tag{font-weight:700}
+
+  .chart-box{position:relative;height:340px}
+  .chart-box.tall{height:420px}
+  .about{font-size:13px;line-height:1.55;color:#c4ccf0}
+  .about p{margin:0 0 10px 0}
+  footer{padding:18px;color:var(--muted);font-size:12px;text-align:center}
+  .note{font-size:11px;color:var(--muted);font-style:italic;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="brand-mark">V&rarr;</div>
+    <div>
+      <div class="brand-name">VECTOR</div>
+      <h1>Inflation Data</h1>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;align-items:center">
+    <div class="meta">Updated: __UPDATED_STR__</div>
+    <a class="btn" href="output.html">&larr; Heatmap</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- Latest CPI bars + About -->
+  <div class="grid-2">
+    <div class="panel">
+      <p class="panel-title">Latest Reported Inflation (CPI YoY)</p>
+      <p class="panel-sub">Most recent official CPI year-over-year per currency, sorted low to high.</p>
+      <div class="chart-box"><canvas id="cpiBars"></canvas></div>
+    </div>
+    <div class="panel">
+      <p class="panel-title">About Inflation Data</p>
+      <div class="about">
+        <p>The inflation view shows CPI (consumer prices) and PPI (producer prices) across the 8 majors.</p>
+        <p>High inflation is a concern for a central bank and can motivate rate hikes, which tend to strengthen a currency. Very low inflation can motivate rate cuts to stimulate growth.</p>
+        <p>Bars and tables use the latest official reported figures. The historical line chart is computed from FRED index data and may lag the latest release for non-US currencies.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CPI current vs previous table -->
+  <div class="panel">
+    <p class="panel-title">CPI YoY &middot; Current vs Previous</p>
+    <table id="cpiTable">
+      <thead><tr><th>Currency</th><th class="num">Previous</th><th class="num">Current</th><th class="num">Change</th><th class="num">Date</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Historical CPI line -->
+  <div class="panel">
+    <p class="panel-title">Historical Inflation (CPI YoY)</p>
+    <p class="panel-sub">Year-over-year CPI computed from FRED index series. Hover for values.</p>
+    <div class="chart-box tall"><canvas id="cpiLine"></canvas></div>
+    <p class="note">FRED international CPI series lag the official release (GBP/CAD/CHF ~12 months behind; JPY series ends 2021). US is current.</p>
+  </div>
+
+  <!-- PPI bars + table -->
+  <div class="grid-2">
+    <div class="panel">
+      <p class="panel-title">Latest Reported Producer Prices (PPI YoY)</p>
+      <p class="panel-sub">Most recent official PPI year-over-year per currency, sorted low to high.</p>
+      <div class="chart-box"><canvas id="ppiBars"></canvas></div>
+    </div>
+    <div class="panel">
+      <p class="panel-title">PPI YoY &middot; Current vs Previous</p>
+      <table id="ppiTable">
+        <thead><tr><th>Currency</th><th class="num">Previous</th><th class="num">Current</th><th class="num">Change</th><th class="num">Date</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Vector &middot; Data: FRED (CPI history), Investing.com (CPI), TradingEconomics + Investing.com (PPI) &middot; For personal research only, not financial advice.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const DATA = __INFLATION_JSON__;
+
+// Distinct line colors per currency
+const CCY_COLORS = {
+  USD:'#3974e6', EUR:'#46c2a8', GBP:'#9b6fe6', JPY:'#dd5050',
+  CHF:'#e6b34a', AUD:'#5ab0ff', CAD:'#e6724a', NZD:'#e056b8'
+};
+
+function fmtPct(v){
+  if(v === null || v === undefined) return 'n/a';
+  return (typeof v === 'number' ? v.toFixed(1) : v) + '%';
+}
+
+// ---- Bar chart builder (latest values, sorted ascending) ----
+function buildBars(canvasId, latest){
+  const entries = [];
+  for(const ccy of DATA.currencies){
+    const d = latest[ccy];
+    if(d && d.actual !== null && d.actual !== undefined){
+      entries.push({ccy, val: d.actual});
+    }
+  }
+  entries.sort((a,b) => a.val - b.val);
+  const labels = entries.map(e => e.ccy);
+  const vals = entries.map(e => e.val);
+  const colors = entries.map(e => CCY_COLORS[e.ccy] || '#3974e6');
+
+  new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: vals,
+        backgroundColor: colors.map(c => c + 'cc'),
+        borderColor: colors,
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {callbacks: {label: ctx => ctx.parsed.y.toFixed(1) + '%'}}
+      },
+      scales: {
+        x: {ticks: {color: '#c4ccf0', font: {weight: '700'}}, grid: {display: false}},
+        y: {ticks: {color: '#8893c0', callback: v => v + '%'}, grid: {color: '#2a3060'}}
+      }
+    }
+  });
+}
+
+// ---- Current/previous table builder ----
+function buildTable(tableId, latest){
+  const tbody = document.querySelector('#'+tableId+' tbody');
+  let html = '';
+  // Sort by current value ascending for consistency with bars
+  const rows = DATA.currencies.map(ccy => ({ccy, ...(latest[ccy]||{})}))
+    .filter(r => r.actual !== null && r.actual !== undefined)
+    .sort((a,b) => a.actual - b.actual);
+  for(const r of rows){
+    let change = null, cls = 'delta-flat', arrow = '';
+    if(r.actual !== null && r.previous !== null && r.previous !== undefined){
+      change = r.actual - r.previous;
+      if(change > 0){ cls = 'delta-up'; arrow = '▲'; }
+      else if(change < 0){ cls = 'delta-dn'; arrow = '▼'; }
+    }
+    html += '<tr>';
+    html += '<td><span class="ccy-tag">'+r.ccy+'</span></td>';
+    html += '<td class="num">'+fmtPct(r.previous)+'</td>';
+    html += '<td class="num">'+fmtPct(r.actual)+'</td>';
+    html += '<td class="num '+cls+'">'+(change===null?'n/a':(arrow+' '+(change>0?'+':'')+change.toFixed(1)+'pp'))+'</td>';
+    html += '<td class="num" style="color:#8893c0">'+(r.date||'n/a')+'</td>';
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+// ---- Historical line chart builder ----
+function buildLine(canvasId, history){
+  // Union of all dates across currencies, sorted
+  const dateSet = new Set();
+  for(const ccy in history){
+    for(const pt of history[ccy]) dateSet.add(pt.date);
+  }
+  const allDates = Array.from(dateSet).sort();
+
+  const datasets = [];
+  for(const ccy of DATA.currencies){
+    const series = history[ccy];
+    if(!series) continue;
+    const map = {};
+    for(const pt of series) map[pt.date] = pt.value;
+    const color = CCY_COLORS[ccy] || '#3974e6';
+    datasets.push({
+      label: ccy,
+      data: allDates.map(d => d in map ? map[d] : null),
+      borderColor: color,
+      backgroundColor: color,
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.25,
+      spanGaps: true,
+    });
+  }
+
+  new Chart(document.getElementById(canvasId), {
+    type: 'line',
+    data: {labels: allDates, datasets},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: {mode: 'index', intersect: false},
+      plugins: {
+        legend: {labels: {color: '#c4ccf0', usePointStyle: true, pointStyleWidth: 12}},
+        tooltip: {callbacks: {label: ctx => ctx.dataset.label + ': ' + (ctx.parsed.y===null?'n/a':ctx.parsed.y.toFixed(2)+'%')}}
+      },
+      scales: {
+        x: {ticks: {color: '#8893c0', maxTicksLimit: 14, autoSkip: true}, grid: {color: '#1c2348'}},
+        y: {ticks: {color: '#8893c0', callback: v => v + '%'}, grid: {color: '#2a3060'}}
+      }
+    }
+  });
+}
+
+// Init
+buildBars('cpiBars', DATA.cpi_latest);
+buildTable('cpiTable', DATA.cpi_latest);
+buildLine('cpiLine', DATA.cpi_history);
+buildBars('ppiBars', DATA.ppi_latest);
+buildTable('ppiTable', DATA.ppi_latest);
+</script>
+</body>
+</html>
