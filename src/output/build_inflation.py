@@ -132,12 +132,16 @@ def _latest_from_econ(econ_data: dict, indicator_label: str) -> dict:
     return out
 
 
-def build_all(econ_data: dict, cpi_index_by_ccy: dict, tokyo_core: dict | None = None) -> dict:
+def build_all(econ_data: dict, cpi_index_by_ccy: dict, tokyo_core: dict | None = None,
+              investing_history: dict | None = None) -> dict:
     """Assemble the inflation page payload.
 
-    cpi_index_by_ccy: {ccy: list[FredObservation]} of CPI *index* levels (the
-    long history from fred.fetch_cpi_history). YoY is computed here.
-    tokyo_core: TE Tokyo Core CPI dict (JPY source) with a 'recent' table.
+    investing_history: {ccy: [{date,value}]} deep monthly CPI YoY from
+      Investing.com (__NEXT_DATA__). PRIMARY chart source: continuous and
+      current for all 8, so no FRED lag and no interpolated straight-line tails.
+    cpi_index_by_ccy: {ccy: list[FredObservation]} CPI index from FRED. FALLBACK
+      for any currency missing from investing_history.
+    tokyo_core: Investing Tokyo Core CPI dict (JPY); its 'history' is a fallback.
 
     Sources are merged into a persistent archive so history is never lost when
     a source goes dark, then the line chart is rebuilt from the archive.
@@ -145,26 +149,30 @@ def build_all(econ_data: dict, cpi_index_by_ccy: dict, tokyo_core: dict | None =
     cpi_latest = _latest_from_econ(econ_data, "CPI YoY")
     ppi_latest = _latest_from_econ(econ_data, "PPI YoY")
 
-    # ---- 1. Gather this run's points from every source ----
+    # ---- 1. Gather this run's points, Investing first (primary) ----
     fresh: dict[str, list[dict]] = {}
-    # FRED index -> YoY for the 7 non-JPY currencies
+    # PRIMARY: Investing deep history for all currencies
+    for ccy, pts in (investing_history or {}).items():
+        if pts:
+            fresh[ccy] = [p for p in pts if p.get("date") and p.get("value") is not None]
+    # FALLBACK: FRED index -> YoY for currencies Investing didn't cover
     for ccy in CURRENCIES:
-        if ccy == "JPY":
+        if ccy in fresh or ccy == "JPY":
             continue
         obs = (cpi_index_by_ccy or {}).get(ccy, []) or []
         periods = 4 if ccy in _QUARTERLY else 12
         series = _yoy_from_index(obs, periods)
         if series:
             fresh[ccy] = series
-    # JPY from Investing Tokyo Core CPI: deep history list ({date,value}) when
-    # present, else fall back to the older 'recent' row shape.
-    jpy_pts = list((tokyo_core or {}).get("history") or [])
-    if not jpy_pts:
-        jpy_pts = _tokyo_recent_to_points(tokyo_core or {})
-    if jpy_pts:
-        fresh["JPY"] = jpy_pts
-    # Hybrid splice: append the current reported CPI YoY (from cpi_latest) so
-    # each line reaches "now", closing the FRED publication-lag gap.
+    # FALLBACK: JPY from the Tokyo Core dict if Investing history missed it
+    if "JPY" not in fresh:
+        jpy_pts = list((tokyo_core or {}).get("history") or [])
+        if not jpy_pts:
+            jpy_pts = _tokyo_recent_to_points(tokyo_core or {})
+        if jpy_pts:
+            fresh["JPY"] = jpy_pts
+    # Splice the current reported value as a last-resort tail filler (only adds
+    # one point; redundant when Investing history is present, harmless when so).
     for ccy in CURRENCIES:
         latest = cpi_latest.get(ccy)
         if latest and latest.get("actual") is not None and latest.get("date"):

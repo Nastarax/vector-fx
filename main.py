@@ -260,10 +260,18 @@ def main():
             except Exception as e:
                 print(f"[inflation] CPI history fetch failed: {e}; falling back to scoring CPI window")
                 cpi_index_hist = {ccy: macro.get(ccy, {}).get("cpi", []) for ccy in macro}
+            # Deep CPI YoY history for all 8 from Investing (__NEXT_DATA__),
+            # primary chart source. Cloudflare blocks GH Actions, so this is
+            # populated by scripts/refresh_investing.py locally and read here
+            # from cache; FRED is the fallback for any gaps.
+            investing_history = investing_cpi.load_cpi_full_history()
+            if investing_history:
+                print(f"[inflation] using Investing CPI history: {len(investing_history)} currencies")
             inflation_payload = build_inflation.build_all(
                 econ_data=econ_data,
                 cpi_index_by_ccy=cpi_index_hist,
                 tokyo_core=tokyo_core,
+                investing_history=investing_history,
             )
             inflation_path = build_inflation.render(inflation_payload)
     except Exception as e:

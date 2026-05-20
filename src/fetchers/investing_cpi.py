@@ -371,6 +371,76 @@ def load_tokyo_core_cpi() -> dict | None:
         return None
 
 
+# ---------------------------------------------------------------------------
+# Deep CPI YoY history for ALL 8 currencies, from each Investing page's
+# __NEXT_DATA__ occurrences. Used to draw the inflation line chart with
+# continuous, current monthly data (no FRED publication lag, no interpolated
+# straight-line bridges at the right edge). JPY uses the Tokyo Core page.
+# Cloudflare blocks GH Actions, so this is refreshed locally (refresh_investing)
+# and read from cache by main.py; the persistent archive keeps it long-term.
+# ---------------------------------------------------------------------------
+CPI_HISTORY_CACHE = CACHE_DIR / "cpi_investing_history.json"
+
+
+def _parse_cpi_occurrences(html: str) -> list[dict]:
+    """Ascending [{date:'YYYY-MM-01', value:float}] from a CPI page's
+    __NEXT_DATA__ occurrences (released rows only)."""
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL)
+    if not m:
+        return []
+    try:
+        data = json.loads(m.group(1))
+        occ = data["props"]["pageProps"]["state"]["economicCalendarEventStore"]["occurrences"]
+    except Exception:
+        return []
+    released = [o for o in occ if o.get("actual") is not None]
+    released.sort(key=lambda o: o.get("occurrence_time") or "")
+    out = []
+    for o in released:
+        d = _occ_ref_date(o)
+        if d:
+            out.append({"date": d, "value": o["actual"]})
+    return out
+
+
+def fetch_all_cpi_history(sleep_between: float = 4.0) -> dict:
+    """Fetch deep monthly CPI YoY history for all 8 currencies from Investing.
+    Returns {ccy: [{date,value}] ascending}. Caches the combined result."""
+    urls = dict(CPI_URLS)
+    urls["JPY"] = TOKYO_CORE_CPI_URL  # Tokyo Core for JPY (matches scoring)
+    out: dict[str, list[dict]] = {}
+    for ccy, url in urls.items():
+        status, html = _fetch_with_retries(url)
+        if status == 200 and html:
+            pts = _parse_cpi_occurrences(html)
+            if pts:
+                out[ccy] = pts
+                print(f"[cpi-hist] {ccy}: {len(pts)} pts {pts[0]['date']}..{pts[-1]['date']}")
+            else:
+                print(f"[cpi-hist] {ccy}: no occurrences parsed")
+        else:
+            print(f"[cpi-hist] {ccy}: fetch failed (status {status})")
+        time.sleep(sleep_between)
+    if out:
+        try:
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            with open(CPI_HISTORY_CACHE, "w") as f:
+                json.dump(out, f)
+        except Exception:
+            pass
+    return out
+
+
+def load_cpi_full_history() -> dict:
+    if not CPI_HISTORY_CACHE.exists():
+        return {}
+    try:
+        with open(CPI_HISTORY_CACHE) as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
 if __name__ == "__main__":
     print(f"curl_cffi installed: {HAS_CFFI}")
     data = fetch_cpi()

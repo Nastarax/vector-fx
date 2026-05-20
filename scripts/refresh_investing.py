@@ -219,14 +219,30 @@ def refresh_ppi():
         print("PPI: recovered on pass 2.")
 
 
+def refresh_cpi_history():
+    """Deep monthly CPI YoY history for all 8 currencies (Investing
+    __NEXT_DATA__). Powers the inflation line chart with continuous, current
+    data so there's no FRED publication lag and no straight-line tails."""
+    print("\n============================================")
+    print("REFRESHING CPI HISTORY (all 8, for inflation chart)")
+    print("============================================")
+    hist = investing_cpi.fetch_all_cpi_history(sleep_between=5.0)
+    got = sorted(hist.keys())
+    print(f"\nCPI history: fetched {len(got)}/8 -> {got}")
+    missing = [c for c in ("USD","EUR","GBP","JPY","CHF","AUD","CAD","NZD") if c not in hist]
+    if missing:
+        print(f"  missing (kept from cache/archive): {missing}")
+
+
 def main():
     print("=== Investing.com cache refresh (mPMI + sPMI + CPI + PPI) ===")
     refresh_mpmi()
     refresh_spmi()
     refresh_cpi()
+    refresh_cpi_history()
     refresh_ppi()
     print("\nDone. Now commit + push:")
-    print("  git add data/cache/investing_pmi.json data/cache/spmi.json data/cache/investing_cpi.json data/cache/investing_ppi.json")
+    print("  git add data/cache/investing_pmi.json data/cache/spmi.json data/cache/investing_cpi.json data/cache/investing_ppi.json data/cache/cpi_investing_history.json data/cache/tokyo_core_cpi.json")
     print("  git commit -m 'Refresh Investing cache'")
     print("  git push")
 
