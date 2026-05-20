@@ -7,31 +7,43 @@ from src.fetchers.cot import CotReading
 from src.fetchers.retail import RetailReading
 
 
-def cot_score(reading: CotReading | None) -> int:
+def cot_score(reading: CotReading | None, neutral_threshold: float = 0.0) -> int:
     """
-    EdgeFinder methodology for COT (per-currency component). Combines two
-    independent ±1 signals into a per-currency score of -2..+2:
+    EdgeFinder COT methodology (per-currency), single component.
 
-      1. Weekly Positioning Change:
-           +1 if Long% (current) - Long% (prev week) > 0
-           -1 otherwise
+    A1 Trading's EdgeFinder scores COT purely on the week-over-week change in
+    institutional net long %:
 
-      2. Overall Net Positioning:
-           +1 if long_contracts > short_contracts
-           -1 otherwise
+        Net Change = Current Long% - Previous Long%
 
-    Per-currency range: -2 (both bearish) to +2 (both bullish).
+        +1  if Net Change >  neutral_threshold   (institutions adding longs /
+                                                   closing shorts -> bullish)
+        -1  if Net Change < -neutral_threshold   (institutions selling /
+                                                   closing longs -> bearish)
+         0  if |Net Change| <= neutral_threshold (positioning ~unchanged)
 
-    The pair-level COT cell is then base_score - quote_score (handled in
+    Per-currency range: -1 / 0 / +1.
+
+    NOTE: an earlier version added a second "overall net positioning"
+    component (long_contracts vs short_contracts). That is NOT part of the
+    real A1 methodology and was removed. COT depends only on the weekly
+    *change* in positioning, not the absolute long/short balance.
+
+    `neutral_threshold` is the deadband (in percentage points of Long%) for
+    treating a week as "relatively unchanged". Default 0.0 = strict sign.
+    Raise it (e.g. 0.5) to ignore tiny week-over-week wobble.
+
+    The pair-level COT cell is base_score - quote_score (handled in
     build_pair_rows), clamped to -2..+2.
     """
     if reading is None:
         return 0
-    # Component 1: weekly change in Long%
-    change_score = 1 if reading.long_pct_change > 0 else -1
-    # Component 2: overall net positioning
-    net_score = 1 if reading.long_contracts > reading.short_contracts else -1
-    return change_score + net_score
+    change = reading.long_pct_change
+    if change > neutral_threshold:
+        return 1
+    if change < -neutral_threshold:
+        return -1
+    return 0
 
 
 def retail_score(reading: RetailReading | None) -> int:
