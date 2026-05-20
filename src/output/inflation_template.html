@@ -208,6 +208,11 @@ function buildLine(canvasId, history){
   }
   const allDates = Array.from(dateSet).sort();
 
+  // AUD and NZD report CPI quarterly, so they have ~1/3 the data density of
+  // the monthly currencies. Show dots on their points so the wider spacing
+  // reads as real quarterly data, not a rendering gap.
+  const QUARTERLY = {AUD: true, NZD: true};
+
   const datasets = [];
   for(const ccy of DATA.currencies){
     const series = history[ccy];
@@ -215,13 +220,15 @@ function buildLine(canvasId, history){
     const map = {};
     for(const pt of series) map[pt.date] = pt.value;
     const color = CCY_COLORS[ccy] || '#3974e6';
+    const isQuarterly = QUARTERLY[ccy];
     datasets.push({
-      label: ccy,
+      label: ccy + (isQuarterly ? ' (Q)' : ''),
       data: allDates.map(d => d in map ? map[d] : null),
       borderColor: color,
       backgroundColor: color,
       borderWidth: 2,
-      pointRadius: 0,
+      pointRadius: isQuarterly ? 2.5 : 0,
+      pointHoverRadius: isQuarterly ? 4 : 3,
       tension: 0.25,
       spanGaps: true,
     });
