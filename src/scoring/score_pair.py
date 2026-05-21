@@ -65,6 +65,8 @@ def build_currency_scores(
     investing_cpi: dict | None = None,
     investing_ppi: dict | None = None,
     investing_cc: dict | None = None,
+    investing_jolts: dict | None = None,
+    investing_adp: dict | None = None,
     rates_outlook: dict | None = None,
 ) -> dict:
     """
@@ -89,6 +91,8 @@ def build_currency_scores(
     investing_cpi = investing_cpi or {}
     investing_ppi = investing_ppi or {}
     investing_cc = investing_cc or {}
+    investing_jolts = investing_jolts or {}
+    investing_adp = investing_adp or {}
     rates_outlook = rates_outlook or {}
     per_ccy: dict[str, dict[str, int | None]] = {}
 
@@ -310,14 +314,35 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = s
                     continue
 
-                # JOLTS (Job Openings): US-only monthly TE release.
-                # Score USD: Actual vs Consensus (priority), fall back to
-                # TEForecast. Non-USD currencies = 0 (neutral) so USD pairs
+                # JOLTS (Job Openings): US-only monthly release.
+                # Score USD via Investing.com JOLTS Job Openings (event id
+                # 1057): Actual vs Forecast, fall back to Previous if Forecast
+                # missing. Falls back to TE (Actual vs Consensus/TEForecast)
+                # when no Investing data. Non-USD = 0 (neutral) so USD pairs
                 # reflect USD's JOLTS direction. Direction is up_is_bullish
                 # (more openings = strong economy = stronger USD).
                 if ind_id == "jolts":
                     if ccy != "USD":
                         per_ccy[ccy][ind_id] = 0
+                        continue
+                    if investing_jolts.get("USD"):
+                        rel = investing_jolts["USD"]
+                        actual = rel.get("actual")
+                        benchmark = rel.get("forecast")
+                        if benchmark is None:
+                            benchmark = rel.get("previous")
+                        if actual is None or benchmark is None:
+                            per_ccy[ccy][ind_id] = None
+                            continue
+                        if actual > benchmark:
+                            s = 1
+                        elif actual < benchmark:
+                            s = -1
+                        else:
+                            s = 0
+                        if direction == "down_is_bullish":
+                            s = -s
+                        per_ccy[ccy][ind_id] = s
                         continue
                     te_rels = te_history.get(key, [])
                     if not te_rels:
@@ -342,14 +367,35 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = s
                     continue
 
-                # ADP Employment Change: US-only monthly TE release.
-                # Score USD: Actual vs Consensus (priority), fall back to
-                # TEForecast. Non-USD currencies = 0 (neutral) so USD pairs
-                # reflect USD's ADP direction. Direction is up_is_bullish
-                # (more jobs added = stronger USD).
+                # ADP Employment Change: US-only monthly release.
+                # Score USD via Investing.com ADP Nonfarm Employment Change
+                # (event id 1): Actual vs Forecast, fall back to Previous if
+                # Forecast missing. Falls back to TE (Actual vs Consensus/
+                # TEForecast) when no Investing data. Non-USD = 0 (neutral) so
+                # USD pairs reflect USD's ADP direction. Direction is
+                # up_is_bullish (more jobs added = stronger USD).
                 if ind_id == "adp":
                     if ccy != "USD":
                         per_ccy[ccy][ind_id] = 0
+                        continue
+                    if investing_adp.get("USD"):
+                        rel = investing_adp["USD"]
+                        actual = rel.get("actual")
+                        benchmark = rel.get("forecast")
+                        if benchmark is None:
+                            benchmark = rel.get("previous")
+                        if actual is None or benchmark is None:
+                            per_ccy[ccy][ind_id] = None
+                            continue
+                        if actual > benchmark:
+                            s = 1
+                        elif actual < benchmark:
+                            s = -1
+                        else:
+                            s = 0
+                        if direction == "down_is_bullish":
+                            s = -s
+                        per_ccy[ccy][ind_id] = s
                         continue
                     te_rels = te_history.get(key, [])
                     if not te_rels:
@@ -738,7 +784,7 @@ def build_currency_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, investing_cc=None, rates_outlook=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, rates_outlook=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -747,7 +793,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, investing_cc=investing_cc, rates_outlook=rates_outlook)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, rates_outlook=rates_outlook)
     pair_rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)
     for r in pair_rows:
         r["is_currency"] = False
@@ -777,6 +823,8 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         investing_mpmi=investing_mpmi,
         investing_spmi=investing_spmi,
         investing_cc=investing_cc,
+        investing_jolts=investing_jolts,
+        investing_adp=investing_adp,
         as_of_date=as_of_date,
     )
 
@@ -800,6 +848,8 @@ _MAX_AGE_DAYS = {
     "mPMI":    40,   # monthly
     "sPMI":    40,   # monthly
     "Consumer Confidence": 40,  # USD only (Investing CB Consumer Confidence), monthly
+    "JOLTS": 75,     # USD only (Investing JOLTS Job Openings), monthly but ~6wk lag
+    "ADP":   40,     # USD only (Investing ADP Employment Change), monthly
 }
 _QUARTERLY_CPI_CCYS = {"AUD", "NZD"}
 _MAX_AGE_CPI_QUARTERLY = 110
@@ -807,7 +857,8 @@ _MAX_AGE_CPI_QUARTERLY = 110
 
 def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
                             investing_mpmi, investing_spmi, as_of_date,
-                            investing_cc=None) -> list:
+                            investing_cc=None, investing_jolts=None,
+                            investing_adp=None) -> list:
     """
     Return a flat list of stale data entries across COT + Investing-sourced
     indicators. Each entry: {indicator, ccy, date, days_old, max_age}.
@@ -871,5 +922,13 @@ def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
     # Consumer Confidence (Investing): USD only, monthly.
     for ccy, reading in (investing_cc or {}).items():
         _check("Consumer Confidence", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["Consumer Confidence"])
+
+    # JOLTS (Investing): USD only, monthly with ~6-week publication lag.
+    for ccy, reading in (investing_jolts or {}).items():
+        _check("JOLTS", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["JOLTS"])
+
+    # ADP (Investing): USD only, monthly.
+    for ccy, reading in (investing_adp or {}).items():
+        _check("ADP", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["ADP"])
 
     return out

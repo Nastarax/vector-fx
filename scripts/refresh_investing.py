@@ -24,7 +24,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.fetchers import investing, investing_consumer_conf, investing_cpi, investing_ppi, services_pmi
+from src.fetchers import (investing, investing_adp, investing_consumer_conf,
+                          investing_cpi, investing_jolts, investing_ppi, services_pmi)
 
 
 def _summarize(label: str, all_keys, fresh_set, results):
@@ -258,6 +259,84 @@ def refresh_consumer_conf():
         print("Consumer Confidence: recovered on pass 2.")
 
 
+def refresh_jolts():
+    print("\n============================================")
+    print("REFRESHING US JOLTS JOB OPENINGS (USD only via Investing)")
+    print("============================================")
+    all_keys = list(investing_jolts.JOLTS_URLS.keys())
+    print(f"Targeting {len(all_keys)} currencies\n")
+
+    print("--- Pass 1: full fetch ---")
+    first = investing_jolts.fetch_jolts(sleep_between=12.0)
+    fresh1 = set(investing_jolts._LAST_FRESH)
+    _summarize("jolts", all_keys, fresh1, first)
+
+    failed = [c for c in all_keys if c not in fresh1]
+    if not failed:
+        print("\nJOLTS (USD): fetched fresh.")
+        return
+
+    print(f"\n--- Pass 2: retry {failed} after 60s cooldown ---")
+    time.sleep(60)
+    orig = investing_jolts.JOLTS_URLS.copy()
+    try:
+        for k in list(investing_jolts.JOLTS_URLS.keys()):
+            if k not in failed:
+                del investing_jolts.JOLTS_URLS[k]
+        second = investing_jolts.fetch_jolts(sleep_between=18.0)
+        fresh2 = set(investing_jolts._LAST_FRESH)
+    finally:
+        investing_jolts.JOLTS_URLS.clear()
+        investing_jolts.JOLTS_URLS.update(orig)
+
+    still_failed = [c for c in failed if c not in fresh2]
+    print(f"\nJOLTS summary: pass 1 fresh={sorted(fresh1)}, pass 2 fresh={sorted(fresh2)}")
+    if still_failed:
+        print(f"JOLTS: still not fresh after 2 passes: {still_failed}")
+        print("Cache retains last successful values.")
+    else:
+        print("JOLTS: recovered on pass 2.")
+
+
+def refresh_adp():
+    print("\n============================================")
+    print("REFRESHING US ADP EMPLOYMENT CHANGE (USD only via Investing)")
+    print("============================================")
+    all_keys = list(investing_adp.ADP_URLS.keys())
+    print(f"Targeting {len(all_keys)} currencies\n")
+
+    print("--- Pass 1: full fetch ---")
+    first = investing_adp.fetch_adp(sleep_between=12.0)
+    fresh1 = set(investing_adp._LAST_FRESH)
+    _summarize("adp", all_keys, fresh1, first)
+
+    failed = [c for c in all_keys if c not in fresh1]
+    if not failed:
+        print("\nADP (USD): fetched fresh.")
+        return
+
+    print(f"\n--- Pass 2: retry {failed} after 60s cooldown ---")
+    time.sleep(60)
+    orig = investing_adp.ADP_URLS.copy()
+    try:
+        for k in list(investing_adp.ADP_URLS.keys()):
+            if k not in failed:
+                del investing_adp.ADP_URLS[k]
+        second = investing_adp.fetch_adp(sleep_between=18.0)
+        fresh2 = set(investing_adp._LAST_FRESH)
+    finally:
+        investing_adp.ADP_URLS.clear()
+        investing_adp.ADP_URLS.update(orig)
+
+    still_failed = [c for c in failed if c not in fresh2]
+    print(f"\nADP summary: pass 1 fresh={sorted(fresh1)}, pass 2 fresh={sorted(fresh2)}")
+    if still_failed:
+        print(f"ADP: still not fresh after 2 passes: {still_failed}")
+        print("Cache retains last successful values.")
+    else:
+        print("ADP: recovered on pass 2.")
+
+
 def refresh_cpi_history():
     """Deep monthly CPI YoY history for all 8 currencies (Investing
     __NEXT_DATA__). Powers the inflation line chart with continuous, current
@@ -273,16 +352,60 @@ def refresh_cpi_history():
         print(f"  missing (kept from cache/archive): {missing}")
 
 
+# Registry of refreshable targets, in default run order. Lets you refresh a
+# subset from the CLI instead of the full (slow) sweep, e.g.:
+#   python scripts/refresh_investing.py jolts adp
+#   python scripts/refresh_investing.py cc
+# With no args, runs everything in this order.
+REFRESHERS = {
+    "mpmi": refresh_mpmi,
+    "spmi": refresh_spmi,
+    "cpi": refresh_cpi,
+    "cpi_history": refresh_cpi_history,
+    "ppi": refresh_ppi,
+    "cc": refresh_consumer_conf,
+    "jolts": refresh_jolts,
+    "adp": refresh_adp,
+}
+
+# Cache file each target writes (for the commit hint).
+_CACHE_FILES = {
+    "mpmi": "data/cache/investing_pmi.json",
+    "spmi": "data/cache/spmi.json",
+    "cpi": "data/cache/investing_cpi.json",
+    "cpi_history": "data/cache/cpi_investing_history.json",
+    "ppi": "data/cache/investing_ppi.json",
+    "cc": "data/cache/investing_consumer_conf.json",
+    "jolts": "data/cache/investing_jolts.json",
+    "adp": "data/cache/investing_adp.json",
+}
+# JPY CPI snapshot rides along with the CPI refresh.
+_EXTRA_CACHE_FILES = {"cpi": "data/cache/tokyo_core_cpi.json"}
+
+
 def main():
-    print("=== Investing.com cache refresh (mPMI + sPMI + CPI + PPI + CC) ===")
-    refresh_mpmi()
-    refresh_spmi()
-    refresh_cpi()
-    refresh_cpi_history()
-    refresh_ppi()
-    refresh_consumer_conf()
+    args = [a.lower().lstrip("-") for a in sys.argv[1:]]
+    if args:
+        unknown = [a for a in args if a not in REFRESHERS]
+        if unknown:
+            print(f"Unknown refresh target(s): {unknown}")
+            print(f"Available: {', '.join(REFRESHERS)}")
+            return
+        order = args
+    else:
+        order = list(REFRESHERS)
+
+    print(f"=== Investing.com cache refresh: {', '.join(order)} ===")
+    for name in order:
+        REFRESHERS[name]()
+
+    files = []
+    for name in order:
+        files.append(_CACHE_FILES[name])
+        if name in _EXTRA_CACHE_FILES:
+            files.append(_EXTRA_CACHE_FILES[name])
     print("\nDone. Now commit + push:")
-    print("  git add data/cache/investing_pmi.json data/cache/spmi.json data/cache/investing_cpi.json data/cache/investing_ppi.json data/cache/cpi_investing_history.json data/cache/tokyo_core_cpi.json data/cache/investing_consumer_conf.json")
+    print("  git add " + " ".join(files))
     print("  git commit -m 'Refresh Investing cache'")
     print("  git push")
 

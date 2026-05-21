@@ -77,7 +77,7 @@ def _get_latest_te(te_history, ccy, ind_id):
 
 def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
                investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
-               investing_cc=None):
+               investing_cc=None, investing_jolts=None, investing_adp=None):
     """Return the row dict for one (currency, indicator) pair."""
     ind_id = ind["id"]
     direction = ind["direction"]
@@ -162,6 +162,22 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             previous = rel.get("previous")
             date = rel.get("date") or ""
 
+    # JOLTS: Investing JOLTS Job Openings for USD (Actual vs Forecast)
+    elif ind_id == "jolts" and ccy == "USD" and (investing_jolts or {}).get("USD"):
+        rel = investing_jolts["USD"]
+        actual = rel.get("actual")
+        forecast = rel.get("forecast")
+        previous = rel.get("previous")
+        date = rel.get("date") or ""
+
+    # ADP: Investing ADP Employment Change for USD (Actual vs Forecast)
+    elif ind_id == "adp" and ccy == "USD" and (investing_adp or {}).get("USD"):
+        rel = investing_adp["USD"]
+        actual = rel.get("actual")
+        forecast = rel.get("forecast")
+        previous = rel.get("previous")
+        date = rel.get("date") or ""
+
     # Everything else: TE history with consensus -> forecast fallback
     else:
         rel = _get_latest_te(te_history, ccy, ind_id)
@@ -177,7 +193,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
     # Previous) when no forecast is published, so fall back to previous for
     # mpmi/spmi to keep the row from collapsing to n/a.
     benchmark = forecast
-    if ind_id in ("mpmi", "spmi", "consumer_conf") and benchmark is None:
+    if ind_id in ("mpmi", "spmi", "consumer_conf", "jolts", "adp") and benchmark is None:
         benchmark = previous
 
     surprise = _surprise_pct(actual, benchmark)
@@ -195,7 +211,8 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
 
 def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
               investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None,
-              rates_outlook=None, investing_cc=None) -> dict:
+              rates_outlook=None, investing_cc=None, investing_jolts=None,
+              investing_adp=None) -> dict:
     """Return {ccy: [row dicts]} for all currencies."""
     out: dict[str, list[dict]] = {}
     for ccy in CURRENCIES:
@@ -206,7 +223,8 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
                 continue
             rows.append(_build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
                                    investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
-                                   investing_cc=investing_cc))
+                                   investing_cc=investing_cc, investing_jolts=investing_jolts,
+                                   investing_adp=investing_adp))
         out[ccy] = rows
     return out
 
@@ -312,9 +330,19 @@ CURRENCIES.forEach(c => {
   sel.appendChild(opt);
 });
 
+// Abbreviate large counts: >=1M -> "6.87M", >=1k -> "209K", else plain.
+// Small values (rates, %, index levels, PMI) pass through unchanged.
+function abbrevNum(v) {
+  const n = Number(v);
+  const a = Math.abs(n);
+  if (a >= 1e6) return parseFloat((n / 1e6).toFixed(2)) + 'M';
+  if (a >= 1e3) return parseFloat((n / 1e3).toFixed(2)) + 'K';
+  return parseFloat(n.toFixed(2)).toString();
+}
+
 function fmt(v) {
   if (v === null || v === undefined) return '<span style="color:#666">n/a</span>';
-  return Number(v).toLocaleString('en-US', {maximumFractionDigits: 2});
+  return abbrevNum(v);
 }
 
 function chip(label) {
