@@ -76,7 +76,8 @@ def _get_latest_te(te_history, ccy, ind_id):
 
 
 def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
-               investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook):
+               investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
+               investing_cc=None):
     """Return the row dict for one (currency, indicator) pair."""
     ind_id = ind["id"]
     direction = ind["direction"]
@@ -144,7 +145,15 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             previous = outlook.get("current")  # no "previous" concept here
             date = outlook.get("date") or ""
 
-    # Consumer Conf: momentum scoring uses Previous instead of Forecast
+    # Consumer Conf:
+    # - USD: Investing CB Consumer Confidence, Actual vs Forecast (true surprise)
+    # - Other 7: TE momentum scoring uses Previous instead of Forecast
+    elif ind_id == "consumer_conf" and ccy == "USD" and (investing_cc or {}).get("USD"):
+        rel = investing_cc["USD"]
+        actual = rel.get("actual")
+        forecast = rel.get("forecast")
+        previous = rel.get("previous")
+        date = rel.get("date") or ""
     elif ind_id == "consumer_conf":
         rel = _get_latest_te(te_history, ccy, "consumer_conf")
         if rel:
@@ -168,7 +177,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
     # Previous) when no forecast is published, so fall back to previous for
     # mpmi/spmi to keep the row from collapsing to n/a.
     benchmark = forecast
-    if ind_id in ("mpmi", "spmi") and benchmark is None:
+    if ind_id in ("mpmi", "spmi", "consumer_conf") and benchmark is None:
         benchmark = previous
 
     surprise = _surprise_pct(actual, benchmark)
@@ -186,7 +195,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
 
 def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
               investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None,
-              rates_outlook=None) -> dict:
+              rates_outlook=None, investing_cc=None) -> dict:
     """Return {ccy: [row dicts]} for all currencies."""
     out: dict[str, list[dict]] = {}
     for ccy in CURRENCIES:
@@ -196,7 +205,8 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
             if ccys != "all" and ccy not in ccys:
                 continue
             rows.append(_build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
-                                   investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook))
+                                   investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
+                                   investing_cc=investing_cc))
         out[ccy] = rows
     return out
 

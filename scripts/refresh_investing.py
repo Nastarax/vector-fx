@@ -24,7 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.fetchers import investing, investing_cpi, investing_ppi, services_pmi
+from src.fetchers import investing, investing_consumer_conf, investing_cpi, investing_ppi, services_pmi
 
 
 def _summarize(label: str, all_keys, fresh_set, results):
@@ -219,6 +219,45 @@ def refresh_ppi():
         print("PPI: recovered on pass 2.")
 
 
+def refresh_consumer_conf():
+    print("\n============================================")
+    print("REFRESHING US CONSUMER CONFIDENCE (CB, USD only via Investing)")
+    print("============================================")
+    all_keys = list(investing_consumer_conf.CC_URLS.keys())
+    print(f"Targeting {len(all_keys)} currencies\n")
+
+    print("--- Pass 1: full fetch ---")
+    first = investing_consumer_conf.fetch_consumer_conf(sleep_between=12.0)
+    fresh1 = set(investing_consumer_conf._LAST_FRESH)
+    _summarize("cc", all_keys, fresh1, first)
+
+    failed = [c for c in all_keys if c not in fresh1]
+    if not failed:
+        print("\nConsumer Confidence (USD): fetched fresh.")
+        return
+
+    print(f"\n--- Pass 2: retry {failed} after 60s cooldown ---")
+    time.sleep(60)
+    orig = investing_consumer_conf.CC_URLS.copy()
+    try:
+        for k in list(investing_consumer_conf.CC_URLS.keys()):
+            if k not in failed:
+                del investing_consumer_conf.CC_URLS[k]
+        second = investing_consumer_conf.fetch_consumer_conf(sleep_between=18.0)
+        fresh2 = set(investing_consumer_conf._LAST_FRESH)
+    finally:
+        investing_consumer_conf.CC_URLS.clear()
+        investing_consumer_conf.CC_URLS.update(orig)
+
+    still_failed = [c for c in failed if c not in fresh2]
+    print(f"\nConsumer Confidence summary: pass 1 fresh={sorted(fresh1)}, pass 2 fresh={sorted(fresh2)}")
+    if still_failed:
+        print(f"Consumer Confidence: still not fresh after 2 passes: {still_failed}")
+        print("Cache retains last successful values.")
+    else:
+        print("Consumer Confidence: recovered on pass 2.")
+
+
 def refresh_cpi_history():
     """Deep monthly CPI YoY history for all 8 currencies (Investing
     __NEXT_DATA__). Powers the inflation line chart with continuous, current
@@ -235,14 +274,15 @@ def refresh_cpi_history():
 
 
 def main():
-    print("=== Investing.com cache refresh (mPMI + sPMI + CPI + PPI) ===")
+    print("=== Investing.com cache refresh (mPMI + sPMI + CPI + PPI + CC) ===")
     refresh_mpmi()
     refresh_spmi()
     refresh_cpi()
     refresh_cpi_history()
     refresh_ppi()
+    refresh_consumer_conf()
     print("\nDone. Now commit + push:")
-    print("  git add data/cache/investing_pmi.json data/cache/spmi.json data/cache/investing_cpi.json data/cache/investing_ppi.json data/cache/cpi_investing_history.json data/cache/tokyo_core_cpi.json")
+    print("  git add data/cache/investing_pmi.json data/cache/spmi.json data/cache/investing_cpi.json data/cache/investing_ppi.json data/cache/cpi_investing_history.json data/cache/tokyo_core_cpi.json data/cache/investing_consumer_conf.json")
     print("  git commit -m 'Refresh Investing cache'")
     print("  git push")
 

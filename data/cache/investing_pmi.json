@@ -6,10 +6,10 @@
     "previous": 52.8
   },
   "AUD": {
-    "date": "2026-04-30",
-    "actual": 51.3,
-    "forecast": 51.0,
-    "previous": 49.8
+    "date": "2026-05-20",
+    "actual": 50.2,
+    "forecast": null,
+    "previous": 51.3
   },
   "CHF": {
     "date": "2026-05-04",
@@ -42,9 +42,9 @@
     "previous": 50.0
   },
   "JPY": {
-    "date": "2026-05-01",
-    "actual": 55.1,
-    "forecast": 54.9,
-    "previous": 51.6
+    "date": "2026-05-21",
+    "actual": 54.5,
+    "forecast": 54.5,
+    "previous": 55.1
   }
 }
