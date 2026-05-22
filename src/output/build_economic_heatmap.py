@@ -102,8 +102,6 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             rel = myfxbook_ppi["CHF"]
             actual = rel.get("actual")
             forecast = rel.get("consensus")
-            if forecast is None:
-                forecast = rel.get("previous")
             previous = rel.get("previous")
             date = rel.get("date") or ""
         elif ccy == "NZD":
@@ -142,8 +140,6 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
         rel = investing_retail_sales["CAD"]
         actual = rel.get("actual")
         forecast = rel.get("forecast")
-        if forecast is None:
-            forecast = rel.get("previous")
         previous = rel.get("previous")
         date = rel.get("date") or ""
     elif ind_id == "retail_sales" and ccy == "AUD":
