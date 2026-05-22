@@ -241,13 +241,13 @@ def main():
         else:
             print("[adp] no US ADP cache - run scripts/refresh_investing.py to populate")
 
-        # CHF PPI cache (Myfxbook Swiss Producer & Import Prices YoY). CHF only;
-        # NZD stays on Investing, the rest on TE. Refreshed by refresh_investing.py.
+        # Myfxbook PPI cache (CHF + AUD). NZD stays on Investing, the rest on TE.
+        # Refreshed by refresh_investing.py.
         myfxbook_ppi_data = myfxbook_ppi.load_cached()
         if myfxbook_ppi_data:
-            print(f"[chf-ppi] using cached CHF PPI: {len(myfxbook_ppi_data)} currencies")
+            print(f"[mfx-ppi] using cached Myfxbook PPI: {len(myfxbook_ppi_data)} currencies")
         else:
-            print("[chf-ppi] no CHF PPI cache - run scripts/refresh_investing.py to populate")
+            print("[mfx-ppi] no Myfxbook PPI cache - run scripts/refresh_investing.py to populate")
 
         # CAD Retail Sales cache (Investing retail-sales-260). CAD only;
         # AUD uses ABS MHSI, other 6 stay on TE. Refreshed by refresh_investing.py.

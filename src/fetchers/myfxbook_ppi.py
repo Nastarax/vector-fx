@@ -1,15 +1,15 @@
 """
-Myfxbook Switzerland Producer & Import Prices YoY fetcher (CHF only).
+Myfxbook PPI YoY fetcher (CHF + AUD).
 
-Source of truth for the CHF ppi column. Scoring is Actual vs Consensus, fall
-back to Previous if consensus is missing (handled in score_pair.py /
-build_economic_heatmap.py). The other currencies keep their existing PPI
-sources (NZD via Investing, the rest via TradingEconomics).
+CHF: Switzerland Producer & Import Prices YoY.
+AUD: Australia PPI YoY.
+Scoring: Actual vs Consensus, fall back to Previous if Consensus missing.
+Other currencies keep their existing PPI sources (NZD via Investing, the
+rest via TradingEconomics).
 
 Myfxbook is Cloudflare-protected and needs Chrome TLS impersonation
-(curl_cffi), exactly like the Myfxbook crowd-sentiment / sPMI scrapers. GitHub
-Actions IPs get blocked, so this is refreshed locally (see
-scripts/refresh_investing.py) and read from cache by main.py.
+(curl_cffi). GitHub Actions IPs get blocked, so this is refreshed locally
+(see scripts/refresh_investing.py) and read from cache by main.py.
 """
 from __future__ import annotations
 
@@ -35,9 +35,9 @@ CACHE_DIR = Path(__file__).resolve().parents[2] / "data" / "cache"
 CACHE_FILE = CACHE_DIR / "myfxbook_ppi.json"
 
 
-# Myfxbook Switzerland Producer & Import Prices YoY (the Swiss PPI). CHF only.
 CHF_PPI_URLS: dict[str, str] = {
     "CHF": "https://www.myfxbook.com/forex-economic-calendar/switzerland/producer-import-prices-yoy",
+    "AUD": "https://www.myfxbook.com/forex-economic-calendar/australia/ppi-yoy",
 }
 
 
@@ -271,7 +271,7 @@ def fetch_ppi(sleep_between=4.0):
         try:
             html = _fetch_myfxbook(url)
             if not html:
-                print(f"[chf-ppi] {ccy} fetch failed (Cloudflare / no curl_cffi?), using cache")
+                print(f"[mfx-ppi] {ccy} fetch failed (Cloudflare / no curl_cffi?), using cache")
                 if ccy in cache:
                     results[ccy] = cache[ccy]
                     cached_count += 1
@@ -282,7 +282,7 @@ def fetch_ppi(sleep_between=4.0):
             if not parsed or parsed.get("actual") is None:
                 CACHE_DIR.mkdir(parents=True, exist_ok=True)
                 debug_path.write_text(html, encoding="utf-8")
-                print(f"[chf-ppi] {ccy} parse failed/incomplete, raw HTML saved to {debug_path.name}, using cache")
+                print(f"[mfx-ppi] {ccy} parse failed/incomplete, raw HTML saved to {debug_path.name}, using cache")
                 if ccy in cache:
                     results[ccy] = cache[ccy]
                     cached_count += 1
@@ -292,16 +292,16 @@ def fetch_ppi(sleep_between=4.0):
             cache[ccy] = parsed
             fresh_count += 1
             _LAST_FRESH.add(ccy)
-            print(f"[chf-ppi] {ccy} {parsed}")
+            print(f"[mfx-ppi] {ccy} {parsed}")
         except Exception as e:
-            print(f"[chf-ppi] {ccy} error: {e}, using cache")
+            print(f"[mfx-ppi] {ccy} error: {e}, using cache")
             if ccy in cache:
                 results[ccy] = cache[ccy]
                 cached_count += 1
         time.sleep(sleep_between)
 
     _save_cache(cache)
-    print(f"[chf-ppi] {fresh_count} fresh, {cached_count} from cache, {len(results)}/{len(CHF_PPI_URLS)} total")
+    print(f"[mfx-ppi] {fresh_count} fresh, {cached_count} from cache, {len(results)}/{len(CHF_PPI_URLS)} total")
     return results
 
 

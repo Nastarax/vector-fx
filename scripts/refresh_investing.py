@@ -339,9 +339,9 @@ def refresh_adp():
         print("ADP: recovered on pass 2.")
 
 
-def refresh_chf_ppi():
+def refresh_mfx_ppi():
     print("\n============================================")
-    print("REFRESHING CHF PPI YoY (Switzerland, via Myfxbook)")
+    print("REFRESHING Myfxbook PPI YoY (CHF + AUD)")
     print("============================================")
     all_keys = list(myfxbook_ppi.CHF_PPI_URLS.keys())
     print(f"Targeting {len(all_keys)} currencies\n")
@@ -349,11 +349,11 @@ def refresh_chf_ppi():
     print("--- Pass 1: full fetch ---")
     first = myfxbook_ppi.fetch_ppi(sleep_between=8.0)
     fresh1 = set(myfxbook_ppi._LAST_FRESH)
-    _summarize("chf-ppi", all_keys, fresh1, first)
+    _summarize("mfx-ppi", all_keys, fresh1, first)
 
     failed = [c for c in all_keys if c not in fresh1]
     if not failed:
-        print("\nCHF PPI: fetched fresh.")
+        print("\nMyfxbook PPI: fetched fresh.")
         return
 
     print(f"\n--- Pass 2: retry {failed} after 60s cooldown ---")
@@ -361,13 +361,13 @@ def refresh_chf_ppi():
     second = myfxbook_ppi.fetch_ppi(sleep_between=15.0)
     fresh2 = set(myfxbook_ppi._LAST_FRESH)
     still_failed = [c for c in failed if c not in fresh2]
-    print(f"\nCHF PPI summary: pass 1 fresh={sorted(fresh1)}, pass 2 fresh={sorted(fresh2)}")
+    print(f"\nMyfxbook PPI summary: pass 1 fresh={sorted(fresh1)}, pass 2 fresh={sorted(fresh2)}")
     if still_failed:
-        print(f"CHF PPI: still not fresh after 2 passes: {still_failed}")
+        print(f"Myfxbook PPI: still not fresh after 2 passes: {still_failed}")
         print("Cache retains last successful values. (Myfxbook needs curl_cffi; "
               "make sure it is installed locally.)")
     else:
-        print("CHF PPI: recovered on pass 2.")
+        print("Myfxbook PPI: recovered on pass 2.")
 
 
 def refresh_cad_retail():
@@ -429,7 +429,7 @@ REFRESHERS = {
     "cc": refresh_consumer_conf,
     "jolts": refresh_jolts,
     "adp": refresh_adp,
-    "chf_ppi": refresh_chf_ppi,
+    "mfx_ppi": refresh_mfx_ppi,
     "cad_retail": refresh_cad_retail,
 }
 
@@ -443,7 +443,7 @@ _CACHE_FILES = {
     "cc": "data/cache/investing_consumer_conf.json",
     "jolts": "data/cache/investing_jolts.json",
     "adp": "data/cache/investing_adp.json",
-    "chf_ppi": "data/cache/myfxbook_ppi.json",
+    "mfx_ppi": "data/cache/myfxbook_ppi.json",
     "cad_retail": "data/cache/investing_retail_sales.json",
 }
 # JPY CPI snapshot rides along with the CPI refresh.
