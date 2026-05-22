@@ -96,7 +96,7 @@ categories:
 # Bias label thresholds based on total pair score
 bias_thresholds:
   very_bullish: 9
-  bullish: 4
-  neutral: 3            # |score| < this is neutral
-  bearish: -4
+  bullish: 5
+  neutral: 4            # |score| < this is neutral
+  bearish: -5
   very_bearish: -9
