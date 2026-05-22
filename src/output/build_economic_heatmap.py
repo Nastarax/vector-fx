@@ -206,7 +206,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
     # Previous) when no forecast is published, so fall back to previous for
     # mpmi/spmi to keep the row from collapsing to n/a.
     benchmark = forecast
-    if ind_id in ("mpmi", "spmi", "consumer_conf", "jolts", "adp") and benchmark is None:
+    if benchmark is None:
         benchmark = previous
 
     surprise = _surprise_pct(actual, benchmark)
