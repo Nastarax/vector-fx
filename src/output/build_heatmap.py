@@ -37,11 +37,11 @@ def _bias_class(bias: str) -> str:
 def _total_class(total: int) -> str:
     if total >= 9:
         return "total-c2"
-    if total >= 4:
+    if total >= 5:
         return "total-c1"
     if total <= -9:
         return "total-cn2"
-    if total <= -4:
+    if total <= -5:
         return "total-cn1"
     return ""
 
