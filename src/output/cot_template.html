@@ -72,7 +72,7 @@
   <div class="card">
     <h2>COT Data History</h2>
     <div class="subtitle">
-      52-week history of weekly positioning. Bars = contracts (left axis), yellow line = Long % (right axis).
+      2-year history of weekly positioning. Stacked bars = contracts (right axis), yellow line = Long % (left axis).
       <span style="margin-left:18px"><label>Symbol</label>
       <select id="historySelect"></select></span>
     </div>
@@ -169,21 +169,42 @@ function renderHistory(ccy) {
   const ordered = [...rows].reverse();
   const labels = ordered.map(r => r.date);
   const longArr = ordered.map(r => r.long_contracts);
-  const shortArr = ordered.map(r => -r.short_contracts);  // negative so shorts plot below zero
+  const shortArr = ordered.map(r => r.short_contracts);
   const longPctArr = ordered.map(r => r.long_pct);
 
   const ctx = document.getElementById('historyChart').getContext('2d');
   if (historyChart) historyChart.destroy();
+
+  const fiftyLinePlugin = {
+    id: 'fiftyLine',
+    afterDraw(chart) {
+      const yPct = chart.scales.yPct;
+      if (!yPct) return;
+      const y = yPct.getPixelForValue(50);
+      const {left, right} = chart.chartArea;
+      const drawCtx = chart.ctx;
+      drawCtx.save();
+      drawCtx.setLineDash([6, 4]);
+      drawCtx.strokeStyle = 'rgba(255,255,255,0.3)';
+      drawCtx.lineWidth = 1;
+      drawCtx.beginPath();
+      drawCtx.moveTo(left, y);
+      drawCtx.lineTo(right, y);
+      drawCtx.stroke();
+      drawCtx.restore();
+    }
+  };
+
   historyChart = new Chart(ctx, {
     data: {
       labels: labels,
       datasets: [
         {type: 'bar', label: 'Long Positions', data: longArr,
          backgroundColor: 'rgba(57,116,230,0.78)', borderColor: 'rgba(57,116,230,1)',
-         yAxisID: 'yContracts', stack: 'pos', order: 3},
+         yAxisID: 'yContracts', stack: 'positions', order: 3},
         {type: 'bar', label: 'Short Positions', data: shortArr,
          backgroundColor: 'rgba(221,80,80,0.78)', borderColor: 'rgba(221,80,80,1)',
-         yAxisID: 'yContracts', stack: 'neg', order: 3},
+         yAxisID: 'yContracts', stack: 'positions', order: 3},
         {type: 'line', label: 'Long %', data: longPctArr,
          borderColor: '#facc15', backgroundColor: 'transparent',
          borderWidth: 2, pointRadius: 0, tension: 0.15,
@@ -200,22 +221,23 @@ function renderHistory(ccy) {
           callbacks: {
             label: ctx => {
               if (ctx.dataset.yAxisID === 'yPct') return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + '%';
-              const v = Math.abs(ctx.parsed.y);
-              return ctx.dataset.label + ': ' + v.toLocaleString('en-US');
+              return ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString('en-US');
             }
           }
         }
       },
       scales: {
         x: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#8893c0', maxRotation: 50, minRotation: 50}},
-        yContracts: {position: 'right', grid: {color: 'rgba(255,255,255,0.05)'},
-                     ticks: {color: '#8893c0', callback: v => Math.abs(v).toLocaleString('en-US')},
-                     title: {display: true, text: 'Contracts (long above, short below)', color: '#8893c0'}},
+        yContracts: {position: 'right', stacked: true, grid: {color: 'rgba(255,255,255,0.05)'},
+                     ticks: {color: '#8893c0', callback: v => {
+                       if (v >= 1000) return (v/1000).toFixed(0) + 'K';
+                       return v.toLocaleString('en-US');
+                     }}},
         yPct: {position: 'left', grid: {drawOnChartArea: false}, min: 0, max: 100,
-               ticks: {color: '#facc15', callback: v => v + '%'},
-               title: {display: true, text: 'Long %', color: '#facc15'}},
+               ticks: {color: '#facc15', callback: v => v + '%'}},
       }
-    }
+    },
+    plugins: [fiftyLinePlugin]
   });
 
   // Render data table

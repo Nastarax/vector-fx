@@ -270,7 +270,7 @@ def main():
     cot_path = None
     if cot_data:
         try:
-            cot_history = cot.fetch_cot_history(weeks=52, as_of_date=args.date)
+            cot_history = cot.fetch_cot_history(weeks=104, as_of_date=args.date)
         except Exception as e:
             print(f"[cot-history] fetch failed: {e}")
             cot_history = None
