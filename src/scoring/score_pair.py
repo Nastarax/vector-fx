@@ -64,6 +64,7 @@ def build_currency_scores(
     abs_au_mhsi: dict | None = None,
     investing_cpi: dict | None = None,
     investing_ppi: dict | None = None,
+    myfxbook_ppi: dict | None = None,
     investing_cc: dict | None = None,
     investing_jolts: dict | None = None,
     investing_adp: dict | None = None,
@@ -90,6 +91,7 @@ def build_currency_scores(
     investing_spmi = investing_spmi or {}
     investing_cpi = investing_cpi or {}
     investing_ppi = investing_ppi or {}
+    myfxbook_ppi = myfxbook_ppi or {}
     investing_cc = investing_cc or {}
     investing_jolts = investing_jolts or {}
     investing_adp = investing_adp or {}
@@ -236,10 +238,31 @@ def build_currency_scores(
                 # PPI YoY:
                 # - NZD: Investing.com PPI Output (latest release). Actual
                 #   vs Forecast; fall back to Previous if Forecast missing.
-                # - Other 7 (USD/EUR/GBP/JPY/CHF/AUD/CAD): TE producer-prices
+                # - CHF: Myfxbook Swiss Producer & Import Prices YoY. Actual
+                #   vs Consensus; fall back to Previous if Consensus missing.
+                # - Other 6 (USD/EUR/GBP/JPY/AUD/CAD): TE producer-prices
                 #   page. Actual vs Consensus, fall back to TEForecast if
                 #   Consensus missing. GBP uses ppi-input-yoy slug (handled
                 #   via TE_INDICATOR_SLUG_OVERRIDES).
+                if ind_id == "ppi" and ccy == "CHF" and myfxbook_ppi.get("CHF"):
+                    rel = myfxbook_ppi["CHF"]
+                    actual = rel.get("actual")
+                    benchmark = rel.get("consensus")
+                    if benchmark is None:
+                        benchmark = rel.get("previous")
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    if actual > benchmark:
+                        s = 1
+                    elif actual < benchmark:
+                        s = -1
+                    else:
+                        s = 0
+                    if direction == "down_is_bullish":
+                        s = -s
+                    per_ccy[ccy][ind_id] = s
+                    continue
                 if ind_id == "ppi" and ccy == "NZD" and investing_ppi.get("NZD"):
                     rel = investing_ppi["NZD"]
                     actual = rel.get("actual")
@@ -784,7 +807,7 @@ def build_currency_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, rates_outlook=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, myfxbook_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, rates_outlook=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -793,7 +816,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, rates_outlook=rates_outlook)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, myfxbook_ppi=myfxbook_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, rates_outlook=rates_outlook)
     pair_rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)
     for r in pair_rows:
         r["is_currency"] = False
@@ -825,6 +848,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         investing_cc=investing_cc,
         investing_jolts=investing_jolts,
         investing_adp=investing_adp,
+        myfxbook_ppi=myfxbook_ppi,
         as_of_date=as_of_date,
     )
 
@@ -858,7 +882,7 @@ _MAX_AGE_CPI_QUARTERLY = 110
 def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
                             investing_mpmi, investing_spmi, as_of_date,
                             investing_cc=None, investing_jolts=None,
-                            investing_adp=None) -> list:
+                            investing_adp=None, myfxbook_ppi=None) -> list:
     """
     Return a flat list of stale data entries across COT + Investing-sourced
     indicators. Each entry: {indicator, ccy, date, days_old, max_age}.
@@ -930,5 +954,9 @@ def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
     # ADP (Investing): USD only, monthly.
     for ccy, reading in (investing_adp or {}).items():
         _check("ADP", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["ADP"])
+
+    # PPI YoY (Myfxbook): CHF only, monthly.
+    for ccy, reading in (myfxbook_ppi or {}).items():
+        _check("PPI YoY", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["mPMI"])
 
     return out

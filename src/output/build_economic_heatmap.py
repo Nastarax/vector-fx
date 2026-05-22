@@ -77,7 +77,8 @@ def _get_latest_te(te_history, ccy, ind_id):
 
 def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
                investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
-               investing_cc=None, investing_jolts=None, investing_adp=None):
+               investing_cc=None, investing_jolts=None, investing_adp=None,
+               myfxbook_ppi=None):
     """Return the row dict for one (currency, indicator) pair."""
     ind_id = ind["id"]
     direction = ind["direction"]
@@ -95,9 +96,17 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             previous = rel.get("previous")
             date = rel.get("date") or ""
 
-    # PPI: TE for 7, Investing for NZD
+    # PPI: Myfxbook for CHF (Actual vs Consensus), Investing for NZD, TE for the rest
     elif ind_id == "ppi":
-        if ccy == "NZD":
+        if ccy == "CHF" and (myfxbook_ppi or {}).get("CHF"):
+            rel = myfxbook_ppi["CHF"]
+            actual = rel.get("actual")
+            forecast = rel.get("consensus")
+            if forecast is None:
+                forecast = rel.get("previous")
+            previous = rel.get("previous")
+            date = rel.get("date") or ""
+        elif ccy == "NZD":
             rel = (investing_ppi or {}).get("NZD")
             if rel:
                 actual = rel.get("actual")
@@ -212,7 +221,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
 def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
               investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None,
               rates_outlook=None, investing_cc=None, investing_jolts=None,
-              investing_adp=None) -> dict:
+              investing_adp=None, myfxbook_ppi=None) -> dict:
     """Return {ccy: [row dicts]} for all currencies."""
     out: dict[str, list[dict]] = {}
     for ccy in CURRENCIES:
@@ -224,7 +233,7 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
             rows.append(_build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
                                    investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
                                    investing_cc=investing_cc, investing_jolts=investing_jolts,
-                                   investing_adp=investing_adp))
+                                   investing_adp=investing_adp, myfxbook_ppi=myfxbook_ppi))
         out[ccy] = rows
     return out
 

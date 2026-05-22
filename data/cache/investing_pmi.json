@@ -24,16 +24,16 @@
     "previous": 52.7
   },
   "GBP": {
-    "date": "2026-05-01",
+    "date": "2026-05-21",
     "actual": 53.7,
-    "forecast": 53.6,
-    "previous": 51.0
+    "forecast": 52.9,
+    "previous": 53.7
   },
   "EUR": {
-    "date": "2026-05-04",
-    "actual": 52.2,
-    "forecast": 52.2,
-    "previous": 51.6
+    "date": "2026-05-21",
+    "actual": 51.4,
+    "forecast": 51.7,
+    "previous": 52.2
   },
   "CAD": {
     "date": "2026-05-01",

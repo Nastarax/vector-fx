@@ -1,9 +1,9 @@
 {
   "USD": {
-    "date": "2026-05-05",
-    "actual": 51.0,
-    "forecast": 51.3,
-    "previous": 49.8
+    "date": "2026-05-21",
+    "actual": 50.9,
+    "forecast": 51.1,
+    "previous": 51.0
   },
   "EUR": {
     "date": "2026-05-21",
@@ -24,10 +24,10 @@
     "previous": 50.7
   },
   "JPY": {
-    "date": "2026-05-08",
-    "actual": 51.0,
-    "forecast": 51.2,
-    "previous": 53.4
+    "date": "2026-05-21",
+    "actual": 50.0,
+    "forecast": null,
+    "previous": 51.0
   },
   "CAD": {
     "date": "2026-05-05",
