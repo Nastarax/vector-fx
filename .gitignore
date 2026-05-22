@@ -38,4 +38,18 @@ data/cache/*.pkl
 # for AUD only). ABS isn't bot-blocked so this gets refreshed every main.py
 # run, but cache it for backtest mode.
 !data/cache/abs_au_household.json
+# US Consumer Confidence cache (Investing CB, id 48). Local refresh, GH Actions reads.
+!data/cache/investing_consumer_conf.json
+# US JOLTS cache (Investing, id 1057). Local refresh only.
+!data/cache/investing_jolts.json
+# US ADP cache (Investing, id 1). Local refresh only.
+!data/cache/investing_adp.json
+# CHF PPI cache (Myfxbook Swiss Producer & Import Prices). Local refresh only.
+!data/cache/myfxbook_ppi.json
+# CAD Retail Sales MoM cache (Investing, id 260). Local refresh only.
+!data/cache/investing_retail_sales.json
+# Tokyo Core CPI snapshot (JPY CPI source, rides along with CPI refresh).
+!data/cache/tokyo_core_cpi.json
+# Deep CPI history archive (Investing __NEXT_DATA__, all 8). Powers inflation chart.
+!data/cache/cpi_investing_history.json
 scripts/.last_refresh

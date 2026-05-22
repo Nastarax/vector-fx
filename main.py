@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_cpi, investing_jolts, investing_ppi, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
+from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_cpi, investing_jolts, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
 from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_scorecard, build_seasonality
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 
@@ -142,6 +142,12 @@ def main():
             c: r for c, r in cached_chf_ppi.items()
             if r.get("date") and r["date"] <= args.date
         }
+        # CAD Retail Sales (Investing) cache: same filter
+        cached_retail_inv = investing_retail_sales.load_cached()
+        investing_retail_sales_data = {
+            c: r for c, r in cached_retail_inv.items()
+            if r.get("date") and r["date"] <= args.date
+        }
         # Rates outlook in backtest mode: use whatever's cached. The
         # snapshot is point-in-time; for honest backtests the user should
         # have refreshed near the date in question.
@@ -243,12 +249,20 @@ def main():
         else:
             print("[chf-ppi] no CHF PPI cache - run scripts/refresh_investing.py to populate")
 
+        # CAD Retail Sales cache (Investing retail-sales-260). CAD only;
+        # AUD uses ABS MHSI, other 6 stay on TE. Refreshed by refresh_investing.py.
+        investing_retail_sales_data = investing_retail_sales.load_cached()
+        if investing_retail_sales_data:
+            print(f"[retail-inv] using cached CAD Retail Sales: {len(investing_retail_sales_data)} currencies")
+        else:
+            print("[retail-inv] no CAD Retail Sales cache - run scripts/refresh_investing.py to populate")
+
         # ABS Monthly Household Spending Indicator (replaces TE retail sales
         # for AUD only). Not Cloudflare-blocked so we can scrape on every run.
         abs_au_mhsi = abs_au.fetch_mhsi()
 
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, rates_outlook=rates_outlook)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, investing_retail_sales=investing_retail_sales_data, rates_outlook=rates_outlook)
     out_path = build_heatmap.render(heatmap)
 
     # COT dashboard: fetch 52w of weekly history (separate from the 4w used
@@ -285,6 +299,7 @@ def main():
             investing_jolts=investing_jolts_data,
             investing_adp=investing_adp_data,
             myfxbook_ppi=myfxbook_ppi_data,
+            investing_retail_sales=investing_retail_sales_data,
         )
         econ_path = build_economic_heatmap.render(econ_data)
     except Exception as e:

@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.fetchers import (investing, investing_adp, investing_consumer_conf,
                           investing_cpi, investing_jolts, investing_ppi,
-                          myfxbook_ppi, services_pmi)
+                          investing_retail_sales, myfxbook_ppi, services_pmi)
 
 
 def _summarize(label: str, all_keys, fresh_set, results):
@@ -370,6 +370,36 @@ def refresh_chf_ppi():
         print("CHF PPI: recovered on pass 2.")
 
 
+def refresh_cad_retail():
+    print("\n============================================")
+    print("REFRESHING CAD Retail Sales MoM (via Investing.com)")
+    print("============================================")
+    all_keys = list(investing_retail_sales.RETAIL_SALES_URLS.keys())
+    print(f"Targeting {len(all_keys)} currencies\n")
+
+    print("--- Pass 1: full fetch ---")
+    first = investing_retail_sales.fetch_retail_sales(sleep_between=8.0)
+    fresh1 = set(investing_retail_sales._LAST_FRESH)
+    _summarize("retail-inv", all_keys, fresh1, first)
+
+    failed = [c for c in all_keys if c not in fresh1]
+    if not failed:
+        print("\nCAD Retail Sales: fetched fresh.")
+        return
+
+    print(f"\n--- Pass 2: retry {failed} after 60s cooldown ---")
+    time.sleep(60)
+    second = investing_retail_sales.fetch_retail_sales(sleep_between=15.0)
+    fresh2 = set(investing_retail_sales._LAST_FRESH)
+    still_failed = [c for c in failed if c not in fresh2]
+    print(f"\nCAD Retail Sales summary: pass 1 fresh={sorted(fresh1)}, pass 2 fresh={sorted(fresh2)}")
+    if still_failed:
+        print(f"CAD Retail Sales: still not fresh after 2 passes: {still_failed}")
+        print("Cache retains last successful values.")
+    else:
+        print("CAD Retail Sales: recovered on pass 2.")
+
+
 def refresh_cpi_history():
     """Deep monthly CPI YoY history for all 8 currencies (Investing
     __NEXT_DATA__). Powers the inflation line chart with continuous, current
@@ -400,6 +430,7 @@ REFRESHERS = {
     "jolts": refresh_jolts,
     "adp": refresh_adp,
     "chf_ppi": refresh_chf_ppi,
+    "cad_retail": refresh_cad_retail,
 }
 
 # Cache file each target writes (for the commit hint).
@@ -413,6 +444,7 @@ _CACHE_FILES = {
     "jolts": "data/cache/investing_jolts.json",
     "adp": "data/cache/investing_adp.json",
     "chf_ppi": "data/cache/myfxbook_ppi.json",
+    "cad_retail": "data/cache/investing_retail_sales.json",
 }
 # JPY CPI snapshot rides along with the CPI refresh.
 _EXTRA_CACHE_FILES = {"cpi": "data/cache/tokyo_core_cpi.json"}
