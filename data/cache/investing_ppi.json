@@ -4,5 +4,11 @@
     "actual": 0.8,
     "forecast": 0.5,
     "previous": 0.1
+  },
+  "GBP": {
+    "date": "2026-05-20",
+    "actual": 4.0,
+    "forecast": 2.8,
+    "previous": 3.0
   }
 }

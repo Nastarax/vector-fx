@@ -256,13 +256,12 @@ def build_currency_scores(
                     continue
 
                 # PPI YoY:
-                # - NZD: Investing.com PPI Output (latest release). Actual
-                #   vs Forecast; fall back to Previous if Forecast missing.
+                # - NZD/GBP: Investing.com PPI Output. Actual vs Forecast;
+                #   fall back to Previous if Forecast missing.
                 # - CHF/AUD: Myfxbook PPI YoY. Actual vs Consensus; fall
                 #   back to Previous if Consensus missing.
-                # - Other 5 (USD/EUR/GBP/JPY/CAD): TE producer-prices page.
-                #   Actual vs Consensus, fall back to TEForecast if Consensus
-                #   missing. GBP uses ppi-input-yoy slug.
+                # - Other 4 (USD/EUR/JPY/CAD): TE producer-prices page.
+                #   Actual vs Consensus, fall back to TEForecast.
                 if ind_id == "ppi" and ccy in ("CHF", "AUD") and myfxbook_ppi.get(ccy):
                     rel = myfxbook_ppi[ccy]
                     actual = rel.get("actual")
@@ -282,8 +281,8 @@ def build_currency_scores(
                         s = -s
                     per_ccy[ccy][ind_id] = s
                     continue
-                if ind_id == "ppi" and ccy == "NZD" and investing_ppi.get("NZD"):
-                    rel = investing_ppi["NZD"]
+                if ind_id == "ppi" and ccy in ("NZD", "GBP") and investing_ppi.get(ccy):
+                    rel = investing_ppi[ccy]
                     actual = rel.get("actual")
                     benchmark = rel.get("forecast")
                     if benchmark is None:

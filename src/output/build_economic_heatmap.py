@@ -96,7 +96,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             previous = rel.get("previous")
             date = rel.get("date") or ""
 
-    # PPI: Myfxbook for CHF/AUD (Actual vs Consensus), Investing for NZD, TE for the rest
+    # PPI: Myfxbook for CHF/AUD, Investing for NZD/GBP, TE for the rest
     elif ind_id == "ppi":
         if ccy in ("CHF", "AUD") and (myfxbook_ppi or {}).get(ccy):
             rel = myfxbook_ppi[ccy]
@@ -104,13 +104,12 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             forecast = rel.get("consensus")
             previous = rel.get("previous")
             date = rel.get("date") or ""
-        elif ccy == "NZD":
-            rel = (investing_ppi or {}).get("NZD")
-            if rel:
-                actual = rel.get("actual")
-                forecast = rel.get("forecast")
-                previous = rel.get("previous")
-                date = rel.get("date") or ""
+        elif ccy in ("NZD", "GBP") and (investing_ppi or {}).get(ccy):
+            rel = investing_ppi[ccy]
+            actual = rel.get("actual")
+            forecast = rel.get("forecast")
+            previous = rel.get("previous")
+            date = rel.get("date") or ""
         else:
             rel = _get_latest_te(te_history, ccy, "ppi")
             if rel:

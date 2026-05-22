@@ -185,7 +185,7 @@ def refresh_cpi():
 
 def refresh_ppi():
     print("\n============================================")
-    print("REFRESHING PPI YoY (NZD only via Investing)")
+    print("REFRESHING PPI YoY (NZD + GBP via Investing)")
     print("============================================")
     all_keys = list(investing_ppi.PPI_URLS.keys())
     print(f"Targeting {len(all_keys)} currencies\n")

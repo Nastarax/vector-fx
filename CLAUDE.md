@@ -55,9 +55,10 @@ CPI YoY:              Investing per-currency (Actual vs Forecast); JPY = Investi
                       Core CPI (id 328); fallback Previous for CHF
 PPI YoY:              CHF = Myfxbook Producer & Import Prices YoY (Actual vs Consensus);
                       AUD = Myfxbook Australia PPI YoY (Actual vs Consensus);
-                      NZD = Investing PPI Output (Actual vs Forecast);
-                      other 5 (USD/EUR/GBP/JPY/CAD) = TE (Actual vs Consensus,
-                      fallback TEForecast). GBP uses ppi-input-yoy slug.
+                      GBP = Investing PPI Output (id 730, Actual vs Forecast);
+                      NZD = Investing PPI Output (id 247, Actual vs Forecast);
+                      other 4 (USD/EUR/JPY/CAD) = TE (Actual vs Consensus,
+                      fallback TEForecast).
 PCE / NFP / Jobless Claims: TE, US-only
 ADP:                  Investing ADP Nonfarm Employment Change (id 1), Actual vs Forecast, US-only
 JOLTS:                Investing JOLTS Job Openings (id 1057), Actual vs Forecast, US-only
