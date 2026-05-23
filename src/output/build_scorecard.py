@@ -204,15 +204,19 @@ def _load_template() -> str:
 
 def render(scorecards: dict) -> str:
     """Write data/scorecard.html with all currency scorecards embedded."""
+    from src.scoring.score_history import load_history
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     updated_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     labels = {c: DISPLAY_NAMES.get(c, c) for c in CURRENCIES}
+    history = load_history()
     template = _load_template()
     html = (template
             .replace("__SCORECARDS_JSON__", json.dumps(scorecards, default=str))
             .replace("__UPDATED_STR__", updated_str)
             .replace("__CURRENCIES_JSON__", json.dumps(list(CURRENCIES)))
-            .replace("__LABELS_JSON__", json.dumps(labels)))
+            .replace("__LABELS_JSON__", json.dumps(labels))
+            .replace("__HISTORY_JSON__", json.dumps(history)))
     out_path = OUTPUT_DIR / "scorecard.html"
     out_path.write_text(html, encoding="utf-8")
     return str(out_path)

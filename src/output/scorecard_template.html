@@ -137,6 +137,15 @@
       <div class="score-line"><span class="label">Sentiment + COT</span><span class="val" id="sb-sentiment">0</span></div>
       <div class="score-line"><span class="label">Fundamentals</span><span class="val" id="sb-fundamentals">0</span></div>
     </div>
+
+    <div class="card" id="score-chart-card" style="display:none">
+      <div class="card-title">Score over time</div>
+      <div style="position:relative;height:180px">
+        <span style="position:absolute;top:4px;left:4px;font-size:10px;font-weight:600;color:rgba(57,116,230,0.7);z-index:1">Bullish</span>
+        <span style="position:absolute;bottom:4px;left:4px;font-size:10px;font-weight:600;color:rgba(221,80,80,0.7);z-index:1">Bearish</span>
+        <canvas id="scoreChart"></canvas>
+      </div>
+    </div>
   </div>
 
   <div class="right-panel" id="right-panel"></div>
@@ -146,10 +155,12 @@
   Vector &middot; Data: FRED, CFTC, TradingEconomics, Investing.com, ForexFactory, BusinessNZ, Myfxbook &middot; For personal research only, not financial advice.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 const DATA = __SCORECARDS_JSON__;
 const CURRENCIES = __CURRENCIES_JSON__;
 const LABELS = __LABELS_JSON__;
+const HISTORY = __HISTORY_JSON__;
 
 function biasClass(label){
   if(!label) return 'neutral';
@@ -270,6 +281,49 @@ function renderTechnicalSentiment(scData){
   return html;
 }
 
+let scoreChart = null;
+
+function renderScoreChart(ccy){
+  const hist = HISTORY[ccy] || [];
+  const card = document.getElementById('score-chart-card');
+  if(!hist.length){ card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  const labels = hist.map(h => {
+    const parts = h.date.split('-');
+    const d = new Date(Number(parts[0]), Number(parts[1])-1, Number(parts[2]));
+    return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  });
+  const scores = hist.map(h => h.score);
+  const colors = scores.map(s => s >= 0 ? 'rgba(57,116,230,0.85)' : 'rgba(221,80,80,0.85)');
+
+  const ctx = document.getElementById('scoreChart').getContext('2d');
+  if(scoreChart) scoreChart.destroy();
+
+  scoreChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: scores,
+        backgroundColor: colors,
+        borderWidth: 0,
+        borderRadius: 1,
+        barPercentage: 0.85,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: {display: false}, tooltip: { callbacks: { label: c => 'Score: ' + c.parsed.y } } },
+      scales: {
+        x: { grid: {color:'rgba(255,255,255,0.05)'}, ticks: {color:'#8893c0', maxRotation:50, font:{size:9}} },
+        y: { grid: {color:'rgba(255,255,255,0.08)'}, ticks: {color:'#8893c0', stepSize:2} }
+      }
+    }
+  });
+}
+
 function render(ccy){
   const sc = DATA[ccy];
   if(!sc) return;
@@ -279,9 +333,7 @@ function render(ccy){
   document.getElementById('overall-bias').style.color = sc.bias.indexOf('Bull')>=0 ? '#aac4ff' : (sc.bias.indexOf('Bear')>=0 ? '#ffaab4' : '#8893c0');
   document.getElementById('gauge-score').textContent = sc.total_score;
 
-  // Needle rotation: -180 (full left = -max) to 0 (center neutral) to +180 (full right = +max)
-  // SVG path goes from -90 (left) to +90 (right). Map total to that range.
-  const SCALE_MAX = 20; // arbitrary; clamps gauge sensitivity
+  const SCALE_MAX = 20;
   const clamped = Math.max(-SCALE_MAX, Math.min(SCALE_MAX, sc.total_score));
   const angle = (clamped / SCALE_MAX) * 90;
   document.getElementById('needle').setAttribute('transform', 'rotate('+angle+' 100 110)');
@@ -291,6 +343,8 @@ function render(ccy){
   document.getElementById('sb-sentiment').innerHTML = scorePill(sc.sub_scores.sentiment_cot);
   document.getElementById('sb-fundamentals').innerHTML = scorePill(sc.sub_scores.fundamentals);
 
+  renderScoreChart(ccy);
+
   let html = '';
   html += renderTechnicalSentiment(sc);
   html += renderSection('Economic growth bias', sc.sub_bias.growth, sc.fundamentals.growth_rows);
@@ -298,7 +352,6 @@ function render(ccy){
   html += renderSection('Jobs market bias', sc.sub_bias.jobs, sc.fundamentals.jobs_rows);
   document.getElementById('right-panel').innerHTML = html;
 
-  // Update URL hash without scrolling
   if(history.replaceState){
     history.replaceState(null, '', '#'+ccy);
   }

@@ -52,4 +52,6 @@ data/cache/*.pkl
 !data/cache/tokyo_core_cpi.json
 # Deep CPI history archive (Investing __NEXT_DATA__, all 8). Powers inflation chart.
 !data/cache/cpi_investing_history.json
+# Daily score history for scorecard "Score over time" chart.
+!data/cache/score_history.json
 scripts/.last_refresh
