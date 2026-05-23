@@ -708,21 +708,35 @@ def build_currency_scores(
                 for ind in cfg["categories"][cat]:
                     per_ccy[ccy][ind["id"]] = None
 
-            if ccy == "XAU" and te_history:
-                us_gdp = te_history.get("USD|gdp", [])
-                if us_gdp:
-                    latest = sorted(us_gdp, key=lambda x: x.get("date", ""), reverse=True)[0]
-                    actual = latest.get("actual")
-                    benchmark = latest.get("consensus")
-                    if benchmark is None:
-                        benchmark = latest.get("forecast")
-                    if actual is not None and benchmark is not None:
-                        if actual > benchmark:
-                            per_ccy[ccy]["gdp"] = -1
-                        elif actual < benchmark:
-                            per_ccy[ccy]["gdp"] = 1
-                        else:
-                            per_ccy[ccy]["gdp"] = 0
+            if ccy == "XAU":
+                # Gold uses US macro data with inverted safe-haven logic:
+                # strong US economy = bearish for gold, weak = bullish.
+                if te_history:
+                    us_gdp = te_history.get("USD|gdp", [])
+                    if us_gdp:
+                        latest = sorted(us_gdp, key=lambda x: x.get("date", ""), reverse=True)[0]
+                        actual = latest.get("actual")
+                        benchmark = latest.get("consensus")
+                        if benchmark is None:
+                            benchmark = latest.get("forecast")
+                        if actual is not None and benchmark is not None:
+                            if actual > benchmark:
+                                per_ccy[ccy]["gdp"] = -1
+                            elif actual < benchmark:
+                                per_ccy[ccy]["gdp"] = 1
+                            else:
+                                per_ccy[ccy]["gdp"] = 0
+
+                # mPMI: US manufacturing PMI, momentum (Actual vs Previous), inverted.
+                us_mpmi = investing_mpmi.get("USD")
+                if us_mpmi:
+                    s = momentum_score([us_mpmi])
+                    per_ccy[ccy]["mpmi"] = -s
+                # sPMI: US services PMI, momentum (Actual vs Previous), inverted.
+                us_spmi = investing_spmi.get("USD")
+                if us_spmi:
+                    s = momentum_score([us_spmi])
+                    per_ccy[ccy]["spmi"] = -s
 
             cot_reading = cot_data.get(ccy)
             if cot_reading and not getattr(cot_reading, "is_stale", False):
