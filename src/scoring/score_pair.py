@@ -700,12 +700,30 @@ def build_currency_scores(
             per_ccy[ccy]["cot"] = None
 
     # Commodity currencies (XAU, etc.) have no macro data but need COT scored.
+    # Gold GDP: inverted safe-haven logic using US GDP (strong GDP = bearish).
     for ccy in COMMODITY_CCYS:
         if ccy not in per_ccy:
             per_ccy[ccy] = {}
             for cat in ("Growth", "Inflation", "Jobs"):
                 for ind in cfg["categories"][cat]:
                     per_ccy[ccy][ind["id"]] = None
+
+            if ccy == "XAU" and te_history:
+                us_gdp = te_history.get("USD|gdp", [])
+                if us_gdp:
+                    latest = sorted(us_gdp, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["gdp"] = -1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["gdp"] = 1
+                        else:
+                            per_ccy[ccy]["gdp"] = 0
+
             cot_reading = cot_data.get(ccy)
             if cot_reading and not getattr(cot_reading, "is_stale", False):
                 per_ccy[ccy]["cot"] = cot_score_commodity(cot_reading)
