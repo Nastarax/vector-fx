@@ -127,5 +127,11 @@ pairs:
     quote: CHF
     yf_ticker: "CADCHF=X"
 
+  # Commodities (1)
+  - symbol: XAUUSD
+    base: XAU
+    quote: USD
+    yf_ticker: "GC=F"
+
 # Currencies covered
-currencies: [USD, EUR, GBP, JPY, CHF, AUD, CAD, NZD]
+currencies: [USD, EUR, GBP, JPY, CHF, AUD, CAD, NZD, XAU]

@@ -30,9 +30,14 @@ def render(cot_data: dict, cot_history: dict | None = None, output_path: Path | 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     output_path = output_path or (OUTPUT_DIR / "cot.html")
 
-    # Latest report rows for Tool 1
+    COMMODITY_CCYS = {"XAU"}
+    DISPLAY_NAMES = {"XAU": "Gold"}
+
+    # Latest report rows for Tool 1 (currencies only, no commodities)
     latest = []
     for ccy, r in (cot_data or {}).items():
+        if ccy in COMMODITY_CCYS:
+            continue
         latest.append({
             "ccy": ccy,
             "long_pct": float(r.long_pct),
@@ -47,6 +52,7 @@ def render(cot_data: dict, cot_history: dict | None = None, output_path: Path | 
 
     history = cot_history or {}
     currencies = sorted([c for c in history.keys() if history[c]])
+    currency_labels = {c: DISPLAY_NAMES.get(c, c) for c in currencies}
 
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
@@ -59,6 +65,7 @@ def render(cot_data: dict, cot_history: dict | None = None, output_path: Path | 
         latest_json=json.dumps(latest),
         history_json=json.dumps(history),
         currencies_json=json.dumps(currencies),
+        currency_labels_json=json.dumps(currency_labels),
     )
     output_path.write_text(html, encoding="utf-8")
     return output_path

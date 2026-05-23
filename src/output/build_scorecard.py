@@ -22,7 +22,8 @@ from pathlib import Path
 
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
-CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD")
+CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD", "XAU")
+DISPLAY_NAMES = {"XAU": "Gold"}
 
 # Sub-section bias thresholds. Range varies by section, so we threshold on
 # a fraction of the theoretical max-abs score for that section.
@@ -202,13 +203,16 @@ def _load_template() -> str:
 
 
 def render(scorecards: dict) -> str:
-    """Write data/scorecard.html with all 8 currency scorecards embedded."""
+    """Write data/scorecard.html with all currency scorecards embedded."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     updated_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    labels = {c: DISPLAY_NAMES.get(c, c) for c in CURRENCIES}
     template = _load_template()
-    html = template.replace(
-        "__SCORECARDS_JSON__", json.dumps(scorecards, default=str)
-    ).replace("__UPDATED_STR__", updated_str)
+    html = (template
+            .replace("__SCORECARDS_JSON__", json.dumps(scorecards, default=str))
+            .replace("__UPDATED_STR__", updated_str)
+            .replace("__CURRENCIES_JSON__", json.dumps(list(CURRENCIES)))
+            .replace("__LABELS_JSON__", json.dumps(labels)))
     out_path = OUTPUT_DIR / "scorecard.html"
     out_path.write_text(html, encoding="utf-8")
     return str(out_path)

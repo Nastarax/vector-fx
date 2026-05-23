@@ -148,7 +148,8 @@
 
 <script>
 const DATA = __SCORECARDS_JSON__;
-const CURRENCIES = ["USD","EUR","GBP","JPY","CHF","AUD","CAD","NZD"];
+const CURRENCIES = __CURRENCIES_JSON__;
+const LABELS = __LABELS_JSON__;
 
 function biasClass(label){
   if(!label) return 'neutral';
@@ -273,7 +274,7 @@ function render(ccy){
   const sc = DATA[ccy];
   if(!sc) return;
 
-  document.getElementById('symbol-name').textContent = ccy;
+  document.getElementById('symbol-name').textContent = LABELS[ccy] || ccy;
   document.getElementById('overall-bias').textContent = sc.bias;
   document.getElementById('overall-bias').style.color = sc.bias.indexOf('Bull')>=0 ? '#aac4ff' : (sc.bias.indexOf('Bear')>=0 ? '#ffaab4' : '#8893c0');
   document.getElementById('gauge-score').textContent = sc.total_score;
@@ -307,7 +308,7 @@ function render(ccy){
 const sel = document.getElementById('ccy');
 for(const c of CURRENCIES){
   const opt = document.createElement('option');
-  opt.value = c; opt.textContent = c;
+  opt.value = c; opt.textContent = LABELS[c] || c;
   sel.appendChild(opt);
 }
 sel.addEventListener('change', () => render(sel.value));

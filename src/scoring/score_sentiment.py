@@ -46,6 +46,32 @@ def cot_score(reading: CotReading | None, neutral_threshold: float = 0.0) -> int
     return 0
 
 
+def cot_score_commodity(reading: CotReading | None) -> int:
+    """
+    EdgeFinder COT methodology for non-currency assets (gold, indices, etc.).
+
+    Two components:
+      Part 1 - Weekly change: Long% current - Long% previous.
+               Positive -> +1, negative -> -1.
+      Part 2 - Net positioning: long_contracts - short_contracts.
+               Positive -> +1, negative -> -1.
+
+    Final score: Part 1 + Part 2, range -2..+2.
+    """
+    if reading is None:
+        return 0
+    s = 0
+    if reading.long_pct_change > 0:
+        s += 1
+    elif reading.long_pct_change < 0:
+        s -= 1
+    if reading.net_position > 0:
+        s += 1
+    elif reading.net_position < 0:
+        s -= 1
+    return s
+
+
 def retail_score(reading: RetailReading | None) -> int:
     """
     EdgeFinder methodology, exact match.

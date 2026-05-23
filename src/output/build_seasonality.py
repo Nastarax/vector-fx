@@ -14,6 +14,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+DISPLAY_NAMES = {"XAUUSD": "Gold"}
+
 import pandas as pd
 
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
@@ -211,13 +213,14 @@ _YEARLY_BODY = """
 <script>
 const ALL_DATA = {data_json};
 const PAIRS = {pairs_json};
+const LABELS = {labels_json};
 const DEFAULT_PAIR = "{default_pair}";
 const MONTH_LABEL_BY_WEEK = {{1:'Jan',5:'Feb',9:'Mar',14:'Apr',18:'May',22:'Jun',27:'Jul',31:'Aug',35:'Sep',40:'Oct',44:'Nov',48:'Dec'}};
 
 const sel = document.getElementById('pairSelect');
 PAIRS.forEach(p => {{
   const opt = document.createElement('option');
-  opt.value = p; opt.textContent = p;
+  opt.value = p; opt.textContent = LABELS[p] || p;
   if (p === DEFAULT_PAIR) opt.selected = true;
   sel.appendChild(opt);
 }});
@@ -320,13 +323,14 @@ _MONTHLY_BODY = """
 <script>
 const ALL_DATA = {data_json};
 const PAIRS = {pairs_json};
+const LABELS = {labels_json};
 const DEFAULT_PAIR = "{default_pair}";
 const MONTH_LABELS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const sel = document.getElementById('pairSelect');
 PAIRS.forEach(p => {{
   const opt = document.createElement('option');
-  opt.value = p; opt.textContent = p;
+  opt.value = p; opt.textContent = LABELS[p] || p;
   if (p === DEFAULT_PAIR) opt.selected = true;
   sel.appendChild(opt);
 }});
@@ -397,6 +401,7 @@ render(DEFAULT_PAIR);
 
 def _render_yearly(all_data: dict, default_pair: str) -> Path:
     pairs = sorted(all_data.keys())
+    labels = {p: DISPLAY_NAMES.get(p, p) for p in pairs}
     head = _COMMON_HEAD.format(
         page_title="Yearly Seasonality",
         header_subtitle="Yearly Seasonality",
@@ -407,6 +412,7 @@ def _render_yearly(all_data: dict, default_pair: str) -> Path:
     body = _YEARLY_BODY.format(
         data_json=json.dumps(all_data),
         pairs_json=json.dumps(pairs),
+        labels_json=json.dumps(labels),
         default_pair=default_pair,
     )
     out_path = OUTPUT_DIR / "seasonality_yearly.html"
@@ -416,6 +422,7 @@ def _render_yearly(all_data: dict, default_pair: str) -> Path:
 
 def _render_monthly(all_data: dict, default_pair: str) -> Path:
     pairs = sorted(all_data.keys())
+    labels = {p: DISPLAY_NAMES.get(p, p) for p in pairs}
     head = _COMMON_HEAD.format(
         page_title="Monthly Seasonality",
         header_subtitle="Monthly Seasonality",
@@ -426,6 +433,7 @@ def _render_monthly(all_data: dict, default_pair: str) -> Path:
     body = _MONTHLY_BODY.format(
         data_json=json.dumps(all_data),
         pairs_json=json.dumps(pairs),
+        labels_json=json.dumps(labels),
         default_pair=default_pair,
     )
     out_path = OUTPUT_DIR / "seasonality_monthly.html"

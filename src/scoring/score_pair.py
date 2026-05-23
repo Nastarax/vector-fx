@@ -25,11 +25,14 @@ from pathlib import Path
 import yaml
 
 from src.scoring.score_macro import score_indicator
-from src.scoring.score_sentiment import cot_score, retail_score
+from src.fetchers.cot import COMMODITY_CCYS
+from src.scoring.score_sentiment import cot_score, cot_score_commodity, retail_score
 from src.scoring.score_surprise import momentum_score, surprise_score
 from src.scoring.score_technical import seasonality_score, trend_score
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
+
+DISPLAY_NAMES = {"XAUUSD": "Gold", "XAU": "Gold"}
 
 
 def load_indicators_cfg() -> dict:
@@ -689,9 +692,26 @@ def build_currency_scores(
         # don't score with stale data. Heatmap will mark it visibly.
         cot_reading = cot_data.get(ccy)
         if cot_reading and not getattr(cot_reading, "is_stale", False):
-            per_ccy[ccy]["cot"] = cot_score(cot_reading)
+            if ccy in COMMODITY_CCYS:
+                per_ccy[ccy]["cot"] = cot_score_commodity(cot_reading)
+            else:
+                per_ccy[ccy]["cot"] = cot_score(cot_reading)
         else:
             per_ccy[ccy]["cot"] = None
+
+    # Commodity currencies (XAU, etc.) have no macro data but need COT scored.
+    for ccy in COMMODITY_CCYS:
+        if ccy not in per_ccy:
+            per_ccy[ccy] = {}
+            for cat in ("Growth", "Inflation", "Jobs"):
+                for ind in cfg["categories"][cat]:
+                    per_ccy[ccy][ind["id"]] = None
+            cot_reading = cot_data.get(ccy)
+            if cot_reading and not getattr(cot_reading, "is_stale", False):
+                per_ccy[ccy]["cot"] = cot_score_commodity(cot_reading)
+            else:
+                per_ccy[ccy]["cot"] = None
+
     return per_ccy
 
 
@@ -728,8 +748,14 @@ def build_pair_rows(
         # Currency-diff indicators.
         # If EITHER side has no data (None), score the cell 0 ("unknown")
         # rather than letting the visible side's score dominate the diff.
+        # Exception: for commodity pairs (base in COMMODITY_CCYS), COT is
+        # the asset's own score, not a base-quote diff.
         for ind_id in indicator_ids:
             if ind_id in pair_level:
+                continue
+            if ind_id == "cot" and base in COMMODITY_CCYS:
+                s = per_ccy.get(base, {}).get("cot")
+                scores[ind_id] = s if s is not None else 0
                 continue
             base_s = per_ccy.get(base, {}).get(ind_id)
             quote_s = per_ccy.get(quote, {}).get(ind_id)
@@ -759,6 +785,7 @@ def build_pair_rows(
 
         rows.append({
             "symbol": sym,
+            "display_name": DISPLAY_NAMES.get(sym, sym),
             "base": base,
             "quote": quote,
             "scores": scores,
@@ -791,7 +818,7 @@ def build_currency_rows(
     pair_level = {"trend", "seasonality", "crowd"}
 
     rows = []
-    for ccy in ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD"):
+    for ccy in ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD", "XAU"):
         ccy_scores = per_ccy.get(ccy, {})
         scores: dict[str, int | None] = {}
         for ind_id in indicator_ids:
@@ -812,6 +839,7 @@ def build_currency_rows(
 
         rows.append({
             "symbol": ccy,
+            "display_name": DISPLAY_NAMES.get(ccy, ccy),
             "base": ccy,
             "quote": "",
             "scores": scores,
@@ -844,7 +872,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
     # COT freshness map: ccy -> {"status": "fresh"|"stale"|"missing", "date": ..., "days_old": ...}
     # Used by the template to show staleness on the heatmap.
     cot_status = {}
-    for ccy in ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD"):
+    for ccy in ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD", "XAU"):
         reading = (cot_data or {}).get(ccy)
         if reading is None:
             cot_status[ccy] = {"status": "missing", "date": None, "days_old": None}

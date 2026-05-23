@@ -104,6 +104,7 @@
 const LATEST = {{ latest_json|safe }};
 const HISTORY = {{ history_json|safe }};
 const CURRENCIES = {{ currencies_json|safe }};
+const LABELS = {{ currency_labels_json|safe }};
 
 // ============ Tool 1: Latest stacked bar ============
 (function() {
@@ -146,7 +147,7 @@ const CURRENCIES = {{ currencies_json|safe }};
 const sel = document.getElementById('historySelect');
 CURRENCIES.forEach(c => {
   const opt = document.createElement('option');
-  opt.value = c; opt.textContent = c;
+  opt.value = c; opt.textContent = LABELS[c] || c;
   sel.appendChild(opt);
 });
 sel.value = 'USD';
