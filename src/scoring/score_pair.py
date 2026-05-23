@@ -26,7 +26,7 @@ import yaml
 
 from src.scoring.score_macro import score_indicator
 from src.fetchers.cot import COMMODITY_CCYS
-from src.scoring.score_sentiment import cot_score, cot_score_commodity, retail_score
+from src.scoring.score_sentiment import cot_score, cot_score_commodity, crowd_score_commodity, retail_score
 from src.scoring.score_surprise import momentum_score, surprise_score
 from src.scoring.score_technical import seasonality_score, trend_score
 
@@ -788,7 +788,10 @@ def build_pair_rows(
         scores["trend"] = trend_score(df, df_4h)
         scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date,
                                                    commodity=base in COMMODITY_CCYS)
-        scores["crowd"] = retail_score(retail_data.get(sym))
+        if base in COMMODITY_CCYS and cot_data:
+            scores["crowd"] = crowd_score_commodity(cot_data.get(base))
+        else:
+            scores["crowd"] = retail_score(retail_data.get(sym))
 
         total = sum(scores.values())
 

@@ -72,6 +72,20 @@ def cot_score_commodity(reading: CotReading | None) -> int:
     return s
 
 
+def crowd_score_commodity(reading: CotReading | None) -> int:
+    """
+    Contrarian crowd scoring for commodities using COT non-reportable (retail)
+    positioning. If retail is >=60% long -> bearish -2, >=60% short -> bullish +2.
+    """
+    if reading is None:
+        return 0
+    if reading.retail_long_pct >= 60:
+        return -2
+    if reading.retail_long_pct <= 40:
+        return 2
+    return 0
+
+
 def retail_score(reading: RetailReading | None) -> int:
     """
     EdgeFinder methodology, exact match.

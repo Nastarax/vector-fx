@@ -63,6 +63,7 @@ class CotReading:
     long_pct_change: float
     open_interest: int
     open_interest_change: int
+    retail_long_pct: float = 50.0
     is_stale: bool = False
     days_old: int = 0
 
@@ -144,6 +145,11 @@ def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
         oi = _to_int(latest.get("open_interest_all"))
         oi_chg = _to_int(latest.get("change_in_open_interest_all"))
 
+        nonrept_long = _to_int(latest.get("nonrept_positions_long_all"))
+        nonrept_short = _to_int(latest.get("nonrept_positions_short_all"))
+        nonrept_total = nonrept_long + nonrept_short
+        retail_long_pct = 100 * nonrept_long / nonrept_total if nonrept_total else 50.0
+
         net = long_c - short_c
         total = long_c + short_c
         long_pct = 100 * long_c / total if total else 50.0
@@ -192,6 +198,7 @@ def fetch_cot(as_of_date: str | None = None) -> dict[str, CotReading]:
             long_pct_change=long_pct_change,
             open_interest=oi,
             open_interest_change=oi_chg,
+            retail_long_pct=retail_long_pct,
             is_stale=is_stale,
             days_old=days_old,
         )
