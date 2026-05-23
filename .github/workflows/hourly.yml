@@ -7,7 +7,7 @@ on:
   workflow_dispatch:  # Allows manual run from the Actions tab
 
 permissions:
-  contents: write   # Needed to commit the refreshed output.html
+  contents: write   # Needed to commit refreshed outputs back to repo
   pages: write
   id-token: write
 
@@ -33,9 +33,25 @@ jobs:
         run: python main.py
 
       - name: Copy output to index.html for Pages
+        run: cp data/output.html data/index.html
+
+      - name: Commit updated data back to repo
         run: |
-          cp data/output.html data/index.html
-          # cot.html is already in data/ from main.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cache/score_history.json \
+                  data/cache/te_history.json \
+                  data/cache/te_rates_outlook.json \
+                  data/cache/ff_history.json \
+                  data/cache/abs_au_household.json \
+                  data/cache/myfxbook_outlook.json \
+                  data/cache/forexbenchmark_outlook.json \
+                  data/output.html data/index.html \
+                  data/cot.html data/scorecard.html \
+                  data/economic_heatmap.html data/inflation.html \
+                  data/seasonality_yearly.html data/seasonality_monthly.html
+          git diff --cached --quiet || git commit -m "Hourly refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
