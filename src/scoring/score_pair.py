@@ -768,7 +768,8 @@ def build_pair_rows(
         # Pair-level indicators
         df_4h = (prices_4h or {}).get(sym)
         scores["trend"] = trend_score(df, df_4h)
-        scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date)
+        scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date,
+                                                   commodity=base in COMMODITY_CCYS)
         scores["crowd"] = retail_score(retail_data.get(sym))
 
         total = sum(scores.values())

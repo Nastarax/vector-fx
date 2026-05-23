@@ -47,16 +47,17 @@ def _sign_bucket(avg: float) -> int:
     return 0
 
 
-def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None) -> int:
+def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None,
+                      commodity: bool = False) -> int:
     """
-    EdgeFinder seasonality methodology.
+    Seasonality scoring.
 
-    Combines BOTH monthly and weekly tendencies across 1y, 5y, 10y windows:
-      - Monthly: avg return for current calendar month over 1y / 5y / 10y
-      - Weekly:  avg return for current ISO week-of-year over 1y / 5y / 10y
+    FX pairs: combines monthly + weekly tendencies across 1y/5y/10y windows,
+    averaged and scaled to -2..+2.
 
-    Each of the 6 sub-scores gets +1 (bullish), -1 (bearish), or 0 (neutral
-    band of -0.01% to +0.01%). Sub-scores are averaged and scaled to -2..+2.
+    Commodities/indices (commodity=True): 10-year monthly average only.
+    Positive -> +2, negative -> -2. Stronger weighting because seasonal
+    tendencies are more pronounced in commodities.
     """
     if df is None or df.empty or len(df) < 252 * 2:
         return 0
@@ -66,12 +67,17 @@ def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None) -> int:
     else:
         ref_date = pd.Timestamp.now(tz=df.index.tz) if df.index.tz is not None else pd.Timestamp.now()
 
-    # MONTHLY: same calendar month historically
     monthly = df["Close"].resample("ME").last().dropna()
     monthly_rets = monthly.pct_change().dropna()
     same_month = monthly_rets[monthly_rets.index.month == ref_date.month]
 
-    # WEEKLY: same ISO week-of-year historically
+    if commodity:
+        if len(same_month) < 5:
+            return 0
+        avg_10y = float(same_month.tail(10).mean())
+        return 2 if avg_10y > 0 else -2
+
+    # FX: full 6-component scoring
     weekly = df["Close"].resample("W").last().dropna()
     weekly_rets = weekly.pct_change().dropna()
     current_week = ref_date.isocalendar().week if hasattr(ref_date, "isocalendar") else ref_date.week
@@ -80,7 +86,6 @@ def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None) -> int:
 
     sub_scores: list[int] = []
 
-    # Monthly 1y, 5y, 10y
     if len(same_month) >= 1:
         sub_scores.append(_sign_bucket(float(same_month.tail(1).mean())))
     if len(same_month) >= 3:
@@ -88,7 +93,6 @@ def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None) -> int:
     if len(same_month) >= 5:
         sub_scores.append(_sign_bucket(float(same_month.tail(10).mean())))
 
-    # Weekly 1y, 5y, 10y
     if len(same_week) >= 1:
         sub_scores.append(_sign_bucket(float(same_week.tail(1).mean())))
     if len(same_week) >= 3:
@@ -99,7 +103,6 @@ def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None) -> int:
     if not sub_scores:
         return 0
 
-    # Average -1..+1, scale to -2..+2, round half-away-from-zero
     avg = sum(sub_scores) / len(sub_scores)
     scaled = avg * 2
     if scaled > 0:
