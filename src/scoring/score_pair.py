@@ -744,6 +744,21 @@ def build_currency_scores(
                             else:
                                 per_ccy[ccy]["retail_sales"] = 0
 
+                # Consumer confidence: US Investing CB, Actual vs Forecast, inverted.
+                us_cc = investing_cc.get("USD")
+                if us_cc:
+                    actual = us_cc.get("actual")
+                    benchmark = us_cc.get("forecast")
+                    if benchmark is None:
+                        benchmark = us_cc.get("previous")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["consumer_conf"] = -1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["consumer_conf"] = 1
+                        else:
+                            per_ccy[ccy]["consumer_conf"] = 0
+
                 # mPMI: US manufacturing PMI, momentum (Actual vs Previous), inverted.
                 us_mpmi = investing_mpmi.get("USD")
                 if us_mpmi:
