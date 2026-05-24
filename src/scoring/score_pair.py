@@ -727,6 +727,23 @@ def build_currency_scores(
                             else:
                                 per_ccy[ccy]["gdp"] = 0
 
+                # Retail sales: US data, Actual vs Forecast, inverted.
+                if te_history:
+                    us_retail = te_history.get("USD|retail_sales", [])
+                    if us_retail:
+                        latest = sorted(us_retail, key=lambda x: x.get("date", ""), reverse=True)[0]
+                        actual = latest.get("actual")
+                        benchmark = latest.get("consensus")
+                        if benchmark is None:
+                            benchmark = latest.get("forecast")
+                        if actual is not None and benchmark is not None:
+                            if actual > benchmark:
+                                per_ccy[ccy]["retail_sales"] = -1
+                            elif actual < benchmark:
+                                per_ccy[ccy]["retail_sales"] = 1
+                            else:
+                                per_ccy[ccy]["retail_sales"] = 0
+
                 # mPMI: US manufacturing PMI, momentum (Actual vs Previous), inverted.
                 us_mpmi = investing_mpmi.get("USD")
                 if us_mpmi:
