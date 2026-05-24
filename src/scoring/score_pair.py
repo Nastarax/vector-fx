@@ -1031,6 +1031,10 @@ def build_pair_rows(
                 s = per_ccy.get(base, {}).get("cot")
                 scores[ind_id] = s if s is not None else 0
                 continue
+            if ind_id in ("nfp", "unemployment_rate", "jobless_claims", "adp", "jolts") and base in COMMODITY_CCYS:
+                s = per_ccy.get(base, {}).get(ind_id)
+                scores[ind_id] = s if s is not None else 0
+                continue
             base_s = per_ccy.get(base, {}).get(ind_id)
             quote_s = per_ccy.get(quote, {}).get(ind_id)
             if base_s is None or quote_s is None:
