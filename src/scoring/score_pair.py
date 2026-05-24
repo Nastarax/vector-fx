@@ -870,6 +870,116 @@ def build_currency_scores(
                     else:
                         per_ccy[ccy]["rates"] = 0
 
+                # NFP: US data, Actual vs Consensus/TEForecast, inverted.
+                us_nfp_rels = te_history.get("USD|nfp", [])
+                if us_nfp_rels:
+                    latest = sorted(us_nfp_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["nfp"] = -1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["nfp"] = 1
+                        else:
+                            per_ccy[ccy]["nfp"] = 0
+
+                # Unemployment Rate: US data, inverted. Higher unemployment =
+                # weak economy = bullish gold.
+                us_unemp_rels = te_history.get("USD|unemployment_rate", [])
+                if us_unemp_rels:
+                    latest = sorted(us_unemp_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["unemployment_rate"] = 1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["unemployment_rate"] = -1
+                        else:
+                            per_ccy[ccy]["unemployment_rate"] = 0
+
+                # Jobless Claims: US data, inverted. Higher claims = weak
+                # economy = bullish gold.
+                us_claims_rels = te_history.get("USD|jobless_claims", [])
+                if us_claims_rels:
+                    latest = sorted(us_claims_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    actual = latest.get("actual")
+                    benchmark = latest.get("consensus")
+                    if benchmark is None:
+                        benchmark = latest.get("forecast")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["jobless_claims"] = 1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["jobless_claims"] = -1
+                        else:
+                            per_ccy[ccy]["jobless_claims"] = 0
+
+                # ADP: Investing source (Actual vs Forecast), fallback TE, inverted.
+                us_adp = investing_adp.get("USD")
+                if us_adp:
+                    actual = us_adp.get("actual")
+                    benchmark = us_adp.get("forecast")
+                    if benchmark is None:
+                        benchmark = us_adp.get("previous")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["adp"] = -1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["adp"] = 1
+                        else:
+                            per_ccy[ccy]["adp"] = 0
+                else:
+                    us_adp_rels = te_history.get("USD|adp", [])
+                    if us_adp_rels:
+                        latest = sorted(us_adp_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                        actual = latest.get("actual")
+                        benchmark = latest.get("consensus")
+                        if benchmark is None:
+                            benchmark = latest.get("forecast")
+                        if actual is not None and benchmark is not None:
+                            if actual > benchmark:
+                                per_ccy[ccy]["adp"] = -1
+                            elif actual < benchmark:
+                                per_ccy[ccy]["adp"] = 1
+                            else:
+                                per_ccy[ccy]["adp"] = 0
+
+                # JOLTS: Investing source (Actual vs Forecast), fallback TE, inverted.
+                us_jolts = investing_jolts.get("USD")
+                if us_jolts:
+                    actual = us_jolts.get("actual")
+                    benchmark = us_jolts.get("forecast")
+                    if benchmark is None:
+                        benchmark = us_jolts.get("previous")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["jolts"] = -1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["jolts"] = 1
+                        else:
+                            per_ccy[ccy]["jolts"] = 0
+                else:
+                    us_jolts_rels = te_history.get("USD|jolts", [])
+                    if us_jolts_rels:
+                        latest = sorted(us_jolts_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                        actual = latest.get("actual")
+                        benchmark = latest.get("consensus")
+                        if benchmark is None:
+                            benchmark = latest.get("forecast")
+                        if actual is not None and benchmark is not None:
+                            if actual > benchmark:
+                                per_ccy[ccy]["jolts"] = -1
+                            elif actual < benchmark:
+                                per_ccy[ccy]["jolts"] = 1
+                            else:
+                                per_ccy[ccy]["jolts"] = 0
+
             cot_reading = cot_data.get(ccy)
             if cot_reading and not getattr(cot_reading, "is_stale", False):
                 per_ccy[ccy]["cot"] = cot_score_commodity(cot_reading)
