@@ -143,6 +143,25 @@ def fetch_all_macro(api_key: Optional[str] = None, as_of_date: Optional[str] = N
     return out
 
 
+def fetch_treasury_2y(api_key: Optional[str] = None, as_of_date: Optional[str] = None) -> list[FredObservation]:
+    """
+    Fetch recent 2-year Treasury yield (FRED DGS2) for gold interest-rate scoring.
+    Returns list of FredObservation (newest first), at least 20 days to allow
+    an 8-day SMA computation with margin.
+    """
+    api_key = api_key or os.getenv("FRED_API_KEY")
+    if not api_key:
+        raise RuntimeError("FRED_API_KEY missing. Add it to your .env file.")
+    try:
+        obs = fetch_series("DGS2", api_key, limit=30, cache_suffix="2y")
+        if as_of_date:
+            obs = [o for o in obs if o.date <= as_of_date]
+        return obs
+    except Exception as e:
+        print(f"[fred] DGS2 (2Y Treasury) failed: {e}")
+        return []
+
+
 def fetch_cpi_history(api_key: Optional[str] = None, force: bool = False,
                       limit: int = 240, as_of_date: Optional[str] = None) -> dict:
     """

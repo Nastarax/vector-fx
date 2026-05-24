@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_cpi, investing_jolts, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
+from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_jolts, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
 from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_scorecard, build_seasonality
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 from src.scoring import score_history
@@ -51,6 +51,7 @@ def main():
 
     print("[1/5] Fetching macro data from FRED...")
     macro = fred.fetch_all_macro(as_of_date=args.date)
+    treasury_2y = fred.fetch_treasury_2y(as_of_date=args.date)
 
     print("[2/5] Fetching COT report...")
     try:
@@ -147,6 +148,12 @@ def main():
         cached_retail_inv = investing_retail_sales.load_cached()
         investing_retail_sales_data = {
             c: r for c, r in cached_retail_inv.items()
+            if r.get("date") and r["date"] <= args.date
+        }
+        # US Core CPI + Core PPI cache: same filter
+        cached_core = investing_core.load_cached()
+        investing_core_data = {
+            k: r for k, r in cached_core.items()
             if r.get("date") and r["date"] <= args.date
         }
         # Rates outlook in backtest mode: use whatever's cached. The
@@ -258,12 +265,19 @@ def main():
         else:
             print("[retail-inv] no CAD Retail Sales cache - run scripts/refresh_investing.py to populate")
 
+        # US Core CPI + Core PPI cache (gold inflation scoring).
+        investing_core_data = investing_core.load_cached()
+        if investing_core_data:
+            print(f"[core] using cached Core CPI/PPI: {len(investing_core_data)} indicators")
+        else:
+            print("[core] no Core CPI/PPI cache - run scripts/refresh_investing.py core to populate")
+
         # ABS Monthly Household Spending Indicator (replaces TE retail sales
         # for AUD only). Not Cloudflare-blocked so we can scrape on every run.
         abs_au_mhsi = abs_au.fetch_mhsi()
 
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, investing_retail_sales=investing_retail_sales_data, rates_outlook=rates_outlook)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, investing_retail_sales=investing_retail_sales_data, rates_outlook=rates_outlook, investing_core=investing_core_data, treasury_2y=treasury_2y)
     out_path = build_heatmap.render(heatmap)
 
     # COT dashboard: fetch 52w of weekly history (separate from the 4w used

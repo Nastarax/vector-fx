@@ -73,6 +73,8 @@ def build_currency_scores(
     investing_adp: dict | None = None,
     investing_retail_sales: dict | None = None,
     rates_outlook: dict | None = None,
+    investing_core: dict | None = None,
+    treasury_2y: list | None = None,
 ) -> dict:
     """
     Returns: per_ccy[currency][indicator_id] = int score (-2..+2) OR None
@@ -101,6 +103,8 @@ def build_currency_scores(
     investing_adp = investing_adp or {}
     investing_retail_sales = investing_retail_sales or {}
     rates_outlook = rates_outlook or {}
+    investing_core = investing_core or {}
+    treasury_2y = treasury_2y or []
     per_ccy: dict[str, dict[str, int | None]] = {}
 
     for ccy in macro_data:
@@ -770,6 +774,102 @@ def build_currency_scores(
                     s = momentum_score([us_spmi])
                     per_ccy[ccy]["spmi"] = -s
 
+                # CPI: change (headline + core vs forecast) + location.
+                us_cpi = investing_cpi.get("USD")
+                core_cpi = investing_core.get("core_cpi")
+                if us_cpi:
+                    cpi_actual = us_cpi.get("actual")
+                    cpi_bench = us_cpi.get("forecast")
+                    if cpi_bench is None:
+                        cpi_bench = us_cpi.get("previous")
+                    s = 0
+                    if cpi_actual is not None and cpi_bench is not None:
+                        if cpi_actual > cpi_bench:
+                            s -= 1
+                        elif cpi_actual < cpi_bench:
+                            s += 1
+                    if core_cpi:
+                        cc_actual = core_cpi.get("actual")
+                        cc_bench = core_cpi.get("forecast")
+                        if cc_bench is None:
+                            cc_bench = core_cpi.get("previous")
+                        if cc_actual is not None and cc_bench is not None:
+                            if cc_actual > cc_bench:
+                                s -= 1
+                            elif cc_actual < cc_bench:
+                                s += 1
+                    if cpi_actual is not None:
+                        if cpi_actual < 1:
+                            s += 1
+                        elif cpi_actual > 3:
+                            s += 1
+                    per_ccy[ccy]["cpi"] = s
+
+                # PPI: change (headline + core vs forecast) + location.
+                us_ppi_rels = te_history.get("USD|ppi", [])
+                core_ppi = investing_core.get("core_ppi")
+                if us_ppi_rels:
+                    latest_ppi = sorted(us_ppi_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    ppi_actual = latest_ppi.get("actual")
+                    ppi_bench = latest_ppi.get("consensus")
+                    if ppi_bench is None:
+                        ppi_bench = latest_ppi.get("forecast")
+                    s = 0
+                    if ppi_actual is not None and ppi_bench is not None:
+                        if ppi_actual > ppi_bench:
+                            s -= 1
+                        elif ppi_actual < ppi_bench:
+                            s += 1
+                    if core_ppi:
+                        cp_actual = core_ppi.get("actual")
+                        cp_bench = core_ppi.get("forecast")
+                        if cp_bench is None:
+                            cp_bench = core_ppi.get("previous")
+                        if cp_actual is not None and cp_bench is not None:
+                            if cp_actual > cp_bench:
+                                s -= 1
+                            elif cp_actual < cp_bench:
+                                s += 1
+                    if ppi_actual is not None:
+                        if ppi_actual < 1:
+                            s += 1
+                        elif ppi_actual > 3:
+                            s += 1
+                    per_ccy[ccy]["ppi"] = s
+
+                # PCE: change (actual vs forecast) + location.
+                us_pce_rels = te_history.get("USD|pce", [])
+                if us_pce_rels:
+                    latest_pce = sorted(us_pce_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                    pce_actual = latest_pce.get("actual")
+                    pce_bench = latest_pce.get("consensus")
+                    if pce_bench is None:
+                        pce_bench = latest_pce.get("forecast")
+                    s = 0
+                    if pce_actual is not None and pce_bench is not None:
+                        if pce_actual > pce_bench:
+                            s -= 1
+                        elif pce_actual < pce_bench:
+                            s += 1
+                    if pce_actual is not None:
+                        if pce_actual < 1:
+                            s += 1
+                        elif pce_actual > 3:
+                            s += 1
+                    per_ccy[ccy]["pce"] = s
+
+                # Interest rates: 2Y Treasury yield vs 8-day SMA, inverted for gold.
+                if len(treasury_2y) >= 8:
+                    yields_asc = [o.value for o in reversed(treasury_2y)]
+                    sma8 = sum(yields_asc[-8:]) / 8
+                    latest_yield = yields_asc[-1]
+                    if latest_yield > sma8:
+                        per_ccy[ccy]["rates"] = -1
+                    elif latest_yield < sma8:
+                        per_ccy[ccy]["rates"] = 1
+                    else:
+                        per_ccy[ccy]["rates"] = 0
+
             cot_reading = cot_data.get(ccy)
             if cot_reading and not getattr(cot_reading, "is_stale", False):
                 per_ccy[ccy]["cot"] = cot_score_commodity(cot_reading)
@@ -921,7 +1021,7 @@ def build_currency_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, myfxbook_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, investing_retail_sales=None, rates_outlook=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, myfxbook_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, investing_retail_sales=None, rates_outlook=None, investing_core=None, treasury_2y=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -930,7 +1030,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, myfxbook_ppi=myfxbook_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, investing_retail_sales=investing_retail_sales, rates_outlook=rates_outlook)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, myfxbook_ppi=myfxbook_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, investing_retail_sales=investing_retail_sales, rates_outlook=rates_outlook, investing_core=investing_core, treasury_2y=treasury_2y)
     pair_rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)
     for r in pair_rows:
         r["is_currency"] = False
