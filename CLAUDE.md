@@ -66,23 +66,38 @@ Interest Rates:       TE rate outlook (TEForecast vs current)
 Unemployment Rate:    TE all 8 (down_is_bullish)
 ```
 
-## Changes made this session (NOT yet committed)
+## Recent changes (committed)
 
-All edits are in the working tree, uncommitted. Suggested commit + push as a batch.
-
-1. **US Consumer Confidence -> Investing CB Consumer Confidence (id 48)**, Actual vs
+1. **CPI Indicator chart** on the Inflation page (`inflation_template.html`,
+   `build_inflation.py`). A1 EdgeFinder-style per-currency bar+line chart: blue bars
+   for CPI actual, pink line for CPI forecast (consensus), dashed horizontal line for
+   central bank target inflation rate. Country dropdown (8 currencies), date range
+   selector (12/18/24 months or All). Data labels on bars, combined tooltip.
+   - Forecast data extracted from Investing.com `__NEXT_DATA__` occurrences alongside
+     actuals (same `_parse_cpi_occurrences` call, new `forecast` field).
+   - Persistent forecast archive at `data/cache/cpi_forecast_archive.json` (same
+     merge-never-drop pattern as the actuals archive).
+   - Target rates: 2% for all currencies except AUD (2.5%, RBA's 2-3% midband).
+   - **Date-mapping fix**: removed the old "splice" code in `build_all` that used CPI
+     release dates (e.g. May 20) as chart data points instead of the reference period
+     (April). The splice created spurious bars shifted one month forward. Investing
+     history + FRED already provide correctly reference-dated data for all currencies.
+   - To refresh forecast history: `python scripts\refresh_investing.py cpi_history`.
+     NZD/CHF may 403 from Cloudflare; their forecasts accumulate over time from the
+     latest-release splice in `cpi_latest`.
+2. **US Consumer Confidence -> Investing CB Consumer Confidence (id 48)**, Actual vs
    Forecast (fallback Previous), USD only. New fetcher
    `src/fetchers/investing_consumer_conf.py` (cache `data/cache/investing_consumer_conf.json`).
    Other 7 currencies stay on TE momentum.
-2. **US JOLTS -> Investing JOLTS Job Openings (id 1057)**, Actual vs Forecast, USD only.
+3. **US JOLTS -> Investing JOLTS Job Openings (id 1057)**, Actual vs Forecast, USD only.
    New fetcher `src/fetchers/investing_jolts.py` (cache `data/cache/investing_jolts.json`).
-3. **US ADP -> Investing ADP Nonfarm Employment Change (id 1)**, Actual vs Forecast,
+4. **US ADP -> Investing ADP Nonfarm Employment Change (id 1)**, Actual vs Forecast,
    USD only. New fetcher `src/fetchers/investing_adp.py` (cache `data/cache/investing_adp.json`).
-4. **CHF PPI -> Myfxbook Switzerland Producer & Import Prices YoY**, Actual vs Consensus
+5. **CHF PPI -> Myfxbook Switzerland Producer & Import Prices YoY**, Actual vs Consensus
    (fallback Previous), CHF only. New fetcher `src/fetchers/myfxbook_ppi.py`
    (cache `data/cache/myfxbook_ppi.json`). NZD stays on Investing, the other 6 on TE.
-5. **Targeted-refresh CLI** in `scripts/refresh_investing.py` (registry + arg parsing).
-6. **K/M number formatting** on the Economic Heatmap (`build_economic_heatmap.py`, the
+6. **Targeted-refresh CLI** in `scripts/refresh_investing.py` (registry + arg parsing).
+7. **K/M number formatting** on the Economic Heatmap (`build_economic_heatmap.py`, the
    `abbrevNum`/`fmt` JS) and the Asset Scorecard (`scorecard_template.html`,
    `abbrevNum`/`fmtNum`): >=1M -> "6.87M", >=1k -> "209K", smaller values unchanged. COT
    dashboard left as-is (full numbers) by request.
@@ -142,8 +157,10 @@ curl_cffi (Cloudflare); plain requests get blocked.
 - Asset Scorecard (`data/scorecard.html` via `build_scorecard` + `scorecard_template.html`):
   per-currency deep dive, bias gauge, sub-scores, indicator tables.
 - Inflation Data (`data/inflation.html` via `build_inflation` + `inflation_template.html`):
-  CPI/PPI bars + tables + historical CPI line chart. Persistent CPI archive at
-  `data/cache/cpi_history_archive.json` (merges every run, never drops old points).
+  CPI/PPI bars + tables + historical CPI line chart + per-currency CPI indicator chart
+  (bar+forecast line+target rate, A1 EdgeFinder style). Persistent archives at
+  `data/cache/cpi_history_archive.json` (actuals) and `data/cache/cpi_forecast_archive.json`
+  (consensus forecasts). Both merge every run, never drop old points.
 
 ## Dead endpoints (do not retry)
 
@@ -154,13 +171,12 @@ curl_cffi (Cloudflare); plain requests get blocked.
 
 ## Outstanding / next steps
 
-- **Commit + push this session's work** (the 4 new sources + targeted-refresh CLI + K/M
-  formatting). Run `python main.py` first to confirm it renders.
 - **Delete `data/cache/chf_ppi_debug_CHF.html`** (~280KB leftover from parser debugging;
   the Cowork sandbox lacked delete permission). `git rm` or delete before committing.
-- **CHF PPI cache** (`data/cache/myfxbook_ppi.json`) was hand-written this session with the
-  real live values (Actual -2.0, Consensus -2.6, Previous -2.7, est. date 2026-05-16,
-  score +1). The next `refresh_investing.py chf_ppi` regenerates it via the real code path.
+- **CHF/NZD CPI forecast gaps**: Investing.com 403s for CHF and NZD CPI history pages
+  (Cloudflare). Their forecast archives only have the latest-release point. Re-running
+  `refresh_investing.py cpi_history` periodically will accumulate more points over time
+  as Cloudflare lets them through.
 - **GBP PPI open question**: Vector uses the `ppi-input-yoy` TE slug for GBP, which is the
   odd one out vs the other currencies' output/headline PPI. Whether EdgeFinder (A1 Trading)
   uses input or output for the UK is unconfirmed; the way to settle it is to read the actual
