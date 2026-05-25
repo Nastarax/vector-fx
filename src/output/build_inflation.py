@@ -34,8 +34,14 @@ OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 # never drops old ones, so the line chart survives a source going dark (TE
 # changing pages, FRED deprecating a series, etc.).
 ARCHIVE_FILE = OUTPUT_DIR / "cache" / "cpi_history_archive.json"
+FORECAST_ARCHIVE_FILE = OUTPUT_DIR / "cache" / "cpi_forecast_archive.json"
 
 CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD")
+
+TARGET_RATES = {
+    "USD": 2.0, "EUR": 2.0, "GBP": 2.0, "JPY": 2.0,
+    "CHF": 2.0, "AUD": 2.5, "CAD": 2.0, "NZD": 2.0,
+}
 
 # Currencies whose FRED CPI series is quarterly (YoY = 4 periods back).
 _QUARTERLY = {"AUD", "NZD"}
@@ -51,20 +57,20 @@ _MONTH_ABBR = {
 }
 
 
-def _load_archive() -> dict:
-    if not ARCHIVE_FILE.exists():
+def _load_archive(path: Path = ARCHIVE_FILE) -> dict:
+    if not path.exists():
         return {}
     try:
-        with open(ARCHIVE_FILE) as f:
+        with open(path) as f:
             return json.load(f)
     except Exception:
         return {}
 
 
-def _save_archive(arch: dict) -> None:
+def _save_archive(arch: dict, path: Path = ARCHIVE_FILE) -> None:
     try:
-        ARCHIVE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(ARCHIVE_FILE, "w") as f:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w") as f:
             json.dump(arch, f, indent=2, sort_keys=True)
     except Exception:
         pass
@@ -117,17 +123,20 @@ def _yoy_from_index(obs: list, periods: int) -> list[dict]:
 
 
 def _latest_from_econ(econ_data: dict, indicator_label: str) -> dict:
-    """Pull {ccy: {actual, previous, date}} for one indicator from econ rows."""
+    """Pull {ccy: {actual, previous, forecast, date}} for one indicator from econ rows."""
     out = {}
     for ccy in CURRENCIES:
         rows = econ_data.get(ccy, []) or []
         for r in rows:
             if r.get("indicator") == indicator_label:
-                out[ccy] = {
+                entry = {
                     "actual": r.get("actual"),
                     "previous": r.get("previous"),
                     "date": r.get("date") or "",
                 }
+                if r.get("forecast") is not None:
+                    entry["forecast"] = r["forecast"]
+                out[ccy] = entry
                 break
     return out
 
@@ -171,20 +180,29 @@ def build_all(econ_data: dict, cpi_index_by_ccy: dict, tokyo_core: dict | None =
             jpy_pts = _tokyo_recent_to_points(tokyo_core or {})
         if jpy_pts:
             fresh["JPY"] = jpy_pts
-    # Splice the current reported value as a last-resort tail filler (only adds
-    # one point; redundant when Investing history is present, harmless when so).
-    for ccy in CURRENCIES:
-        latest = cpi_latest.get(ccy)
-        if latest and latest.get("actual") is not None and latest.get("date"):
-            ym = str(latest["date"])[:7]  # YYYY-MM
-            if len(ym) == 7:
-                fresh.setdefault(ccy, []).append({"date": f"{ym}-01", "value": latest["actual"]})
+    # NOTE: no release-date splice here. CPI release dates (e.g. May 20) differ
+    # from the reference period (e.g. April) by ~1 month, so splicing the
+    # econ_data date creates a spurious data point at the wrong month. Investing
+    # history + FRED + Tokyo Core already provide correctly-dated data.
 
-    # ---- 2. Merge into the persistent archive, then save ----
+    # ---- 2a. Extract forecast points from investing_history ----
+    forecast_fresh: dict[str, list[dict]] = {}
+    for ccy, pts in (investing_history or {}).items():
+        fpts = [{"date": p["date"], "value": p["forecast"]}
+                for p in pts if p.get("forecast") is not None]
+        if fpts:
+            forecast_fresh[ccy] = fpts
+
+    # ---- 2b. Merge into persistent archives, then save ----
     archive = _load_archive()
     for ccy, pts in fresh.items():
         _merge_points(archive, ccy, pts)
     _save_archive(archive)
+
+    forecast_archive = _load_archive(FORECAST_ARCHIVE_FILE)
+    for ccy, pts in forecast_fresh.items():
+        _merge_points(forecast_archive, ccy, pts)
+    _save_archive(forecast_archive, FORECAST_ARCHIVE_FILE)
 
     # ---- 3. Rebuild history series from the archive (union over all runs) ----
     cpi_history: dict[str, list[dict]] = {}
@@ -194,6 +212,14 @@ def build_all(econ_data: dict, cpi_index_by_ccy: dict, tokyo_core: dict | None =
             continue
         series = [{"date": d, "value": v} for d, v in sorted(bucket.items())]
         cpi_history[ccy] = series
+
+    cpi_forecast_history: dict[str, list[dict]] = {}
+    for ccy in CURRENCIES:
+        bucket = forecast_archive.get(ccy, {})
+        if not bucket:
+            continue
+        series = [{"date": d, "value": v} for d, v in sorted(bucket.items())]
+        cpi_forecast_history[ccy] = series
 
     # ---- 4. Trim to a common window so the left edge lines up ----
     # Prefer aligning everything to JPY's earliest point (per design: show all
@@ -228,6 +254,8 @@ def build_all(econ_data: dict, cpi_index_by_ccy: dict, tokyo_core: dict | None =
         "cpi_latest": cpi_latest,
         "ppi_latest": ppi_latest,
         "cpi_history": cpi_history,
+        "cpi_forecast_history": cpi_forecast_history,
+        "target_rates": dict(TARGET_RATES),
     }
 
 

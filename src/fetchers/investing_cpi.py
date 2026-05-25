@@ -399,7 +399,10 @@ def _parse_cpi_occurrences(html: str) -> list[dict]:
     for o in released:
         d = _occ_ref_date(o)
         if d:
-            out.append({"date": d, "value": o["actual"]})
+            pt = {"date": d, "value": o["actual"]}
+            if o.get("forecast") is not None:
+                pt["forecast"] = o["forecast"]
+            out.append(pt)
     return out
 
 

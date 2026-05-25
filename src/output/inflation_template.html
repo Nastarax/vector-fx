@@ -39,10 +39,21 @@
 
   .chart-box{position:relative;height:340px}
   .chart-box.tall{height:420px}
+  .chart-box.hero{height:460px}
   .about{font-size:13px;line-height:1.55;color:#c4ccf0}
   .about p{margin:0 0 10px 0}
   footer{padding:18px;color:var(--muted);font-size:12px;text-align:center}
   .note{font-size:11px;color:var(--muted);font-style:italic;margin-top:8px}
+
+  .ctrl-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .ctrl-row label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .ctrl-select{background:var(--row);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:13px;cursor:pointer;outline:none}
+  .ctrl-select:hover{background:var(--rowAlt)}
+  .legend-row{display:flex;align-items:center;gap:18px;margin-bottom:10px;flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#c4ccf0}
+  .legend-swatch{width:14px;height:14px;border-radius:3px}
+  .legend-line{width:20px;height:3px;border-radius:2px}
+  .legend-dash{width:20px;height:0;border-top:2px dashed}
 </style>
 </head>
 <body>
@@ -77,6 +88,34 @@
         <p>Bars and tables use the latest official reported figures. The historical line chart is computed from FRED index data and may lag the latest release for non-US currencies.</p>
       </div>
     </div>
+  </div>
+
+  <!-- CPI Indicator (bar + forecast line + target rate) -->
+  <div class="panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+      <p class="panel-title" style="margin:0">Consumer Price Index, Year on Year</p>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <label class="ctrl-row" style="margin:0">Country:</label>
+          <select id="cpiIndCcy" class="ctrl-select"></select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <select id="cpiIndRange" class="ctrl-select">
+            <option value="12">12 months</option>
+            <option value="18" selected>18 months</option>
+            <option value="24">24 months</option>
+            <option value="0">All</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="legend-row">
+      <div class="legend-item"><div class="legend-swatch" style="background:#3974e6cc"></div> CPI</div>
+      <div class="legend-item"><div class="legend-line" style="background:#ff7b93"></div> CPI Forecast</div>
+      <div class="legend-item"><div class="legend-dash" style="border-color:#8893c0"></div> Target Inflation Rate</div>
+    </div>
+    <div class="chart-box hero"><canvas id="cpiIndicator"></canvas></div>
+    <p class="note">Source: Investing.com. Forecast data from consensus estimates embedded in Investing.com economic calendar pages.</p>
   </div>
 
   <!-- CPI current vs previous table -->
@@ -252,9 +291,186 @@ function buildLine(canvasId, history){
   });
 }
 
+// ---- CPI Indicator chart (bar + forecast line + target) ----
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let cpiIndChart = null;
+
+function buildCpiIndicator(ccy, months){
+  const history = DATA.cpi_history || {};
+  const forecastHistory = DATA.cpi_forecast_history || {};
+  const targetRates = DATA.target_rates || {};
+
+  const series = history[ccy] || [];
+  const fSeries = forecastHistory[ccy] || [];
+  if(!series.length) return;
+
+  let filtered = series;
+  if(months > 0){
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - months);
+    const cutStr = cutoff.toISOString().slice(0,7) + '-01';
+    filtered = series.filter(p => p.date >= cutStr);
+  }
+  if(!filtered.length) return;
+
+  const dates = filtered.map(p => p.date);
+  const actuals = filtered.map(p => p.value);
+
+  const fMap = {};
+  for(const p of fSeries) fMap[p.date] = p.value;
+  const forecasts = dates.map(d => d in fMap ? fMap[d] : null);
+
+  const labels = dates.map(d => {
+    const [y,m] = d.split('-');
+    return MONTH_NAMES[parseInt(m,10)-1] + ' ' + y;
+  });
+
+  const target = targetRates[ccy] !== undefined ? targetRates[ccy] : 2.0;
+
+  if(cpiIndChart){
+    cpiIndChart.destroy();
+    cpiIndChart = null;
+  }
+
+  const ctx = document.getElementById('cpiIndicator');
+
+  const dataLabelsPlugin = {
+    id: 'cpiDataLabels',
+    afterDatasetsDraw(chart){
+      const meta = chart.getDatasetMeta(0);
+      if(!meta || meta.hidden) return;
+      const {ctx: c} = chart;
+      c.save();
+      c.font = 'bold 11px sans-serif';
+      c.fillStyle = '#e8ecff';
+      c.textAlign = 'center';
+      c.textBaseline = 'bottom';
+      for(let i = 0; i < meta.data.length; i++){
+        const val = chart.data.datasets[0].data[i];
+        if(val === null || val === undefined) continue;
+        const el = meta.data[i];
+        c.fillText(val.toFixed(1) + '%', el.x, el.y - 6);
+      }
+      c.restore();
+    }
+  };
+
+  const targetLinePlugin = {
+    id: 'cpiTargetLine',
+    afterDraw(chart){
+      const yScale = chart.scales.y;
+      const yPx = yScale.getPixelForValue(target);
+      const {ctx: c, chartArea: {left, right}} = chart;
+      c.save();
+      c.strokeStyle = '#8893c0';
+      c.lineWidth = 1.5;
+      c.setLineDash([6, 4]);
+      c.beginPath();
+      c.moveTo(left, yPx);
+      c.lineTo(right, yPx);
+      c.stroke();
+      c.setLineDash([]);
+      c.fillStyle = '#8893c0';
+      c.font = '11px sans-serif';
+      c.textBaseline = 'middle';
+      c.fillText('Target Inflation Rate', left + 4, yPx - 10);
+      c.restore();
+    }
+  };
+
+  cpiIndChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'CPI',
+          data: actuals,
+          backgroundColor: '#3974e6cc',
+          borderColor: '#3974e6',
+          borderWidth: 1,
+          borderRadius: 4,
+          order: 2,
+        },
+        {
+          label: 'CPI Forecast',
+          type: 'line',
+          data: forecasts,
+          borderColor: '#ff7b93',
+          backgroundColor: '#ff7b93',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#ff7b93',
+          pointBorderColor: '#ff7b93',
+          pointHoverRadius: 6,
+          tension: 0.25,
+          spanGaps: true,
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {mode: 'index', intersect: false},
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          callbacks: {
+            title: ctx => ctx[0].label,
+            afterBody: function(){
+              return 'Target Inflation Rate: ' + target.toFixed(1) + '%';
+            },
+            label: function(ctx){
+              if(ctx.parsed.y === null) return null;
+              return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {color: '#8893c0', maxRotation: 45, font: {size: 11}},
+          grid: {display: false}
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {color: '#8893c0', callback: v => v.toFixed(1) + '%'},
+          grid: {color: '#1c2348'}
+        }
+      }
+    },
+    plugins: [dataLabelsPlugin, targetLinePlugin]
+  });
+}
+
+function initCpiIndicator(){
+  const ccySel = document.getElementById('cpiIndCcy');
+  const rangeSel = document.getElementById('cpiIndRange');
+  const history = DATA.cpi_history || {};
+  const available = DATA.currencies.filter(c => history[c] && history[c].length > 0);
+  if(!available.length) return;
+  for(const c of available){
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    ccySel.appendChild(opt);
+  }
+  const defaultCcy = available.includes('GBP') ? 'GBP' : available[0];
+  ccySel.value = defaultCcy;
+
+  function rebuild(){
+    buildCpiIndicator(ccySel.value, parseInt(rangeSel.value, 10));
+  }
+  ccySel.addEventListener('change', rebuild);
+  rangeSel.addEventListener('change', rebuild);
+  rebuild();
+}
+
 // Init
 buildBars('cpiBars', DATA.cpi_latest);
 buildTable('cpiTable', DATA.cpi_latest);
+initCpiIndicator();
 buildLine('cpiLine', DATA.cpi_history);
 buildBars('ppiBars', DATA.ppi_latest);
 buildTable('ppiTable', DATA.ppi_latest);
