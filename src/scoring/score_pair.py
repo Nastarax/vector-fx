@@ -337,7 +337,7 @@ def build_currency_scores(
                 # pairs reflect USD's NFP direction.
                 if ind_id == "nfp":
                     if ccy != "USD":
-                        per_ccy[ccy][ind_id] = 0
+                        per_ccy[ccy][ind_id] = None
                         continue
                     te_rels = te_history.get(key, [])
                     if not te_rels:
@@ -371,7 +371,7 @@ def build_currency_scores(
                 # (more openings = strong economy = stronger USD).
                 if ind_id == "jolts":
                     if ccy != "USD":
-                        per_ccy[ccy][ind_id] = 0
+                        per_ccy[ccy][ind_id] = None
                         continue
                     if investing_jolts.get("USD"):
                         rel = investing_jolts["USD"]
@@ -424,7 +424,7 @@ def build_currency_scores(
                 # up_is_bullish (more jobs added = stronger USD).
                 if ind_id == "adp":
                     if ccy != "USD":
-                        per_ccy[ccy][ind_id] = 0
+                        per_ccy[ccy][ind_id] = None
                         continue
                     if investing_adp.get("USD"):
                         rel = investing_adp["USD"]
@@ -475,7 +475,7 @@ def build_currency_scores(
                 # down_is_bullish (lower claims = bullish USD).
                 if ind_id == "jobless_claims":
                     if ccy != "USD":
-                        per_ccy[ccy][ind_id] = 0
+                        per_ccy[ccy][ind_id] = None
                         continue
                     te_rels = te_history.get(key, [])
                     if not te_rels:
@@ -1038,7 +1038,15 @@ def build_pair_rows(
             base_s = per_ccy.get(base, {}).get(ind_id)
             quote_s = per_ccy.get(quote, {}).get(ind_id)
             if base_s is None or quote_s is None:
-                scores[ind_id] = 0
+                if ind_id in ("nfp", "jobless_claims", "adp", "jolts"):
+                    if base_s is not None:
+                        scores[ind_id] = max(-2, min(2, base_s))
+                    elif quote_s is not None:
+                        scores[ind_id] = max(-2, min(2, -quote_s))
+                    else:
+                        scores[ind_id] = None
+                else:
+                    scores[ind_id] = 0
             else:
                 diff = base_s - quote_s
                 scores[ind_id] = max(-2, min(2, diff))
@@ -1053,7 +1061,7 @@ def build_pair_rows(
         else:
             scores["crowd"] = retail_score(retail_data.get(sym))
 
-        total = sum(scores.values())
+        total = sum(v for v in scores.values() if v is not None)
 
         # Flag the COT cell stale if EITHER currency in the pair has stale COT.
         # Used by the template to render a visible warning marker on the cell.
