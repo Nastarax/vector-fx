@@ -6,10 +6,14 @@ per-pair / per-currency bias (Very Bullish .. Very Bearish). Lives at
 `C:\Users\yanae\Desktop\Swing Trading\edgefinder`, pushed to GitHub repo
 `Nastarax/edgefinder`, served via GitHub Pages. Dark theme, gradient blue "V" mark.
 
-GitHub Actions runs `main.py` hourly at :05, commits regenerated outputs, GH Pages
-deploys. Investing.com and Myfxbook are Cloudflare-blocked on GH Actions, so those
-sources are refreshed locally (`scripts/refresh_investing.py`, Windows Task
-Scheduler, daily 9:30 AM) and committed.
+GitHub Actions runs `main.py` hourly at :05 UTC (`.github/workflows/hourly.yml`),
+commits regenerated outputs, GH Pages deploys. The Pages actions
+(`upload-pages-artifact`, `deploy-pages`) are pinned to v5.0.0 full commit SHAs
+because GitHub's CDN retired the v3 tarballs and v4 was unreliable. If GitHub
+disables the scheduled workflow after 60 days of inactivity, re-enable it from the
+Actions tab (yellow banner). Investing.com and Myfxbook are Cloudflare-blocked on
+GH Actions, so those sources are refreshed locally (`scripts/refresh_investing.py`,
+Windows Task Scheduler, daily 9:30 AM) and committed.
 
 ## Deploy flow
 
