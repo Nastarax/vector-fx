@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro Command Center - Vector</title>
+<style>
+  :root{
+    --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
+    --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
+    --bullish:#3974e6; --bearish:#dd5050; --neutral:#5a6385;
+    --accent:#4a7bff; --accent2:#6f9bff;
+    --usd:#3974e6; --eur:#5b8def; --gbp:#9a7bf0; --jpy:#dd5050;
+    --chf:#e07a3f; --cad:#d6455f; --aud:#2fa86b; --nzd:#2f9aa8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:13px;line-height:1.5}
+  a{color:#aac4ff}
+  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    padding:18px 24px;background:linear-gradient(135deg,#1a2148 0%,#0d1430 100%);
+    border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:13px}
+  .vmark{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+    font-weight:800;font-size:22px;color:#fff;box-shadow:0 3px 10px rgba(74,123,255,.35)}
+  .brand h1{margin:0;font-size:18px;font-weight:700;letter-spacing:.2px}
+  .brand .sub{margin:0;color:var(--muted);font-size:12px}
+  .today{text-align:right;color:var(--muted);font-size:12px}
+  .today b{color:var(--text);font-size:13px}
+  main{max-width:1080px;margin:0 auto;padding:22px 24px 60px}
+  h2{font-size:15px;font-weight:700;margin:30px 0 12px;letter-spacing:.2px;
+    display:flex;align-items:center;gap:9px}
+  h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .lead{color:var(--muted);font-size:13px;margin:-4px 0 16px;max-width:760px}
+
+  /* coming up strip */
+  .strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+  .ev{flex:0 0 auto;min-width:158px;background:var(--panel);border:1px solid var(--border);
+    border-radius:9px;padding:12px 13px;position:relative}
+  .ev.soon{border-color:var(--accent);box-shadow:0 0 0 1px rgba(74,123,255,.35)}
+  .ev .when{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .ev .cd{font-size:22px;font-weight:800;margin:2px 0 1px}
+  .ev .cd small{font-size:11px;font-weight:600;color:var(--muted)}
+  .ev .bank{font-size:13px;font-weight:700;margin-top:4px}
+  .ev .date{font-size:11px;color:var(--muted)}
+  .ev .star{position:absolute;top:10px;right:11px;font-size:11px;color:#ffcf5c}
+  .ccy-chip{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700;
+    color:#fff;margin-top:6px}
+
+  /* per bank reference */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:14px}
+  .card .ch{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .card h3{margin:0;font-size:14px;font-weight:700}
+  .card .role{color:var(--muted);font-size:11px}
+  .mlist{list-style:none;margin:0;padding:0}
+  .mlist li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;
+    border-top:1px solid var(--border);font-size:12.5px}
+  .mlist li:first-child{border-top:none}
+  .mlist li.past{opacity:.38}
+  .mlist li .md{color:var(--text)}
+  .mlist li .mt{color:var(--muted);font-size:11px}
+  .mlist li.next .md{color:var(--accent2);font-weight:700}
+  .tag{font-size:10px;color:#ffcf5c;margin-left:5px}
+
+  /* drivers */
+  .dcard{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:13px 14px}
+  .dcard .ch{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .dcard h3{margin:0;font-size:13.5px;font-weight:700}
+  .dcard p{margin:0;color:var(--text);font-size:12.5px}
+  .dcard .hi{color:var(--accent2);font-weight:600}
+
+  /* sources */
+  .src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+  .src{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:14px}
+  .src h3{margin:0 0 4px;font-size:13.5px;font-weight:700}
+  .src .tier{color:var(--muted);font-size:11px;margin-bottom:9px}
+  .src ul{list-style:none;margin:0;padding:0}
+  .src li{padding:5px 0;border-top:1px solid var(--border);font-size:12.5px}
+  .src li:first-child{border-top:none}
+  .src li .nm{font-weight:600}
+  .src li .ds{color:var(--muted);font-size:11.5px}
+
+  /* routine */
+  .routine{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .rt{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:14px;
+    border-left:3px solid var(--accent)}
+  .rt h3{margin:0 0 6px;font-size:13px;font-weight:700}
+  .rt .clock{color:var(--accent2);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .rt p{margin:6px 0 0;color:var(--muted);font-size:12.5px}
+  .note{background:rgba(74,123,255,.08);border:1px solid rgba(74,123,255,.3);border-radius:9px;
+    padding:12px 14px;color:var(--text);font-size:12.5px;margin-top:14px}
+  footer{color:var(--muted);font-size:11px;text-align:center;margin-top:40px;
+    border-top:1px solid var(--border);padding-top:16px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="vmark">V</div>
+    <div>
+      <h1>Macro Command Center</h1>
+      <p class="sub">Central bank calendar &middot; what to watch &middot; where to read</p>
+    </div>
+  </div>
+  <div class="today">
+    <div>Today</div>
+    <b id="todayStr"></b>
+  </div>
+</header>
+
+<main>
+
+  <h2><span class="dot"></span>Coming up</h2>
+  <p class="lead">Your next eight rate decisions, sorted by date. These are the events that actually move
+    your eight currencies on a swing horizon. Stars mark the heavier meetings (new projections,
+    forecasts, or a Monetary Policy Report) where the surprise potential is biggest.</p>
+  <div class="strip" id="strip"></div>
+
+  <h2><span class="dot"></span>2026 rate-decision calendar</h2>
+  <p class="lead">All decision dates for the year, per bank. Past meetings are dimmed, your next one in
+    each is highlighted. Watch the clusters: some days stack multiple banks (e.g. Dec 9 = Fed + BoC +
+    RBNZ, Dec 17 = ECB + BoE, Jun 18 = BoE + SNB) which can make cross-pairs jumpy.</p>
+  <div class="grid" id="bankGrid"></div>
+
+  <h2><span class="dot"></span>What moves each currency</h2>
+  <p class="lead">Between meetings, these are the high-impact releases that shift each currency's bias.
+    Most are already feeding Vector. The point isn't to react to every print, it's to know which
+    number is the one to wait for.</p>
+  <div class="grid" id="drivers"></div>
+
+  <h2><span class="dot"></span>Where to read</h2>
+  <p class="lead">Fewer, better inputs. Spend your time on the thinking layer (daily macro notes), keep
+    fast news on tap but don't live in it, and let your calendar + Vector handle the data.</p>
+  <div class="src-grid" id="sources"></div>
+
+  <h2><span class="dot"></span>A routine that survives a full coaching day</h2>
+  <div class="routine" id="routine"></div>
+  <div class="note"><b>The one rule:</b> as a swing trader your enemy is overconsumption, not
+    under-information. If a headline makes you want to touch a position you already sized correctly,
+    that's the feed doing its job of generating noise. Read to build a view for the week, not to
+    justify a click today.</div>
+
+  <footer>
+    Built for Vector &middot; dates verified against official central-bank calendars (May 2026).
+    Standalone file: open it anytime, it recomputes "days away" from today's date.
+  </footer>
+</main>
+
+<script>
+// ---- decision data (ISO date = announcement / decision day) ----
+// type: full = projections/forecast/report meeting (heavier), plain = standard
+const MEET = [
+  // USD - Federal Reserve (FOMC)
+  ["USD","Federal Reserve","Sets the dollar, and the dollar sets everything","2026-01-28","plain",""],
+  ["USD","Federal Reserve","Sets the dollar, and the dollar sets everything","2026-03-18","full","Projections"],
+  ["USD","Federal Reserve","Sets the dollar, and the dollar sets everything","2026-04-29","plain",""],
+  ["USD","Federal Reserve","Sets the dollar, and the dollar sets everything","2026-06-17","full","Dot plot"],
+  ["USD","Federal Reserve","Sets the dollar, and the dollar sets everything","2026-07-29","plain",""],
+  ["USD","Federal Reserve","Sets the dollar, and the dollar sets everything","2026-09-16","full","Dot plot"],
+  ["USD","Federal Reserve","Sets the dollar, and the dollar sets everything","2026-10-28","plain",""],
+  ["USD","Federal Reserve","Sets the dollar, and the dollar sets everything","2026-12-09","full","Dot plot"],
+  // EUR - ECB
+  ["EUR","ECB","Governing Council rate decision","2026-03-19","full","Projections"],
+  ["EUR","ECB","Governing Council rate decision","2026-04-30","plain",""],
+  ["EUR","ECB","Governing Council rate decision","2026-06-11","full","Projections"],
+  ["EUR","ECB","Governing Council rate decision","2026-07-23","plain",""],
+  ["EUR","ECB","Governing Council rate decision","2026-09-10","full","Projections"],
+  ["EUR","ECB","Governing Council rate decision","2026-10-29","plain",""],
+  ["EUR","ECB","Governing Council rate decision","2026-12-17","full","Projections"],
+  // GBP - Bank of England
+  ["GBP","Bank of England","MPC Bank Rate decision","2026-02-05","full","MPR"],
+  ["GBP","Bank of England","MPC Bank Rate decision","2026-03-19","plain",""],
+  ["GBP","Bank of England","MPC Bank Rate decision","2026-04-30","full","MPR"],
+  ["GBP","Bank of England","MPC Bank Rate decision","2026-06-18","plain",""],
+  ["GBP","Bank of England","MPC Bank Rate decision","2026-07-30","full","MPR"],
+  ["GBP","Bank of England","MPC Bank Rate decision","2026-09-17","plain",""],
+  ["GBP","Bank of England","MPC Bank Rate decision","2026-11-05","full","MPR"],
+  ["GBP","Bank of England","MPC Bank Rate decision","2026-12-17","plain",""],
+  // JPY - Bank of Japan
+  ["JPY","Bank of Japan","Policy decision (day 2)","2026-01-23","full","Outlook"],
+  ["JPY","Bank of Japan","Policy decision (day 2)","2026-03-19","plain",""],
+  ["JPY","Bank of Japan","Policy decision (day 2)","2026-04-28","full","Outlook"],
+  ["JPY","Bank of Japan","Policy decision (day 2)","2026-06-16","plain",""],
+  ["JPY","Bank of Japan","Policy decision (day 2)","2026-07-31","full","Outlook"],
+  ["JPY","Bank of Japan","Policy decision (day 2)","2026-09-18","plain",""],
+  ["JPY","Bank of Japan","Policy decision (day 2)","2026-10-30","full","Outlook"],
+  ["JPY","Bank of Japan","Policy decision (day 2)","2026-12-18","plain",""],
+  // CHF - SNB (quarterly)
+  ["CHF","SNB","Quarterly assessment + forecast","2026-03-19","full","Forecast"],
+  ["CHF","SNB","Quarterly assessment + forecast","2026-06-18","full","Forecast"],
+  ["CHF","SNB","Quarterly assessment + forecast","2026-09-24","full","Forecast"],
+  ["CHF","SNB","Quarterly assessment + forecast","2026-12-11","full","Forecast"],
+  // CAD - Bank of Canada
+  ["CAD","Bank of Canada","Overnight rate decision","2026-01-28","full","MPR"],
+  ["CAD","Bank of Canada","Overnight rate decision","2026-03-18","plain",""],
+  ["CAD","Bank of Canada","Overnight rate decision","2026-04-29","full","MPR"],
+  ["CAD","Bank of Canada","Overnight rate decision","2026-06-10","plain",""],
+  ["CAD","Bank of Canada","Overnight rate decision","2026-07-15","full","MPR"],
+  ["CAD","Bank of Canada","Overnight rate decision","2026-09-02","plain",""],
+  ["CAD","Bank of Canada","Overnight rate decision","2026-10-28","full","MPR"],
+  ["CAD","Bank of Canada","Overnight rate decision","2026-12-09","plain",""],
+  // AUD - RBA
+  ["AUD","RBA","Monetary Policy Board (day 2)","2026-02-03","full","SoMP"],
+  ["AUD","RBA","Monetary Policy Board (day 2)","2026-03-17","plain",""],
+  ["AUD","RBA","Monetary Policy Board (day 2)","2026-05-05","full","SoMP"],
+  ["AUD","RBA","Monetary Policy Board (day 2)","2026-06-16","plain",""],
+  ["AUD","RBA","Monetary Policy Board (day 2)","2026-08-11","full","SoMP"],
+  ["AUD","RBA","Monetary Policy Board (day 2)","2026-09-29","plain",""],
+  ["AUD","RBA","Monetary Policy Board (day 2)","2026-11-03","full","SoMP"],
+  ["AUD","RBA","Monetary Policy Board (day 2)","2026-12-08","plain",""],
+  // NZD - RBNZ
+  ["NZD","RBNZ","OCR decision","2026-04-08","plain",""],
+  ["NZD","RBNZ","OCR decision","2026-05-27","full","MPS"],
+  ["NZD","RBNZ","OCR decision","2026-07-08","plain",""],
+  ["NZD","RBNZ","OCR decision","2026-09-02","full","MPS"],
+  ["NZD","RBNZ","OCR decision","2026-10-28","plain",""],
+  ["NZD","RBNZ","OCR decision","2026-12-09","full","MPS"],
+];
+
+const CCY_ORDER = ["USD","EUR","GBP","JPY","CHF","CAD","AUD","NZD"];
+const CCY_COLOR = {USD:"var(--usd)",EUR:"var(--eur)",GBP:"var(--gbp)",JPY:"var(--jpy)",
+  CHF:"var(--chf)",CAD:"var(--cad)",AUD:"var(--aud)",NZD:"var(--nzd)"};
+
+const DRIVERS = {
+  USD:["NFP + average hourly earnings (1st Friday), CPI, core PCE (Fed's gauge), FOMC, ISM mfg/services PMI, retail sales, JOLTS + ADP."],
+  EUR:["Flash HICP inflation, ECB decision, flash PMIs, German Ifo + ZEW sentiment, EZ GDP. Germany leads, so German prints move the whole bloc."],
+  GBP:["UK CPI, the jobs + wage report, BoE decision, monthly GDP, flash PMIs. Wages are the BoE's obsession right now."],
+  JPY:["BoJ decision, Tokyo CPI (early read on national CPI), national CPI, Tankan survey, wage/shunto data. Plus MoF intervention risk near extremes."],
+  CHF:["SNB quarterly assessment, Swiss CPI, KOF leading indicator, weekly SNB sight deposits (intervention tell). CHF is a risk-off magnet too."],
+  CAD:["BoC decision, CPI, the Labour Force Survey jobs print, monthly GDP, and oil. CAD trades the energy complex hard."],
+  AUD:["RBA decision, quarterly CPI + the monthly indicator, jobs, and China data (PMIs, credit) + iron ore. AUD is the liquid China proxy."],
+  NZD:["RBNZ decision, quarterly CPI + jobs, GlobalDairyTrade auctions (fortnightly), and China data. Thin liquidity = sharp moves."]
+};
+
+const SOURCES = [
+  ["Daily macro reads (spend time here)","Build your view from people who trade the macro frame.",
+    [["Brent Donnelly &mdash; am/FX","https://www.spectramarkets.com","Ex-bank FX spot trader, daily note. The single most aligned source for you. Books: The Art of Currency Trading, Alpha Trader."],
+     ["Marc Chandler &mdash; Marc to Market","https://www.marctomarket.com","Free daily FX macro overview, every morning."],
+     ["Steno Research","https://stenoresearch.com","Andreas Steno, cross-asset macro + positioning."],
+     ["The Macro Compass","https://themacrocompass.com","Alfonso Peccatiello, rates/liquidity-driven macro."]]],
+  ["Fast FX news (on tap, not on loop)","Check when something breaks. Don't refresh it all day.",
+    [["ForexLive","https://www.forexlive.com","Real-time FX headlines + central-bank speak."],
+     ["FXStreet","https://www.fxstreet.com","News, calendar, and rate-decision live coverage."]]],
+  ["Calendars + your tools","The data backbone. Set alerts only for your 8 currencies' high-impact events.",
+    [["Forex Factory calendar","https://www.forexfactory.com/calendar","Cleanest free high-impact filter + alerts."],
+     ["Investing.com calendar","https://www.investing.com/economic-calendar/","Same sources Vector pulls from; good mobile alerts."],
+     ["TradingEconomics","https://tradingeconomics.com/calendar","Consensus vs actual, country dashboards."]]],
+  ["Podcasts (for the long game toward global macro)","Background listening while you commute or hit balls.",
+    [["Macro Voices","https://www.macrovoices.com","Deep institutional macro interviews."],
+     ["Forward Guidance (Blockworks)","https://blockworks.co/podcast/forwardguidance","Rates, liquidity, Fed plumbing."],
+     ["Odd Lots (Bloomberg)","https://www.bloomberg.com/oddlots","Wide-ranging, accessible market deep dives."],
+     ["The Macro Trading Floor","https://stenoresearch.com","Steno + Alf, a tradable theme each week."]]],
+  ["Central bank pages (primary source)","When a banker speaks, that's the real news. Bookmark these.",
+    [["Federal Reserve","https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm","FOMC calendar, statements, minutes, dot plot."],
+     ["ECB","https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html","Governing Council calendar + press conferences."],
+     ["Bank of England","https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates","MPC dates + Monetary Policy Reports."],
+     ["Bank of Japan","https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm","Meeting schedule + Outlook Report."]]],
+  ["Positioning (you already use this)","Know who's offside. Extreme positioning sets up the violent reversals.",
+    [["CFTC Commitments of Traders","https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm","Weekly futures positioning, Friday 3:30pm ET. Feeds Vector's COT."]]]
+];
+
+const ROUTINE = [
+  ["Each morning","~15 min","Skim one macro note (Donnelly or Chandler). Glance at Vector for any bias flips overnight. Check today's calendar for high-impact prints on your 8."],
+  ["Around releases","as they hit","Let calendar alerts (high-impact only) pull you in. Read actual vs consensus, not the headline. Otherwise stay off the feed."],
+  ["Weekend","30-45 min","One deeper read to set next week's bias. Update your own view per currency. Note which central banks meet that week."],
+  ["Each evening (optional)","~5 min","Scan ForexLive headlines once to make sure nothing structural broke. Then close the tab."]
+];
+
+// ---- render ----
+const today = new Date();
+today.setHours(0,0,0,0);
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function parse(d){const[y,m,dd]=d.split("-").map(Number);return new Date(y,m-1,dd);}
+function daysTo(d){return Math.round((parse(d)-today)/86400000);}
+function fmtDate(d){const x=parse(d);return DOW[x.getDay()]+" "+x.getDate()+" "+MON[x.getMonth()];}
+
+document.getElementById("todayStr").textContent =
+  DOW[today.getDay()]+", "+today.getDate()+" "+MON[today.getMonth()]+" "+today.getFullYear();
+
+// Coming up strip: next 8 upcoming across all banks
+const upcoming = MEET.map(m=>({c:m[0],bank:m[1],date:m[3],type:m[4],tag:m[5],dd:daysTo(m[3])}))
+  .filter(m=>m.dd>=0).sort((a,b)=>a.dd-b.dd).slice(0,8);
+document.getElementById("strip").innerHTML = upcoming.map((m,i)=>{
+  const soon = m.dd<=7;
+  return `<div class="ev ${soon?'soon':''}">
+    ${m.type==='full'?'<span class="star">&#9733;</span>':''}
+    <div class="when">${m.dd===0?'Today':(m.dd===1?'Tomorrow':'In '+m.dd+' days')}</div>
+    <div class="cd">${m.dd}<small> d</small></div>
+    <div class="bank">${m.bank}</div>
+    <div class="date">${fmtDate(m.date)}${m.tag?' &middot; '+m.tag:''}</div>
+    <span class="ccy-chip" style="background:${CCY_COLOR[m.c]}">${m.c}</span>
+  </div>`;
+}).join("");
+
+// Per-bank reference grid
+const byCcy = {};
+MEET.forEach(m=>{(byCcy[m[0]]=byCcy[m[0]]||[]).push(m);});
+document.getElementById("bankGrid").innerHTML = CCY_ORDER.map(c=>{
+  const rows = byCcy[c];
+  const nextIdx = rows.findIndex(r=>daysTo(r[3])>=0);
+  const lis = rows.map((r,i)=>{
+    const dd = daysTo(r[3]);
+    const cls = dd<0 ? 'past' : (i===nextIdx ? 'next' : '');
+    return `<li class="${cls}"><span class="md">${fmtDate(r[3])}${r[5]?'<span class="tag">&#9733; '+r[5]+'</span>':''}</span>
+      <span class="mt">${dd<0?'done':(dd===0?'today':dd+'d')}</span></li>`;
+  }).join("");
+  return `<div class="card">
+    <div class="ch"><span class="ccy-chip" style="background:${CCY_COLOR[c]}">${c}</span>
+      <div><h3>${rows[0][1]}</h3><div class="role">${rows[0][2]}</div></div></div>
+    <ul class="mlist">${lis}</ul></div>`;
+}).join("");
+
+// Drivers
+document.getElementById("drivers").innerHTML = CCY_ORDER.map(c=>{
+  return `<div class="dcard"><div class="ch">
+    <span class="ccy-chip" style="background:${CCY_COLOR[c]}">${c}</span></div>
+    <p>${DRIVERS[c][0]}</p></div>`;
+}).join("");
+
+// Sources
+document.getElementById("sources").innerHTML = SOURCES.map(s=>{
+  const items = s[2].map(it=>`<li><a class="nm" href="${it[1]}" target="_blank" rel="noopener">${it[0]}</a>
+    <div class="ds">${it[2]}</div></li>`).join("");
+  return `<div class="src"><h3>${s[0]}</h3><div class="tier">${s[1]}</div><ul>${items}</ul></div>`;
+}).join("");
+
+// Routine
+document.getElementById("routine").innerHTML = ROUTINE.map(r=>{
+  return `<div class="rt"><div class="clock">${r[1]}</div><h3>${r[0]}</h3><p>${r[2]}</p></div>`;
+}).join("");
+</script>
+</body>
+</html>

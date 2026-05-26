@@ -301,6 +301,7 @@ _HTML_TEMPLATE = """<!doctype html>
   <div style="display:flex;align-items:center;gap:14px">
     <div class="meta">Updated: __UPDATED_AT__</div>
     <a class="btn" href="output.html">&larr; Heatmap</a>
+    <a class="btn" href="macro.html">Macro Calendar &rarr;</a>
   </div>
 </header>
 
