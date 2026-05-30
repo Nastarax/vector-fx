@@ -350,7 +350,10 @@ function buildCpiIndicator(ccy, months){
         const val = chart.data.datasets[0].data[i];
         if(val === null || val === undefined) continue;
         const el = meta.data[i];
-        c.fillText(val.toFixed(1) + '%', el.x, el.y - 6);
+        const txt = val.toFixed(1) + '%';
+        const tw = c.measureText(txt).width;
+        const maxX = chart.chartArea.right - tw / 2;
+        c.fillText(txt, Math.min(el.x, maxX), el.y - 6);
       }
       c.restore();
     }
@@ -413,6 +416,7 @@ function buildCpiIndicator(ccy, months){
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {padding: {right: 20}},
       interaction: {mode: 'index', intersect: false},
       plugins: {
         legend: {display: false},
