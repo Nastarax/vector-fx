@@ -440,6 +440,7 @@ function buildCpiIndicator(ccy, months){
         },
         y: {
           beginAtZero: true,
+          grace: '12%',
           ticks: {color: '#8893c0', callback: v => v.toFixed(1) + '%'},
           grid: {color: '#1c2348'}
         }
