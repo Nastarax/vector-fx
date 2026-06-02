@@ -4,32 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vector | Macro Command Center</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%233d77e8'/><stop offset='1' stop-color='%231e4fd1'/></linearGradient></defs><rect width='32' height='32' rx='7' fill='url(%23g)'/><text x='16' y='23' font-family='Arial' font-size='18' font-weight='bold' fill='white' text-anchor='middle'>V</text></svg>">
+<link rel="stylesheet" href="vector.css">
 <style>
   :root{
-    --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
-    --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
-    --bullish:#3974e6; --bearish:#dd5050; --neutral:#5a6385;
-    --accent:#4a7bff; --accent2:#6f9bff;
+    --accent2:#6f9bff;
     --usd:#3974e6; --eur:#5b8def; --gbp:#9a7bf0; --jpy:#dd5050;
     --chf:#e07a3f; --cad:#d6455f; --aud:#2fa86b; --nzd:#2f9aa8;
   }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    font-size:13px;line-height:1.5}
-  a{color:#aac4ff}
-  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
-    padding:18px 24px;background:linear-gradient(135deg,#1a2148 0%,#0d1430 100%);
-    border-bottom:1px solid var(--border)}
-  .brand{display:flex;align-items:center;gap:13px}
-  .brand-mark{font-size:24px;font-weight:800;color:#3974e6}
-  .brand-name{font-size:20px;font-weight:800;letter-spacing:1.5px}
-  .brand h1{margin:0;font-size:13px;color:var(--muted);font-weight:500}
-  nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  a.btn{color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);
-    padding:6px 12px;border-radius:4px;background:var(--row);transition:background .15s}
-  a.btn:hover{background:var(--rowAlt)}
-  .meta{color:var(--muted);font-size:12px;margin-right:4px}
+  body{line-height:1.5}
   main{max-width:1080px;margin:0 auto;padding:22px 24px 60px}
   h2{font-size:15px;font-weight:700;margin:30px 0 12px;letter-spacing:.2px;
     display:flex;align-items:center;gap:9px}
@@ -123,21 +106,31 @@
 <body>
 <header>
   <div class="brand">
-    <div class="brand-mark">V&rarr;</div>
+    <div class="brand-mark">V</div>
     <div>
       <div class="brand-name">VECTOR</div>
       <h1>Macro Command Center</h1>
     </div>
   </div>
-  <nav>
-    <span class="meta">Updated: 2026-06-02 12:35 UTC</span>
-    <a class="btn" href="output.html">&larr; Heatmap</a>
-    <a class="btn" href="cot.html">COT</a>
-    <a class="btn" href="economic_heatmap.html">Economic</a>
-    <a class="btn" href="scorecard.html">Scorecard</a>
-    <a class="btn" href="inflation.html">Inflation</a>
-  </nav>
+  <div class="meta">Updated <b>2026-06-02 13:07 UTC</b></div>
 </header>
+
+<nav class="topnav">
+  <a class="navlink" href="index.html">Top Setups</a>
+  <a class="navlink" href="cot.html">COT Detail</a>
+  <a class="navlink" href="economic_heatmap.html">Economic Heatmap</a>
+  <a class="navlink" href="scorecard.html">Asset Scorecard</a>
+  <a class="navlink" href="inflation.html">Inflation</a>
+  <a class="navlink active" href="macro.html">Macro Calendar</a>
+  <div class="dropdown">
+    <a class="navlink dropbtn" href="#" onclick="event.preventDefault();this.parentElement.classList.toggle('open')">Seasonality &#9662;</a>
+    <div class="dropdown-content">
+      <a href="seasonality_yearly.html">Yearly Seasonality</a>
+      <a href="seasonality_monthly.html">Monthly Seasonality</a>
+    </div>
+  </div>
+  <span class="nav-spacer"></span>
+</nav>
 
 <main>
 

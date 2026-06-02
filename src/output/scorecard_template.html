@@ -3,22 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>Vector | Asset Scorecard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%233d77e8'/><stop offset='1' stop-color='%231e4fd1'/></linearGradient></defs><rect width='32' height='32' rx='7' fill='url(%23g)'/><text x='16' y='23' font-family='Arial' font-size='18' font-weight='bold' fill='white' text-anchor='middle'>V</text></svg>">
+<link rel="stylesheet" href="vector.css">
 <style>
-  :root{
-    --bg:#0d1430; --panel:#141a3a; --text:#e8ecff; --muted:#8893c0;
-    --row:#1a2046; --rowAlt:#161c3d; --border:#2a3060;
-    --bullish:#3974e6; --bearish:#dd5050; --neutral:#5a6385;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:13px}
-  header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:linear-gradient(135deg,#1a2148 0%,#0d1430 100%);border-bottom:1px solid var(--border)}
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand-mark{font-size:24px;font-weight:800;color:#3974e6}
-  .brand-name{font-size:20px;font-weight:800;letter-spacing:1.5px}
-  h1{font-size:14px;color:var(--muted);font-weight:500;margin:0}
-  a.btn{color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);padding:6px 12px;border-radius:4px;background:var(--row)}
-  a.btn:hover{background:var(--rowAlt)}
-  .meta{color:var(--muted);font-size:12px}
 
   .toolbar{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--border);font-size:13px}
   .toolbar label{color:var(--muted);margin-right:6px}
@@ -83,18 +71,31 @@
 <body>
 <header>
   <div class="brand">
-    <div class="brand-mark">V→</div>
+    <div class="brand-mark">V</div>
     <div>
       <div class="brand-name">VECTOR</div>
       <h1>Asset Scorecard</h1>
     </div>
   </div>
-  <div style="display:flex;gap:14px;align-items:center">
-    <div class="meta">Updated: __UPDATED_STR__</div>
-    <a class="btn" href="output.html">← Heatmap</a>
-    <a class="btn" href="macro.html">Macro Calendar →</a>
-  </div>
+  <div class="meta">Updated <b>__UPDATED_STR__</b></div>
 </header>
+
+<nav class="topnav">
+  <a class="navlink" href="index.html">Top Setups</a>
+  <a class="navlink" href="cot.html">COT Detail</a>
+  <a class="navlink" href="economic_heatmap.html">Economic Heatmap</a>
+  <a class="navlink active" href="scorecard.html">Asset Scorecard</a>
+  <a class="navlink" href="inflation.html">Inflation</a>
+  <a class="navlink" href="macro.html">Macro Calendar</a>
+  <div class="dropdown">
+    <a class="navlink dropbtn" href="#" onclick="event.preventDefault();this.parentElement.classList.toggle('open')">Seasonality ▾</a>
+    <div class="dropdown-content">
+      <a href="seasonality_yearly.html">Yearly Seasonality</a>
+      <a href="seasonality_monthly.html">Monthly Seasonality</a>
+    </div>
+  </div>
+  <span class="nav-spacer"></span>
+</nav>
 
 <div class="toolbar">
   <label for="ccy">Currency</label>
