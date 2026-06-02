@@ -30,8 +30,11 @@ def render(cot_data: dict, cot_history: dict | None = None, output_path: Path | 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     output_path = output_path or (OUTPUT_DIR / "cot.html")
 
-    COMMODITY_CCYS = {"XAU"}
-    DISPLAY_NAMES = {"XAU": "Gold"}
+    # Non-FX assets (Gold, Nikkei) are excluded from the Tool 1 stacked bar
+    # (currencies only). They remain available in the Tool 2 history dropdown.
+    # Sourced from the canonical set so new instruments stay in sync.
+    from src.fetchers.cot import COMMODITY_CCYS
+    DISPLAY_NAMES = {"XAU": "Gold", "NKY": "Nikkei 225"}
 
     # Latest report rows for Tool 1 (currencies only, no commodities)
     latest = []
