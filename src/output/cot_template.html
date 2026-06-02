@@ -23,11 +23,11 @@
   table.history td:first-child{text-align:left;font-weight:600}
   table.history tr:nth-child(odd) td{background:var(--row)}
   table.history tr:nth-child(even) td{background:var(--rowAlt)}
-  .pos{color:#aac4ff}
-  .neg{color:#ffaab4}
+  .pos{color:#9fc0ff}
+  .neg{color:#ffb8c0}
   .chip{display:inline-block;padding:2px 6px;border-radius:3px;font-weight:600;min-width:54px;text-align:right}
-  .chip.pos{background:rgba(57,116,230,0.25);color:#aac4ff}
-  .chip.neg{background:rgba(221,80,80,0.25);color:#ffaab4}
+  .chip.pos{background:rgba(61,119,232,0.25);color:#9fc0ff}
+  .chip.neg{background:rgba(204,51,68,0.25);color:#ffb8c0}
   footer{padding:16px 24px;color:var(--muted);font-size:11px;border-top:1px solid var(--border);text-align:center}
 </style>
 </head>
@@ -101,6 +101,7 @@
 <footer>Vector &middot; Data: CFTC Commitment of Traders (Legacy Non-Commercial) &middot; For personal research only, not financial advice.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>if(window.Chart){Chart.defaults.color='#7e89b8';Chart.defaults.font.family="'Inter',system-ui,sans-serif";Chart.defaults.borderColor='#262d54';}</script>
 <script>
 const LATEST = {{ latest_json|safe }};
 const HISTORY = {{ history_json|safe }};
@@ -121,8 +122,8 @@ const LABELS = {{ currency_labels_json|safe }};
     data: {
       labels: labels,
       datasets: [
-        {label: 'Long', data: longs, backgroundColor: 'rgba(57,116,230,0.85)', borderColor: 'rgba(57,116,230,1)', stack: 'a'},
-        {label: 'Short', data: shorts, backgroundColor: 'rgba(221,80,80,0.85)', borderColor: 'rgba(221,80,80,1)', stack: 'a'},
+        {label: 'Long', data: longs, backgroundColor: 'rgba(61,119,232,0.85)', borderColor: 'rgba(61,119,232,1)', stack: 'a'},
+        {label: 'Short', data: shorts, backgroundColor: 'rgba(204,51,68,0.85)', borderColor: 'rgba(204,51,68,1)', stack: 'a'},
       ]
     },
     options: {
@@ -137,8 +138,8 @@ const LABELS = {{ currency_labels_json|safe }};
         }
       },
       scales: {
-        x: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#8893c0'}, stacked: true},
-        y: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#8893c0', callback: v => v + '%'}, stacked: true, max: 100, min: 0},
+        x: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#7e89b8'}, stacked: true},
+        y: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#7e89b8', callback: v => v + '%'}, stacked: true, max: 100, min: 0},
       }
     }
   });
@@ -202,10 +203,10 @@ function renderHistory(ccy) {
       labels: labels,
       datasets: [
         {type: 'bar', label: 'Long Positions', data: longArr,
-         backgroundColor: 'rgba(57,116,230,0.78)', borderColor: 'rgba(57,116,230,1)',
+         backgroundColor: 'rgba(61,119,232,0.78)', borderColor: 'rgba(61,119,232,1)',
          yAxisID: 'yContracts', stack: 'positions', order: 3},
         {type: 'bar', label: 'Short Positions', data: shortArr,
-         backgroundColor: 'rgba(221,80,80,0.78)', borderColor: 'rgba(221,80,80,1)',
+         backgroundColor: 'rgba(204,51,68,0.78)', borderColor: 'rgba(204,51,68,1)',
          yAxisID: 'yContracts', stack: 'positions', order: 3},
         {type: 'line', label: 'Long %', data: longPctArr,
          borderColor: '#facc15', backgroundColor: 'transparent',
@@ -229,9 +230,9 @@ function renderHistory(ccy) {
         }
       },
       scales: {
-        x: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#8893c0', maxRotation: 50, minRotation: 50}},
+        x: {grid: {color: 'rgba(255,255,255,0.05)'}, ticks: {color: '#7e89b8', maxRotation: 50, minRotation: 50}},
         yContracts: {position: 'right', stacked: true, grid: {color: 'rgba(255,255,255,0.05)'},
-                     ticks: {color: '#8893c0', callback: v => {
+                     ticks: {color: '#7e89b8', callback: v => {
                        if (v >= 1000) return (v/1000).toFixed(0) + 'K';
                        return v.toLocaleString('en-US');
                      }}},

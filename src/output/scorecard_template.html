@@ -54,8 +54,8 @@
   .impact-pill.bull{background:var(--bullish);color:#fff}
   .impact-pill.bear{background:var(--bearish);color:#fff}
   .impact-pill.neutral{background:var(--neutral);color:#fff}
-  .surprise.pos{color:#aac4ff}
-  .surprise.neg{color:#ffaab4}
+  .surprise.pos{color:#9fc0ff}
+  .surprise.neg{color:#ffb8c0}
   .surprise.flat{color:var(--muted)}
   .num{color:var(--text)}
   .num.na{color:#5a6385}
@@ -113,19 +113,19 @@
       <div class="gauge-wrap">
         <svg class="gauge-svg" viewBox="0 0 200 130">
           <!-- Bearish red arc -->
-          <path d="M 20 110 A 80 80 0 0 1 100 30" fill="none" stroke="#dd5050" stroke-width="22"/>
+          <path d="M 20 110 A 80 80 0 0 1 100 30" fill="none" stroke="#cc3344" stroke-width="22"/>
           <!-- Neutral gray segment -->
           <path d="M 100 30 A 80 80 0 0 1 105 30.1" fill="none" stroke="#5a6385" stroke-width="22"/>
           <!-- Bullish blue arc -->
-          <path d="M 100 30 A 80 80 0 0 1 180 110" fill="none" stroke="#3974e6" stroke-width="22"/>
+          <path d="M 100 30 A 80 80 0 0 1 180 110" fill="none" stroke="#3d77e8" stroke-width="22"/>
           <!-- Labels -->
-          <text x="22" y="118" fill="#dd5050" font-size="11" font-weight="700">Bear</text>
-          <text x="100" y="22" fill="#aac4ff" font-size="11" font-weight="700" text-anchor="middle">Neutral</text>
-          <text x="160" y="118" fill="#3974e6" font-size="11" font-weight="700">Bull</text>
+          <text x="22" y="118" fill="#cc3344" font-size="11" font-weight="700">Bear</text>
+          <text x="100" y="22" fill="#9fc0ff" font-size="11" font-weight="700" text-anchor="middle">Neutral</text>
+          <text x="160" y="118" fill="#3d77e8" font-size="11" font-weight="700">Bull</text>
           <!-- Needle (rotated via JS) -->
           <g id="needle">
-            <line x1="100" y1="110" x2="100" y2="45" stroke="#e8ecff" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="100" cy="110" r="6" fill="#3974e6" stroke="#e8ecff" stroke-width="2"/>
+            <line x1="100" y1="110" x2="100" y2="45" stroke="#e6ebff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="100" cy="110" r="6" fill="#3d77e8" stroke="#e6ebff" stroke-width="2"/>
           </g>
         </svg>
       </div>
@@ -143,8 +143,8 @@
     <div class="card" id="score-chart-card" style="display:none">
       <div class="card-title">Score over time</div>
       <div style="position:relative;height:180px">
-        <span style="position:absolute;top:4px;left:4px;font-size:10px;font-weight:600;color:rgba(57,116,230,0.7);z-index:1">Bullish</span>
-        <span style="position:absolute;bottom:4px;left:4px;font-size:10px;font-weight:600;color:rgba(221,80,80,0.7);z-index:1">Bearish</span>
+        <span style="position:absolute;top:4px;left:4px;font-size:10px;font-weight:600;color:rgba(61,119,232,0.7);z-index:1">Bullish</span>
+        <span style="position:absolute;bottom:4px;left:4px;font-size:10px;font-weight:600;color:rgba(204,51,68,0.7);z-index:1">Bearish</span>
         <canvas id="scoreChart"></canvas>
       </div>
     </div>
@@ -158,6 +158,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>if(window.Chart){Chart.defaults.color='#7e89b8';Chart.defaults.font.family="'Inter',system-ui,sans-serif";Chart.defaults.borderColor='#262d54';}</script>
 <script>
 const DATA = __SCORECARDS_JSON__;
 const CURRENCIES = __CURRENCIES_JSON__;
@@ -214,7 +215,7 @@ function renderSection(title, biasLabel, rows){
   let html = '<div class="section">';
   html += '<div class="section-header">';
   html += '<span class="section-name">'+title+'</span>';
-  html += '<span class="section-bias '+biasClass(biasLabel)+'" style="color:'+(biasLabel.indexOf('Bull')>=0?'#aac4ff':(biasLabel.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+biasLabel+'</span>';
+  html += '<span class="section-bias '+biasClass(biasLabel)+'" style="color:'+(biasLabel.indexOf('Bull')>=0?'#9fc0ff':(biasLabel.indexOf('Bear')>=0?'#ffb8c0':'#7e89b8'))+'">'+biasLabel+'</span>';
   html += '<span class="col-actual">Actual</span>';
   html += '<span class="col-forecast">Forecast</span>';
   html += '<span class="col-previous">Previous</span>';
@@ -244,7 +245,7 @@ function renderTechnicalSentiment(scData){
   html += '<div class="section-header">';
   html += '<span class="section-name">Technical bias</span>';
   const tBias = scData.sub_bias.technical;
-  html += '<span class="section-bias" style="color:'+(tBias.indexOf('Bull')>=0?'#aac4ff':(tBias.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+tBias+'</span>';
+  html += '<span class="section-bias" style="color:'+(tBias.indexOf('Bull')>=0?'#9fc0ff':(tBias.indexOf('Bear')>=0?'#ffb8c0':'#7e89b8'))+'">'+tBias+'</span>';
   html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-previous"></span><span class="col-surprise"></span>';
   html += '</div>';
   html += '<div class="row"><span class="ind-name">4H / Daily Chart Trend</span><span class="impact">'+impactPill(scData.technical.trend_label)+'</span><span></span><span></span><span></span><span></span></div>';
@@ -255,7 +256,7 @@ function renderTechnicalSentiment(scData){
   html += '<div class="section">';
   html += '<div class="section-header">';
   html += '<span class="section-name">Crowd sentiment signal</span>';
-  html += '<span class="section-bias" style="color:'+(scData.sentiment_cot.crowd_label.indexOf('Bull')>=0?'#aac4ff':(scData.sentiment_cot.crowd_label.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+scData.sentiment_cot.crowd_label+'</span>';
+  html += '<span class="section-bias" style="color:'+(scData.sentiment_cot.crowd_label.indexOf('Bull')>=0?'#9fc0ff':(scData.sentiment_cot.crowd_label.indexOf('Bear')>=0?'#ffb8c0':'#7e89b8'))+'">'+scData.sentiment_cot.crowd_label+'</span>';
   html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-previous"></span><span class="col-surprise"></span>';
   html += '</div>';
   html += '<div class="row"><span class="ind-name" style="grid-column:span 6;color:var(--muted);font-style:italic">Retail crowd sentiment averaged across this currency\'s 7 pairs. Sign reflects contrarian read: heavy long crowd = bearish, heavy short crowd = bullish.</span></div>';
@@ -265,7 +266,7 @@ function renderTechnicalSentiment(scData){
   html += '<div class="section">';
   html += '<div class="section-header">';
   html += '<span class="section-name">Institutional activity bias</span>';
-  html += '<span class="section-bias" style="color:'+(scData.sentiment_cot.cot_label.indexOf('Bull')>=0?'#aac4ff':(scData.sentiment_cot.cot_label.indexOf('Bear')>=0?'#ffaab4':'#8893c0'))+'">'+scData.sentiment_cot.cot_label+'</span>';
+  html += '<span class="section-bias" style="color:'+(scData.sentiment_cot.cot_label.indexOf('Bull')>=0?'#9fc0ff':(scData.sentiment_cot.cot_label.indexOf('Bear')>=0?'#ffb8c0':'#7e89b8'))+'">'+scData.sentiment_cot.cot_label+'</span>';
   html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-previous"></span><span class="col-surprise"></span>';
   html += '</div>';
   // Header for cot detail columns (4 numeric headers to match the 4 numeric data cells)
@@ -297,7 +298,7 @@ function renderScoreChart(ccy){
     return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
   });
   const scores = hist.map(h => h.score);
-  const colors = scores.map(s => s >= 0 ? 'rgba(57,116,230,0.85)' : 'rgba(221,80,80,0.85)');
+  const colors = scores.map(s => s >= 0 ? 'rgba(61,119,232,0.85)' : 'rgba(204,51,68,0.85)');
 
   const ctx = document.getElementById('scoreChart').getContext('2d');
   if(scoreChart) scoreChart.destroy();
@@ -319,8 +320,8 @@ function renderScoreChart(ccy){
       maintainAspectRatio: false,
       plugins: { legend: {display: false}, tooltip: { callbacks: { label: c => 'Score: ' + c.parsed.y } } },
       scales: {
-        x: { grid: {color:'rgba(255,255,255,0.05)'}, ticks: {color:'#8893c0', maxRotation:50, font:{size:9}} },
-        y: { grid: {color:'rgba(255,255,255,0.08)'}, ticks: {color:'#8893c0', stepSize:2} }
+        x: { grid: {color:'rgba(255,255,255,0.05)'}, ticks: {color:'#7e89b8', maxRotation:50, font:{size:9}} },
+        y: { grid: {color:'rgba(255,255,255,0.08)'}, ticks: {color:'#7e89b8', stepSize:2} }
       }
     }
   });
@@ -332,7 +333,7 @@ function render(ccy){
 
   document.getElementById('symbol-name').textContent = LABELS[ccy] || ccy;
   document.getElementById('overall-bias').textContent = sc.bias;
-  document.getElementById('overall-bias').style.color = sc.bias.indexOf('Bull')>=0 ? '#aac4ff' : (sc.bias.indexOf('Bear')>=0 ? '#ffaab4' : '#8893c0');
+  document.getElementById('overall-bias').style.color = sc.bias.indexOf('Bull')>=0 ? '#9fc0ff' : (sc.bias.indexOf('Bear')>=0 ? '#ffb8c0' : '#7e89b8');
   document.getElementById('gauge-score').textContent = sc.total_score;
 
   const SCALE_MAX = 20;

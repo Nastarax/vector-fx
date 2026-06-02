@@ -149,8 +149,8 @@ _COMMON_HEAD = """<!doctype html>
   select{{background:var(--row);color:var(--text);border:1px solid var(--border);padding:6px 12px;border-radius:4px;font-size:13px;cursor:pointer}}
   select:hover{{border-color:#3a4078}}
   .nav-tabs{{display:flex;gap:6px;margin-left:auto}}
-  .nav-tabs a{{padding:6px 14px;border-radius:4px;color:#aac4ff;text-decoration:none;font-size:13px;border:1px solid var(--border);background:var(--row)}}
-  .nav-tabs a.active{{background:#3974e6;color:#fff;border-color:#3974e6}}
+  .nav-tabs a{{padding:6px 14px;border-radius:4px;color:#9fc0ff;text-decoration:none;font-size:13px;border:1px solid var(--border);background:var(--row)}}
+  .nav-tabs a.active{{background:#3d77e8;color:#fff;border-color:#3d77e8}}
   .nav-tabs a:hover:not(.active){{background:var(--rowAlt)}}
   .charts{{padding:24px;display:flex;flex-direction:column;gap:24px;max-width:1400px;margin:0 auto}}
   .card{{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px}}
@@ -194,6 +194,7 @@ _COMMON_HEAD = """<!doctype html>
 
 _FOOTER = """<footer>Vector &middot; Data: Yahoo Finance &middot; For personal research only, not financial advice.</footer>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>if(window.Chart){{Chart.defaults.color='#7e89b8';Chart.defaults.font.family="'Inter',system-ui,sans-serif";Chart.defaults.borderColor='#262d54';}}</script>
 """
 
 
@@ -248,7 +249,7 @@ function render(pair) {{
         {{
           label: 'YTD Price',
           data: weeks.map(w => priceMap.has(w) ? priceMap.get(w) : null),
-          borderColor: '#dd5050',
+          borderColor: '#cc3344',
           backgroundColor: 'transparent',
           borderWidth: 2.2, pointRadius: 0,
           tension: 0.2, spanGaps: true, yAxisID: 'yPrice',
@@ -275,15 +276,15 @@ function render(pair) {{
       scales: {{
         x: {{
           grid: {{color: 'rgba(255,255,255,0.05)'}},
-          ticks: {{color:'#8893c0', autoSkip: false,
+          ticks: {{color:'#7e89b8', autoSkip: false,
             callback: function(val, idx) {{ const w = idx + 1; return MONTH_LABEL_BY_WEEK[w] || ''; }},
           }},
         }},
         yPrice: {{
           position: 'left',
           grid: {{color: 'rgba(255,255,255,0.05)'}},
-          ticks: {{color:'#dd5050', callback: v => Number(v).toFixed(4)}},
-          title: {{display:true, text:'YTD Price', color:'#dd5050'}},
+          ticks: {{color:'#cc3344', callback: v => Number(v).toFixed(4)}},
+          title: {{display:true, text:'YTD Price', color:'#cc3344'}},
         }},
         yPct: {{
           position: 'right',
@@ -351,8 +352,8 @@ function render(pair) {{
         {{
           label: '10-Year Avg',
           data: avgArr,
-          backgroundColor: avgArr.map(v => v === null ? 'rgba(120,120,140,0.4)' : (v >= 0 ? 'rgba(57,116,230,0.85)' : 'rgba(221,80,80,0.85)')),
-          borderColor:     avgArr.map(v => v === null ? 'rgba(120,120,140,1)'   : (v >= 0 ? 'rgba(57,116,230,1)'    : 'rgba(221,80,80,1)')),
+          backgroundColor: avgArr.map(v => v === null ? 'rgba(120,120,140,0.4)' : (v >= 0 ? 'rgba(61,119,232,0.85)' : 'rgba(204,51,68,0.85)')),
+          borderColor:     avgArr.map(v => v === null ? 'rgba(120,120,140,1)'   : (v >= 0 ? 'rgba(61,119,232,1)'    : 'rgba(204,51,68,1)')),
           borderWidth: 0, borderRadius: 2, order: 2,
         }},
         {{
@@ -377,8 +378,8 @@ function render(pair) {{
         }},
       }},
       scales: {{
-        x: {{grid: {{color:'rgba(255,255,255,0.05)'}}, ticks: {{color:'#8893c0'}}}},
-        y: {{grid: {{color:'rgba(255,255,255,0.05)'}}, ticks: {{color:'#8893c0', callback: v => v + '%'}}}},
+        x: {{grid: {{color:'rgba(255,255,255,0.05)'}}, ticks: {{color:'#7e89b8'}}}},
+        y: {{grid: {{color:'rgba(255,255,255,0.05)'}}, ticks: {{color:'#7e89b8', callback: v => v + '%'}}}},
       }},
     }}
   }};

@@ -20,8 +20,8 @@
   th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
   td.num,th.num{text-align:right}
   tr:last-child td{border-bottom:none}
-  .delta-up{color:#ffaab4}    /* inflation rising = red (hawkish/cost pressure) */
-  .delta-dn{color:#aac4ff}    /* inflation falling = blue */
+  .delta-up{color:#ffb8c0}    /* inflation rising = red (hawkish/cost pressure) */
+  .delta-dn{color:#9fc0ff}    /* inflation falling = blue */
   .delta-flat{color:var(--muted)}
   .ccy-tag{font-weight:700}
 
@@ -112,9 +112,9 @@
       </div>
     </div>
     <div class="legend-row">
-      <div class="legend-item"><div class="legend-swatch" style="background:#3974e6cc"></div> CPI</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:#3d77e8cc"></div> CPI</div>
       <div class="legend-item"><div class="legend-line" style="background:#ff7b93"></div> CPI Forecast</div>
-      <div class="legend-item"><div class="legend-dash" style="border-color:#8893c0"></div> Target Inflation Rate</div>
+      <div class="legend-item"><div class="legend-dash" style="border-color:#7e89b8"></div> Target Inflation Rate</div>
     </div>
     <div class="chart-box hero"><canvas id="cpiIndicator"></canvas></div>
     <p class="note">Source: Investing.com. Forecast data from consensus estimates embedded in Investing.com economic calendar pages.</p>
@@ -160,12 +160,13 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>if(window.Chart){Chart.defaults.color='#7e89b8';Chart.defaults.font.family="'Inter',system-ui,sans-serif";Chart.defaults.borderColor='#262d54';}</script>
 <script>
 const DATA = __INFLATION_JSON__;
 
 // Distinct line colors per currency
 const CCY_COLORS = {
-  USD:'#3974e6', EUR:'#46c2a8', GBP:'#9b6fe6', JPY:'#dd5050',
+  USD:'#3d77e8', EUR:'#46c2a8', GBP:'#9b6fe6', JPY:'#cc3344',
   CHF:'#e6b34a', AUD:'#5ab0ff', CAD:'#e6724a', NZD:'#e056b8'
 };
 
@@ -186,7 +187,7 @@ function buildBars(canvasId, latest){
   entries.sort((a,b) => a.val - b.val);
   const labels = entries.map(e => e.ccy);
   const vals = entries.map(e => e.val);
-  const colors = entries.map(e => CCY_COLORS[e.ccy] || '#3974e6');
+  const colors = entries.map(e => CCY_COLORS[e.ccy] || '#3d77e8');
 
   new Chart(document.getElementById(canvasId), {
     type: 'bar',
@@ -208,7 +209,7 @@ function buildBars(canvasId, latest){
       },
       scales: {
         x: {ticks: {color: '#c4ccf0', font: {weight: '700'}}, grid: {display: false}},
-        y: {ticks: {color: '#8893c0', callback: v => v + '%'}, grid: {color: '#2a3060'}}
+        y: {ticks: {color: '#7e89b8', callback: v => v + '%'}, grid: {color: '#262d54'}}
       }
     }
   });
@@ -234,7 +235,7 @@ function buildTable(tableId, latest){
     html += '<td class="num">'+fmtPct(r.previous)+'</td>';
     html += '<td class="num">'+fmtPct(r.actual)+'</td>';
     html += '<td class="num '+cls+'">'+(change===null?'n/a':(arrow+' '+(change>0?'+':'')+change.toFixed(1)+'pp'))+'</td>';
-    html += '<td class="num" style="color:#8893c0">'+(r.date||'n/a')+'</td>';
+    html += '<td class="num" style="color:#7e89b8">'+(r.date||'n/a')+'</td>';
     html += '</tr>';
   }
   tbody.innerHTML = html;
@@ -260,7 +261,7 @@ function buildLine(canvasId, history){
     if(!series) continue;
     const map = {};
     for(const pt of series) map[pt.date] = pt.value;
-    const color = CCY_COLORS[ccy] || '#3974e6';
+    const color = CCY_COLORS[ccy] || '#3d77e8';
     const isQuarterly = QUARTERLY[ccy];
     datasets.push({
       label: ccy + (isQuarterly ? ' (Q)' : ''),
@@ -286,8 +287,8 @@ function buildLine(canvasId, history){
         tooltip: {callbacks: {label: ctx => ctx.dataset.label + ': ' + (ctx.parsed.y===null?'n/a':ctx.parsed.y.toFixed(2)+'%')}}
       },
       scales: {
-        x: {ticks: {color: '#8893c0', maxTicksLimit: 14, autoSkip: true}, grid: {color: '#1c2348'}},
-        y: {ticks: {color: '#8893c0', callback: v => v + '%'}, grid: {color: '#2a3060'}}
+        x: {ticks: {color: '#7e89b8', maxTicksLimit: 14, autoSkip: true}, grid: {color: '#1c2348'}},
+        y: {ticks: {color: '#7e89b8', callback: v => v + '%'}, grid: {color: '#262d54'}}
       }
     }
   });
@@ -344,7 +345,7 @@ function buildCpiIndicator(ccy, months){
       const {ctx: c} = chart;
       c.save();
       c.font = 'bold 11px sans-serif';
-      c.fillStyle = '#e8ecff';
+      c.fillStyle = '#e6ebff';
       c.textAlign = 'center';
       c.textBaseline = 'bottom';
       for(let i = 0; i < meta.data.length; i++){
@@ -367,7 +368,7 @@ function buildCpiIndicator(ccy, months){
       const yPx = yScale.getPixelForValue(target);
       const {ctx: c, chartArea: {left, right}} = chart;
       c.save();
-      c.strokeStyle = '#8893c0';
+      c.strokeStyle = '#7e89b8';
       c.lineWidth = 1.5;
       c.setLineDash([6, 4]);
       c.beginPath();
@@ -375,7 +376,7 @@ function buildCpiIndicator(ccy, months){
       c.lineTo(right, yPx);
       c.stroke();
       c.setLineDash([]);
-      c.fillStyle = '#8893c0';
+      c.fillStyle = '#7e89b8';
       c.font = '11px sans-serif';
       c.textBaseline = 'middle';
       c.fillText('Target Inflation Rate', left + 4, yPx - 10);
@@ -391,8 +392,8 @@ function buildCpiIndicator(ccy, months){
         {
           label: 'CPI',
           data: actuals,
-          backgroundColor: '#3974e6cc',
-          borderColor: '#3974e6',
+          backgroundColor: '#3d77e8cc',
+          borderColor: '#3d77e8',
           borderWidth: 1,
           borderRadius: 4,
           order: 2,
@@ -436,13 +437,13 @@ function buildCpiIndicator(ccy, months){
       },
       scales: {
         x: {
-          ticks: {color: '#8893c0', maxRotation: 45, font: {size: 11}},
+          ticks: {color: '#7e89b8', maxRotation: 45, font: {size: 11}},
           grid: {display: false}
         },
         y: {
           beginAtZero: true,
           grace: '12%',
-          ticks: {color: '#8893c0', callback: v => v.toFixed(1) + '%'},
+          ticks: {color: '#7e89b8', callback: v => v.toFixed(1) + '%'},
           grid: {color: '#1c2348'}
         }
       }
