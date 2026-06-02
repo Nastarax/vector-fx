@@ -11,6 +11,12 @@ permissions:
   pages: write
   id-token: write
 
+# Serialize runs so a scheduled refresh can't overlap a manual one. Don't
+# cancel an in-progress run (we don't want to interrupt a deploy mid-flight).
+concurrency:
+  group: refresh-deploy
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -51,8 +57,28 @@ jobs:
                   data/economic_heatmap.html data/inflation.html \
                   data/seasonality_yearly.html data/seasonality_monthly.html \
                   data/macro.html
-          git diff --cached --quiet || git commit -m "Hourly refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
-          git push
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Hourly refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
+          # A manual push (e.g. code changes) can land on main while this job
+          # runs, which would make a bare `git push` fail with "fetch first".
+          # Rebase our data-only commit on top of the new main, preferring our
+          # freshly generated outputs on any data-file conflict (-X theirs =
+          # the commit being replayed, i.e. ours), then retry a few times.
+          n=0
+          until git push; do
+            n=$((n + 1))
+            if [ "$n" -ge 5 ]; then
+              echo "Push still failing after $n attempts." >&2
+              exit 1
+            fi
+            echo "Push rejected; rebasing on latest main (attempt $n)..."
+            git fetch origin main
+            git rebase -X theirs origin/main || git rebase --abort
+            sleep $((RANDOM % 4 + 2))
+          done
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
