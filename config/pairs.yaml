@@ -133,5 +133,13 @@ pairs:
     quote: USD
     yf_ticker: "GC=F"
 
+  # Indices (1). Standalone instrument: empty quote means macro cells use the
+  # index's own scores directly (no base-quote diff), matching EdgeFinder's
+  # absolute index presentation.
+  - symbol: NIKKEI
+    base: NKY
+    quote: ""
+    yf_ticker: "^N225"
+
 # Currencies covered
 currencies: [USD, EUR, GBP, JPY, CHF, AUD, CAD, NZD, XAU]

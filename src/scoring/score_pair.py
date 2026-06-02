@@ -883,6 +883,29 @@ def build_currency_scores(
                             else:
                                 per_ccy[ccy]["jolts"] = 0
 
+            if ccy == "NKY":
+                # Nikkei 225: Japanese equity index. Risk-on mapping (a strong
+                # Japanese economy lifts the index), so growth, jobs and
+                # inflation reuse JPY's per-currency scores directly. Interest
+                # Rates uses the US 2Y yield (EdgeFinder's index rate input),
+                # inverted because rising yields are an equity headwind. US-only
+                # labour cells (NFP/ADP/JOLTS/Claims/PCE) stay blank, matching
+                # EdgeFinder's index row.
+                jpy = per_ccy.get("JPY", {})
+                for ind_id in ("gdp", "mpmi", "spmi", "retail_sales",
+                               "consumer_conf", "cpi", "ppi", "unemployment_rate"):
+                    per_ccy[ccy][ind_id] = jpy.get(ind_id)
+                if len(treasury_2y) >= 8:
+                    yields_asc = [o.value for o in reversed(treasury_2y)]
+                    sma8 = sum(yields_asc[-8:]) / 8
+                    latest_yield = yields_asc[-1]
+                    if latest_yield > sma8:
+                        per_ccy[ccy]["rates"] = -1
+                    elif latest_yield < sma8:
+                        per_ccy[ccy]["rates"] = 1
+                    else:
+                        per_ccy[ccy]["rates"] = 0
+
             cot_reading = cot_data.get(ccy)
             if cot_reading and not getattr(cot_reading, "is_stale", False):
                 per_ccy[ccy]["cot"] = cot_score_commodity(cot_reading)
@@ -930,6 +953,12 @@ def build_pair_rows(
         for ind_id in indicator_ids:
             if ind_id in pair_level:
                 continue
+            if not quote:
+                # Standalone instrument (e.g. an index with no quote currency):
+                # show the asset's own per-indicator score, not a base-quote diff.
+                s = per_ccy.get(base, {}).get(ind_id)
+                scores[ind_id] = max(-2, min(2, s)) if s is not None else 0
+                continue
             if ind_id == "cot" and base in COMMODITY_CCYS:
                 s = per_ccy.get(base, {}).get("cot")
                 scores[ind_id] = s if s is not None else 0
@@ -958,8 +987,13 @@ def build_pair_rows(
         df_4h = (prices_4h or {}).get(sym)
         scores["trend"] = trend_score(df, df_4h)
         scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date,
-                                                   commodity=base in COMMODITY_CCYS)
+                                                   commodity=base == "XAU")
         if base in COMMODITY_CCYS and cot_data:
+            # Non-FX assets (Gold, Nikkei) have no retail-broker sentiment feed,
+            # so crowd uses COT non-reportable positioning as a contrarian proxy
+            # (heavy retail long = bearish, heavy retail short = bullish). This
+            # gives the Nikkei a contrarian signal EdgeFinder's index row leaves
+            # neutral, by deliberate choice.
             scores["crowd"] = crowd_score_commodity(cot_data.get(base))
         else:
             scores["crowd"] = retail_score(retail_data.get(sym))
