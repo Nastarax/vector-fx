@@ -20,6 +20,7 @@ Output shape:
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import yaml
@@ -43,6 +44,31 @@ def load_indicators_cfg() -> dict:
 def load_pairs_cfg() -> dict:
     with open(CONFIG_DIR / "pairs.yaml") as f:
         return yaml.safe_load(f)
+
+
+def _dir(actual, benchmark, direction, deadband_pct: float = 0.0):
+    """Directional surprise score with an optional neutral deadband.
+
+    Returns +1 when `actual` beats `benchmark`, -1 when it misses, 0 when the
+    surprise falls inside the deadband. `deadband_pct` is a fraction of
+    |benchmark| that the surprise must exceed before the cell scores non-zero,
+    so marginal beats/misses round to neutral instead of always becoming +-1.
+    deadband_pct=0.0 reproduces the original strict-sign behaviour exactly.
+    Flipped at the end for down_is_bullish indicators.
+    """
+    if actual is None or benchmark is None:
+        return None
+    tol = deadband_pct * abs(benchmark)
+    diff = actual - benchmark
+    if diff > tol:
+        s = 1
+    elif diff < -tol:
+        s = -1
+    else:
+        s = 0
+    if direction == "down_is_bullish":
+        s = -s
+    return s
 
 
 def bias_label(total: int, thresholds: dict) -> str:
@@ -75,6 +101,7 @@ def build_currency_scores(
     rates_outlook: dict | None = None,
     investing_core: dict | None = None,
     treasury_2y: list | None = None,
+    surprise_deadband: float | None = None,
 ) -> dict:
     """
     Returns: per_ccy[currency][indicator_id] = int score (-2..+2) OR None
@@ -91,6 +118,18 @@ def build_currency_scores(
     Source of truth for mPMI when present; falls back to combined TE+FF data.
     """
     cfg = load_indicators_cfg()
+    # Neutral deadband for macro surprise scoring. Precedence: explicit arg >
+    # env var VECTOR_SURPRISE_DEADBAND > config key surprise_deadband_pct > 0.0.
+    # 0.0 = strict sign (original behaviour); e.g. 0.05 = require the beat/miss
+    # to exceed 5% of the benchmark before the cell scores +-1.
+    if surprise_deadband is not None:
+        db = float(surprise_deadband)
+    else:
+        env_db = os.environ.get("VECTOR_SURPRISE_DEADBAND")
+        if env_db not in (None, ""):
+            db = float(env_db)
+        else:
+            db = float(cfg.get("surprise_deadband_pct", 0.0) or 0.0)
     ff_history = ff_history or {}
     te_history = te_history or {}
     investing_mpmi = investing_mpmi or {}
@@ -130,15 +169,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # Retail sales:
@@ -156,15 +187,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
                 if ind_id == "retail_sales" and ccy == "AUD":
                     mhsi = abs_au_mhsi or {}
@@ -196,15 +219,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # Consumer Confidence:
@@ -221,15 +236,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # Consumer Confidence (non-USD): Actual vs PREVIOUS on the
@@ -278,15 +285,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
                 if ind_id == "ppi" and ccy in ("NZD", "GBP") and investing_ppi.get(ccy):
                     rel = investing_ppi[ccy]
@@ -297,15 +296,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
                 if ind_id == "ppi":
                     te_rels = te_history.get(key, [])
@@ -320,15 +311,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # NFP: US-only indicator. TE non-farm-payrolls.
@@ -351,15 +334,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # JOLTS (Job Openings): US-only monthly release.
@@ -382,15 +357,7 @@ def build_currency_scores(
                         if actual is None or benchmark is None:
                             per_ccy[ccy][ind_id] = None
                             continue
-                        if actual > benchmark:
-                            s = 1
-                        elif actual < benchmark:
-                            s = -1
-                        else:
-                            s = 0
-                        if direction == "down_is_bullish":
-                            s = -s
-                        per_ccy[ccy][ind_id] = s
+                        per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                         continue
                     te_rels = te_history.get(key, [])
                     if not te_rels:
@@ -404,15 +371,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # ADP Employment Change: US-only monthly release.
@@ -435,15 +394,7 @@ def build_currency_scores(
                         if actual is None or benchmark is None:
                             per_ccy[ccy][ind_id] = None
                             continue
-                        if actual > benchmark:
-                            s = 1
-                        elif actual < benchmark:
-                            s = -1
-                        else:
-                            s = 0
-                        if direction == "down_is_bullish":
-                            s = -s
-                        per_ccy[ccy][ind_id] = s
+                        per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                         continue
                     te_rels = te_history.get(key, [])
                     if not te_rels:
@@ -457,15 +408,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # Jobless Claims (Unemployment Claims): US-only weekly TE
@@ -489,15 +432,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # Unemployment Rate: TE unemployment-rate page for all 8
@@ -519,15 +454,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # PCE YoY: US-only indicator. TE pce-price-index-annual-change.
@@ -551,15 +478,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # CPI YoY: Investing.com per-currency Latest Release. Actual
@@ -576,15 +495,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # PMI (mpmi, spmi): EF uses CHANGE from previous to latest, not surprise.
@@ -609,15 +520,7 @@ def build_currency_scores(
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
-                    if actual > benchmark:
-                        s = 1
-                    elif actual < benchmark:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
                 if ind_id == "spmi" and investing_spmi.get(ccy):
                     rel = investing_spmi[ccy]

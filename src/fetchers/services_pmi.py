@@ -51,7 +51,11 @@ SPMI_INVESTING_URLS: dict[str, str] = {
     "AUD": "https://www.investing.com/economic-calendar/services-pmi-1839",       # S&P Global Australia Services PMI
     "JPY": "https://www.investing.com/economic-calendar/services-pmi-1912",       # S&P Global Japan Services PMI
     "CAD": "https://www.investing.com/economic-calendar/services-pmi-2265",       # Canada Services PMI
-    "CHF": "https://www.investing.com/economic-calendar/procure.ch-pmi-278",      # procure.ch PMI (CHF)
+    # NOTE: CHF is intentionally NOT here. procure.ch-pmi-278 is the Swiss
+    # MANUFACTURING PMI (already used as CHF mPMI in investing.MPMI_URLS).
+    # Pointing CHF services at the same page double-counted the manufacturing
+    # beat as a services beat and inflated CHF. CHF services is sourced from
+    # TradingEconomics below (its own Swiss Services PMI series).
 }
 
 # BusinessNZ PSI landing page. We scrape the landing page, find the latest
@@ -65,9 +69,12 @@ SPMI_BUSINESSNZ_URLS: dict[str, str] = {
 # Hook left in place in case we want to add a Myfxbook-sourced sPMI again.
 SPMI_MYFXBOOK_URLS: dict[str, str] = {}
 
-# TradingEconomics pages. Empty now that CHF moved to Investing and NZD moved
-# to Myfxbook. Kept as a hook in case we want to add TE-sourced sPMI in future.
-SPMI_TE_URLS: dict[str, str] = {}
+# TradingEconomics pages. CHF Swiss Services PMI lives here because Investing's
+# only Swiss procure.ch event (278) is the manufacturing PMI; TE carries the
+# distinct services series. Parsed from the page meta description.
+SPMI_TE_URLS: dict[str, str] = {
+    "CHF": "https://tradingeconomics.com/switzerland/services-pmi",
+}
 
 
 _TE_HEADERS = {
