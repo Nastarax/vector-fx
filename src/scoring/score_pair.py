@@ -33,7 +33,7 @@ from src.scoring.score_technical import seasonality_score, trend_score
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 
-DISPLAY_NAMES = {"XAUUSD": "Gold", "XAU": "Gold"}
+DISPLAY_NAMES = {"XAUUSD": "Gold", "XAU": "Gold", "PLATINUM": "Platinum", "XPT": "Platinum"}
 
 
 def load_indicators_cfg() -> dict:
@@ -906,6 +906,33 @@ def build_currency_scores(
                     else:
                         per_ccy[ccy]["rates"] = 0
 
+            if ccy == "XPT":
+                # Platinum: industrial precious metal (~40% auto-catalyst
+                # demand). Unlike Gold's safe-haven inversion, EdgeFinder scores
+                # platinum's real economy PRO-CYCLICALLY: a strong US economy is
+                # bullish, so growth + jobs mirror the USD currency cells
+                # un-inverted. Inflation is inverted and rates come from the 2Y
+                # yield (hot inflation / rising real yields lift the USD and
+                # weigh on the metal). Verified cell-for-cell against EdgeFinder.
+                usd = per_ccy.get("USD", {})
+                for ind_id in ("gdp", "mpmi", "spmi", "retail_sales",
+                               "consumer_conf", "nfp", "adp",
+                               "unemployment_rate", "jobless_claims", "jolts"):
+                    per_ccy[ccy][ind_id] = usd.get(ind_id)
+                for ind_id in ("cpi", "ppi", "pce"):
+                    v = usd.get(ind_id)
+                    per_ccy[ccy][ind_id] = (-v if v is not None else None)
+                if len(treasury_2y) >= 8:
+                    yields_asc = [o.value for o in reversed(treasury_2y)]
+                    sma8 = sum(yields_asc[-8:]) / 8
+                    latest_yield = yields_asc[-1]
+                    if latest_yield > sma8:
+                        per_ccy[ccy]["rates"] = -1
+                    elif latest_yield < sma8:
+                        per_ccy[ccy]["rates"] = 1
+                    else:
+                        per_ccy[ccy]["rates"] = 0
+
             cot_reading = cot_data.get(ccy)
             if cot_reading and not getattr(cot_reading, "is_stale", False):
                 per_ccy[ccy]["cot"] = cot_score_commodity(cot_reading)
@@ -988,12 +1015,16 @@ def build_pair_rows(
         scores["trend"] = trend_score(df, df_4h)
         scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date,
                                                    commodity=base == "XAU")
-        if base in COMMODITY_CCYS and cot_data:
+        if base == "XPT" and cot_data:
+            # Platinum: +-1 contrarian from COT non-reportable, matching
+            # EdgeFinder's metal crowd scale (Gold/Nikkei keep the +-2 commodity
+            # crowd below). Heavy retail long = bearish, heavy retail short = bullish.
+            r = cot_data.get(base)
+            lp = getattr(r, "retail_long_pct", 50.0) if r else 50.0
+            scores["crowd"] = -1 if lp >= 60 else (1 if lp <= 40 else 0)
+        elif base in COMMODITY_CCYS and cot_data:
             # Non-FX assets (Gold, Nikkei) have no retail-broker sentiment feed,
-            # so crowd uses COT non-reportable positioning as a contrarian proxy
-            # (heavy retail long = bearish, heavy retail short = bullish). This
-            # gives the Nikkei a contrarian signal EdgeFinder's index row leaves
-            # neutral, by deliberate choice.
+            # so crowd uses COT non-reportable positioning as a contrarian proxy.
             scores["crowd"] = crowd_score_commodity(cot_data.get(base))
         else:
             scores["crowd"] = retail_score(retail_data.get(sym))

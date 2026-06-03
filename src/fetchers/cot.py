@@ -43,12 +43,14 @@ CFTC_NAMES = {
     "CAD": "CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE",
     "NZD": "NZ DOLLAR - CHICAGO MERCANTILE EXCHANGE",
     "XAU": "GOLD - COMMODITY EXCHANGE INC.",
+    "XPT": "PLATINUM - NEW YORK MERCANTILE EXCHANGE",
     "NKY": "NIKKEI STOCK AVERAGE YEN DENOM - CHICAGO MERCANTILE EXCHANGE",
 }
 
 # Non-FX assets scored as standalone instruments (own COT, contrarian crowd from
-# non-reportable positioning, no base/quote macro diff). XAU = Gold, NKY = Nikkei 225.
-COMMODITY_CCYS = {"XAU", "NKY"}
+# non-reportable positioning, no base/quote macro diff). XAU = Gold,
+# XPT = Platinum, NKY = Nikkei 225.
+COMMODITY_CCYS = {"XAU", "XPT", "NKY"}
 
 
 @dataclass
