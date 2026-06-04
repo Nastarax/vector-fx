@@ -33,7 +33,8 @@ from src.scoring.score_technical import seasonality_score, trend_score
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 
-DISPLAY_NAMES = {"XAUUSD": "Gold", "XAU": "Gold", "PLATINUM": "Platinum", "XPT": "Platinum"}
+DISPLAY_NAMES = {"XAUUSD": "Gold", "XAU": "Gold", "PLATINUM": "Platinum", "XPT": "Platinum",
+                 "SILVER": "Silver", "XAG": "Silver"}
 
 
 def load_indicators_cfg() -> dict:
@@ -933,6 +934,31 @@ def build_currency_scores(
                     else:
                         per_ccy[ccy]["rates"] = 0
 
+            if ccy == "XAG":
+                # Silver: safe-haven precious metal (like Gold, unlike the
+                # industrial Platinum). EdgeFinder inverts ALL US macro: a strong
+                # economy, strong jobs and hot inflation are bearish silver; weak
+                # data is bullish. Rates from the 2Y yield (rising = hawkish =
+                # bearish metal). Verified cell-for-cell against EdgeFinder's
+                # silver Asset Scorecard.
+                usd = per_ccy.get("USD", {})
+                for ind_id in ("gdp", "mpmi", "spmi", "retail_sales",
+                               "consumer_conf", "cpi", "ppi", "pce", "nfp",
+                               "adp", "unemployment_rate", "jobless_claims",
+                               "jolts"):
+                    v = usd.get(ind_id)
+                    per_ccy[ccy][ind_id] = (-v if v is not None else None)
+                if len(treasury_2y) >= 8:
+                    yields_asc = [o.value for o in reversed(treasury_2y)]
+                    sma8 = sum(yields_asc[-8:]) / 8
+                    latest_yield = yields_asc[-1]
+                    if latest_yield > sma8:
+                        per_ccy[ccy]["rates"] = -1
+                    elif latest_yield < sma8:
+                        per_ccy[ccy]["rates"] = 1
+                    else:
+                        per_ccy[ccy]["rates"] = 0
+
             cot_reading = cot_data.get(ccy)
             if cot_reading and not getattr(cot_reading, "is_stale", False):
                 per_ccy[ccy]["cot"] = cot_score_commodity(cot_reading)
@@ -1015,8 +1041,8 @@ def build_pair_rows(
         scores["trend"] = trend_score(df, df_4h)
         scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date,
                                                    commodity=base == "XAU")
-        if base == "XPT" and cot_data:
-            # Platinum: +-1 contrarian from COT non-reportable, matching
+        if base in ("XPT", "XAG") and cot_data:
+            # Platinum/Silver: +-1 contrarian from COT non-reportable, matching
             # EdgeFinder's metal crowd scale (Gold/Nikkei keep the +-2 commodity
             # crowd below). Heavy retail long = bearish, heavy retail short = bullish.
             r = cot_data.get(base)

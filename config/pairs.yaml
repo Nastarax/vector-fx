@@ -141,12 +141,19 @@ pairs:
     quote: ""
     yf_ticker: "^N225"
 
-  # Platinum. Standalone precious-metal instrument (inverse-USD macro, same
-  # logic as Gold). Empty quote = absolute scores, matching EdgeFinder.
+  # Platinum. Industrial precious metal: pro-cyclical growth/jobs, inverted
+  # inflation/rates. Empty quote = absolute scores, matching EdgeFinder.
   - symbol: PLATINUM
     base: XPT
     quote: ""
     yf_ticker: "PL=F"
+
+  # Silver. Safe-haven precious metal (like Gold): inverts all US macro.
+  # Empty quote = absolute scores, matching EdgeFinder.
+  - symbol: SILVER
+    base: XAG
+    quote: ""
+    yf_ticker: "SI=F"
 
 # Currencies covered
 currencies: [USD, EUR, GBP, JPY, CHF, AUD, CAD, NZD, XAU]
