@@ -143,8 +143,8 @@
     <div class="card" id="score-chart-card" style="display:none">
       <div class="card-title">Score over time</div>
       <div style="position:relative;height:180px">
-        <span style="position:absolute;top:4px;left:4px;font-size:10px;font-weight:600;color:rgba(61,119,232,0.7);z-index:1">Bullish</span>
-        <span style="position:absolute;bottom:4px;left:4px;font-size:10px;font-weight:600;color:rgba(204,51,68,0.7);z-index:1">Bearish</span>
+        <span style="position:absolute;top:5px;left:7px;font-size:10px;font-weight:700;letter-spacing:.4px;color:#cdddff;z-index:2">Bullish</span>
+        <span style="position:absolute;bottom:5px;left:7px;font-size:10px;font-weight:700;letter-spacing:.4px;color:#ffc2ca;z-index:2">Bearish</span>
         <canvas id="scoreChart"></canvas>
       </div>
     </div>
@@ -298,10 +298,34 @@ function renderScoreChart(ccy){
     return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
   });
   const scores = hist.map(h => h.score);
-  const colors = scores.map(s => s >= 0 ? 'rgba(61,119,232,0.85)' : 'rgba(204,51,68,0.85)');
+  const BULL = 5, BEAR = -5;                                  // bias thresholds
+  const R = Math.max(6, ...scores.map(s => Math.abs(s))) + 1; // symmetric y-range
 
   const ctx = document.getElementById('scoreChart').getContext('2d');
   if(scoreChart) scoreChart.destroy();
+
+  // EdgeFinder-style static zones: a blue band above the bullish threshold and
+  // a red band below the bearish threshold, with the neutral middle left dark.
+  // The white bars show the score over time, so you can read at a glance when
+  // the asset was bullish, neutral, or bearish.
+  const biasZones = {
+    id: 'biasZones',
+    beforeDraw(chart){
+      const {ctx:c, chartArea:{left,right,top,bottom}, scales:{y}} = chart;
+      const yBull = y.getPixelForValue(BULL);
+      const yBear = y.getPixelForValue(BEAR);
+      const y0 = y.getPixelForValue(0);
+      c.save();
+      c.fillStyle = 'rgba(30,79,209,0.30)';
+      c.fillRect(left, top, right - left, Math.max(0, yBull - top));
+      c.fillStyle = 'rgba(204,51,68,0.30)';
+      c.fillRect(left, yBear, right - left, Math.max(0, bottom - yBear));
+      c.strokeStyle = 'rgba(230,235,255,0.18)';
+      c.lineWidth = 1;
+      c.beginPath(); c.moveTo(left, y0); c.lineTo(right, y0); c.stroke();
+      c.restore();
+    }
+  };
 
   scoreChart = new Chart(ctx, {
     type: 'bar',
@@ -309,21 +333,23 @@ function renderScoreChart(ccy){
       labels: labels,
       datasets: [{
         data: scores,
-        backgroundColor: colors,
+        backgroundColor: 'rgba(232,237,255,0.92)',
         borderWidth: 0,
-        borderRadius: 1,
-        barPercentage: 0.85,
+        borderRadius: 2,
+        barPercentage: 0.7,
+        categoryPercentage: 0.85,
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: {display: false}, tooltip: { callbacks: { label: c => 'Score: ' + c.parsed.y } } },
+      plugins: { legend: {display:false}, tooltip: { callbacks: { label: c => 'Score: ' + c.parsed.y } } },
       scales: {
-        x: { grid: {color:'rgba(255,255,255,0.05)'}, ticks: {color:'#7e89b8', maxRotation:50, font:{size:9}} },
-        y: { grid: {color:'rgba(255,255,255,0.08)'}, ticks: {color:'#7e89b8', stepSize:2} }
+        x: { grid: {display:false}, ticks: {color:'#7e89b8', maxRotation:50, font:{size:9}} },
+        y: { min: -R, max: R, grid: {display:false}, ticks: {display:false} }
       }
-    }
+    },
+    plugins: [biasZones]
   });
 }
 
