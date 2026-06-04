@@ -36,10 +36,10 @@
     "previous": 3.1
   },
   "CHF": {
-    "date": "2026-05-05",
+    "date": "2026-06-04",
     "actual": 0.6,
-    "forecast": null,
-    "previous": 0.3
+    "forecast": 0.8,
+    "previous": 0.6
   },
   "JPY": {
     "date": "2026-05-21",
