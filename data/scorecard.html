@@ -77,7 +77,7 @@
       <h1>Asset Scorecard</h1>
     </div>
   </div>
-  <div class="meta">Updated <b>2026-06-04 01:21 UTC</b></div>
+  <div class="meta">Updated <b>2026-06-04 02:16 UTC</b></div>
 </header>
 
 <nav class="topnav">
@@ -143,8 +143,6 @@
     <div class="card" id="score-chart-card" style="display:none">
       <div class="card-title">Score over time</div>
       <div style="position:relative;height:180px">
-        <span style="position:absolute;top:5px;left:7px;font-size:10px;font-weight:700;letter-spacing:.4px;color:#cdddff;z-index:2">Bullish</span>
-        <span style="position:absolute;bottom:5px;left:7px;font-size:10px;font-weight:700;letter-spacing:.4px;color:#ffc2ca;z-index:2">Bearish</span>
         <canvas id="scoreChart"></canvas>
       </div>
     </div>
@@ -323,6 +321,15 @@ function renderScoreChart(ccy){
       c.strokeStyle = 'rgba(230,235,255,0.18)';
       c.lineWidth = 1;
       c.beginPath(); c.moveTo(left, y0); c.lineTo(right, y0); c.stroke();
+      // Band labels drawn inside the chart area so they sit on the bands and
+      // never collide with the x-axis date ticks below the plot.
+      c.font = '700 10px Inter, system-ui, sans-serif';
+      c.textAlign = 'left';
+      c.textBaseline = 'middle';
+      c.fillStyle = '#cdddff';
+      c.fillText('Bullish', left + 8, (top + yBull) / 2);
+      c.fillStyle = '#ffc2ca';
+      c.fillText('Bearish', left + 8, (yBear + bottom) / 2);
       c.restore();
     }
   };
