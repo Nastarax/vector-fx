@@ -315,6 +315,7 @@ def main():
             investing_adp=investing_adp_data,
             myfxbook_ppi=myfxbook_ppi_data,
             investing_retail_sales=investing_retail_sales_data,
+            treasury_2y=treasury_2y,
         )
         econ_path = build_economic_heatmap.render(econ_data)
     except Exception as e:

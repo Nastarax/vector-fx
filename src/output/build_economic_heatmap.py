@@ -42,6 +42,82 @@ INDICATORS = [
     {"id": "jolts",             "label": "JOLTS Job Openings",  "direction": "up_is_bullish",   "stocks": "up_is_bullish",   "ccys": ["USD"]},
 ]
 
+# Metals score US macro releases, not their own (they have no domestic data).
+# Each metal reuses the USD economic rows and re-signs the currency-impact chip
+# per its EdgeFinder convention (see score_pair.build_currency_scores):
+#   Gold / Silver  - safe-haven: invert ALL US macro (strong economy = bearish).
+#   Platinum       - industrial / pro-cyclical: growth + jobs mirror USD,
+#                    inflation + rates inverted.
+# "_default" covers any indicator not listed explicitly.
+METALS = ("XAU", "XPT", "XAG")
+METAL_IMPACT = {
+    "XAU": {"_default": "invert"},
+    "XAG": {"_default": "invert"},
+    "XPT": {
+        "gdp": "mirror", "mpmi": "mirror", "spmi": "mirror",
+        "retail_sales": "mirror", "consumer_conf": "mirror",
+        "nfp": "mirror", "adp": "mirror", "unemployment_rate": "mirror",
+        "jobless_claims": "mirror", "jolts": "mirror",
+        "cpi": "invert", "ppi": "invert", "pce": "invert", "rates": "invert",
+        "_default": "invert",
+    },
+}
+
+
+def _flip(label: str) -> str:
+    """Flip a Bullish/Bearish impact chip; Neutral / n/a pass through."""
+    if label == "Bullish":
+        return "Bearish"
+    if label == "Bearish":
+        return "Bullish"
+    return label
+
+
+def _metal_row(usd_row: dict, ind_id: str, metal: str) -> dict:
+    """Re-sign a USD economic row for a metal. Data values (US release) are
+    shown unchanged; only the currency-impact chip flips when inverted."""
+    mode = METAL_IMPACT[metal].get(ind_id, METAL_IMPACT[metal]["_default"])
+    row = dict(usd_row)
+    if mode == "invert":
+        row["currency_impact"] = _flip(usd_row["currency_impact"])
+    return row
+
+
+def _metal_rates_row(treasury_2y, metal: str) -> dict:
+    """Interest Rate row for a metal, off the US 2Y Treasury yield vs its 8-day
+    SMA (rising yield = hawkish = bearish metal), matching score_pair. The yield
+    momentum is read up_is_bullish (rising = strong USD) then re-signed per the
+    metal's rates convention (all three invert)."""
+    actual = previous = None
+    date = ""
+    base = "n/a"
+    obs = list(treasury_2y or [])
+    if len(obs) >= 8:
+        yields_asc = [o.value for o in reversed(obs)]
+        sma8 = sum(yields_asc[-8:]) / 8
+        latest = yields_asc[-1]
+        actual = round(latest, 2)
+        previous = round(sma8, 2)
+        date = getattr(obs[0], "date", "") or ""
+        if latest > sma8:
+            base = "Bullish"
+        elif latest < sma8:
+            base = "Bearish"
+        else:
+            base = "Neutral"
+    mode = METAL_IMPACT[metal].get("rates", METAL_IMPACT[metal]["_default"])
+    impact = _flip(base) if mode == "invert" else base
+    return {
+        "indicator": "Interest Rate",
+        "date": date,
+        "surprise": _surprise_pct(actual, previous),
+        "actual": actual,
+        "forecast": None,
+        "previous": previous,
+        "currency_impact": impact,
+        "stocks_impact": "n/a",
+    }
+
 
 def _impact_label(actual, benchmark, direction: str) -> str:
     """Bullish / Bearish / Neutral based on direction logic."""
@@ -225,21 +301,39 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
               investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None,
               rates_outlook=None, investing_cc=None, investing_jolts=None,
               investing_adp=None, myfxbook_ppi=None,
-              investing_retail_sales=None) -> dict:
-    """Return {ccy: [row dicts]} for all currencies."""
+              investing_retail_sales=None, treasury_2y=None) -> dict:
+    """Return {ccy: [row dicts]} for all currencies plus the metals (XAU/XPT/XAG).
+
+    Metals have no domestic macro, so their rows are the USD release rows with
+    the currency-impact chip re-signed per the metal's convention. The metals
+    are not added to the economic-heatmap page dropdown (render() filters to the
+    fiat CURRENCIES); they exist for the Asset Scorecard's fundamentals tables.
+    """
     out: dict[str, list[dict]] = {}
+    metals_acc: dict[str, list[dict]] = {m: [] for m in METALS}
     for ccy in CURRENCIES:
         rows = []
         for ind in INDICATORS:
             ccys = ind["ccys"]
             if ccys != "all" and ccy not in ccys:
                 continue
-            rows.append(_build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
-                                   investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
-                                   investing_cc=investing_cc, investing_jolts=investing_jolts,
-                                   investing_adp=investing_adp, myfxbook_ppi=myfxbook_ppi,
-                                   investing_retail_sales=investing_retail_sales))
+            row = _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
+                             investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
+                             investing_cc=investing_cc, investing_jolts=investing_jolts,
+                             investing_adp=investing_adp, myfxbook_ppi=myfxbook_ppi,
+                             investing_retail_sales=investing_retail_sales)
+            rows.append(row)
+            # USD carries every indicator (incl. US-only labour rows), so derive
+            # the metal rows from it. Rates is special: metals score it off the
+            # 2Y Treasury yield, not the rate outlook.
+            if ccy == "USD":
+                for m in METALS:
+                    if ind["id"] == "rates":
+                        metals_acc[m].append(_metal_rates_row(treasury_2y, m))
+                    else:
+                        metals_acc[m].append(_metal_row(row, ind["id"], m))
         out[ccy] = rows
+    out.update(metals_acc)
     return out
 
 
