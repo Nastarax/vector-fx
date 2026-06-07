@@ -154,7 +154,8 @@ def _get_latest_te(te_history, ccy, ind_id):
 def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
                investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
                investing_cc=None, investing_jolts=None, investing_adp=None,
-               myfxbook_ppi=None, investing_retail_sales=None):
+               investing_pce=None, myfxbook_ppi=None,
+               investing_retail_sales=None):
     """Return the row dict for one (currency, indicator) pair."""
     ind_id = ind["id"]
     direction = ind["direction"]
@@ -266,6 +267,14 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
         previous = rel.get("previous")
         date = rel.get("date") or ""
 
+    # PCE: Investing Core PCE Price Index YoY for USD (Actual vs Forecast)
+    elif ind_id == "pce" and ccy == "USD" and (investing_pce or {}).get("USD"):
+        rel = investing_pce["USD"]
+        actual = rel.get("actual")
+        forecast = rel.get("forecast")
+        previous = rel.get("previous")
+        date = rel.get("date") or ""
+
     # Everything else: TE history with consensus -> forecast fallback
     else:
         rel = _get_latest_te(te_history, ccy, ind_id)
@@ -300,7 +309,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
 def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
               investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None,
               rates_outlook=None, investing_cc=None, investing_jolts=None,
-              investing_adp=None, myfxbook_ppi=None,
+              investing_adp=None, investing_pce=None, myfxbook_ppi=None,
               investing_retail_sales=None, treasury_2y=None) -> dict:
     """Return {ccy: [row dicts]} for all currencies plus the metals (XAU/XPT/XAG).
 
@@ -320,7 +329,8 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
             row = _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
                              investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
                              investing_cc=investing_cc, investing_jolts=investing_jolts,
-                             investing_adp=investing_adp, myfxbook_ppi=myfxbook_ppi,
+                             investing_adp=investing_adp, investing_pce=investing_pce,
+                             myfxbook_ppi=myfxbook_ppi,
                              investing_retail_sales=investing_retail_sales)
             rows.append(row)
             # USD carries every indicator (incl. US-only labour rows), so derive

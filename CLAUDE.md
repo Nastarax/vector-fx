@@ -38,7 +38,7 @@ python scripts\refresh_investing.py jolts adp         # just JOLTS + ADP
 python scripts\refresh_investing.py cc                # just US Consumer Confidence
 ```
 
-Targets: `mpmi, spmi, cpi, cpi_history, ppi, cc, jolts, adp, mfx_ppi, cad_retail`.
+Targets: `mpmi, spmi, cpi, cpi_history, ppi, cc, jolts, adp, pce, mfx_ppi, cad_retail, core`.
 No args = all, in that order. It prints a tailored `git add` line for only what was
 refreshed.
 
@@ -65,7 +65,9 @@ PPI YoY:              CHF = Myfxbook Producer & Import Prices YoY (Actual vs Con
                       NZD = Investing PPI Output (id 247, Actual vs Forecast);
                       other 4 (USD/EUR/JPY/CAD) = TE (Actual vs Consensus,
                       fallback TEForecast).
-PCE / NFP / Jobless Claims: TE, US-only
+PCE YoY:              USD = Investing Core PCE Price Index YoY (id 905, Actual vs
+                      Forecast, fallback Previous); fallback TE. US-only.
+NFP / Jobless Claims: TE, US-only
 ADP:                  Investing ADP Nonfarm Employment Change (id 1), Actual vs Forecast, US-only
 JOLTS:                Investing JOLTS Job Openings (id 1057), Actual vs Forecast, US-only
 Interest Rates:       TE rate outlook (TEForecast vs current)

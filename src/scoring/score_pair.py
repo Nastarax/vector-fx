@@ -98,6 +98,7 @@ def build_currency_scores(
     investing_cc: dict | None = None,
     investing_jolts: dict | None = None,
     investing_adp: dict | None = None,
+    investing_pce: dict | None = None,
     investing_retail_sales: dict | None = None,
     rates_outlook: dict | None = None,
     investing_core: dict | None = None,
@@ -141,6 +142,7 @@ def build_currency_scores(
     investing_cc = investing_cc or {}
     investing_jolts = investing_jolts or {}
     investing_adp = investing_adp or {}
+    investing_pce = investing_pce or {}
     investing_retail_sales = investing_retail_sales or {}
     rates_outlook = rates_outlook or {}
     investing_core = investing_core or {}
@@ -458,14 +460,26 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
-                # PCE YoY: US-only indicator. TE pce-price-index-annual-change.
-                # Score USD: Actual vs Consensus (priority), fall back to
-                # TEForecast. Non-USD currencies get 0 (neutral) so USD
-                # pairs reflect USD's PCE direction in the diff while
+                # PCE YoY: US-only indicator. USD = Investing Core PCE Price
+                # Index YoY (id 905), Actual vs Forecast (fallback Previous);
+                # falls back to TE pce-price-index-annual-change if the
+                # Investing cache is empty. Non-USD currencies get 0 (neutral)
+                # so USD pairs reflect USD's PCE direction in the diff while
                 # non-USD-only pairs (e.g., EURGBP) show 0 as expected.
                 if ind_id == "pce":
                     if ccy != "USD":
                         per_ccy[ccy][ind_id] = 0
+                        continue
+                    if investing_pce.get("USD"):
+                        rel = investing_pce["USD"]
+                        actual = rel.get("actual")
+                        benchmark = rel.get("forecast")
+                        if benchmark is None:
+                            benchmark = rel.get("previous")
+                        if actual is None or benchmark is None:
+                            per_ccy[ccy][ind_id] = None
+                            continue
+                        per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                         continue
                     te_rels = te_history.get(key, [])
                     if not te_rels:
@@ -753,14 +767,23 @@ def build_currency_scores(
                             s += 1
                     per_ccy[ccy]["ppi"] = s
 
-                # PCE: change (actual vs forecast) + location.
+                # PCE: change (actual vs forecast) + location. USD = Investing
+                # Core PCE Price Index YoY (fallback TE) so the gold cell tracks
+                # the same source as the USD currency row.
+                us_pce = investing_pce.get("USD")
                 us_pce_rels = te_history.get("USD|pce", [])
-                if us_pce_rels:
-                    latest_pce = sorted(us_pce_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
-                    pce_actual = latest_pce.get("actual")
-                    pce_bench = latest_pce.get("consensus")
-                    if pce_bench is None:
-                        pce_bench = latest_pce.get("forecast")
+                if us_pce or us_pce_rels:
+                    if us_pce:
+                        pce_actual = us_pce.get("actual")
+                        pce_bench = us_pce.get("forecast")
+                        if pce_bench is None:
+                            pce_bench = us_pce.get("previous")
+                    else:
+                        latest_pce = sorted(us_pce_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                        pce_actual = latest_pce.get("actual")
+                        pce_bench = latest_pce.get("consensus")
+                        if pce_bench is None:
+                            pce_bench = latest_pce.get("forecast")
                     s = 0
                     if pce_actual is not None and pce_bench is not None:
                         if pce_actual > pce_bench:
@@ -1149,7 +1172,7 @@ def build_currency_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, myfxbook_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, investing_retail_sales=None, rates_outlook=None, investing_core=None, treasury_2y=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, myfxbook_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, investing_pce=None, investing_retail_sales=None, rates_outlook=None, investing_core=None, treasury_2y=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -1158,7 +1181,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, myfxbook_ppi=myfxbook_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, investing_retail_sales=investing_retail_sales, rates_outlook=rates_outlook, investing_core=investing_core, treasury_2y=treasury_2y)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, myfxbook_ppi=myfxbook_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, investing_pce=investing_pce, investing_retail_sales=investing_retail_sales, rates_outlook=rates_outlook, investing_core=investing_core, treasury_2y=treasury_2y)
     pair_rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)
     for r in pair_rows:
         r["is_currency"] = False
@@ -1190,6 +1213,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         investing_cc=investing_cc,
         investing_jolts=investing_jolts,
         investing_adp=investing_adp,
+        investing_pce=investing_pce,
         myfxbook_ppi=myfxbook_ppi,
         investing_retail_sales=investing_retail_sales,
         as_of_date=as_of_date,
@@ -1217,6 +1241,7 @@ _MAX_AGE_DAYS = {
     "Consumer Confidence": 40,  # USD only (Investing CB Consumer Confidence), monthly
     "JOLTS": 75,     # USD only (Investing JOLTS Job Openings), monthly but ~6wk lag
     "ADP":   40,     # USD only (Investing ADP Employment Change), monthly
+    "PCE YoY": 45,   # USD only (Investing Core PCE Price Index YoY), monthly
 }
 _QUARTERLY_CPI_CCYS = {"AUD", "NZD"}
 _MAX_AGE_CPI_QUARTERLY = 110
@@ -1225,7 +1250,8 @@ _MAX_AGE_CPI_QUARTERLY = 110
 def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
                             investing_mpmi, investing_spmi, as_of_date,
                             investing_cc=None, investing_jolts=None,
-                            investing_adp=None, myfxbook_ppi=None,
+                            investing_adp=None, investing_pce=None,
+                            myfxbook_ppi=None,
                             investing_retail_sales=None) -> list:
     """
     Return a flat list of stale data entries across COT + Investing-sourced
@@ -1298,6 +1324,10 @@ def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
     # ADP (Investing): USD only, monthly.
     for ccy, reading in (investing_adp or {}).items():
         _check("ADP", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["ADP"])
+
+    # PCE YoY (Investing): USD only, monthly.
+    for ccy, reading in (investing_pce or {}).items():
+        _check("PCE YoY", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["PCE YoY"])
 
     # PPI YoY (Myfxbook): CHF only, monthly.
     for ccy, reading in (myfxbook_ppi or {}).items():

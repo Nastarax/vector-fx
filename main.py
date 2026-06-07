@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_jolts, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
+from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_jolts, investing_pce, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
 from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_macro, build_scorecard, build_seasonality
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 from src.scoring import score_history
@@ -138,6 +138,12 @@ def main():
             c: r for c, r in cached_adp.items()
             if r.get("date") and r["date"] <= args.date
         }
+        # US PCE (Investing Core PCE YoY) cache: same filter
+        cached_pce = investing_pce.load_cached()
+        investing_pce_data = {
+            c: r for c, r in cached_pce.items()
+            if r.get("date") and r["date"] <= args.date
+        }
         # CHF PPI (Myfxbook) cache: same date filter as the other sources.
         cached_chf_ppi = myfxbook_ppi.load_cached()
         myfxbook_ppi_data = {
@@ -249,6 +255,15 @@ def main():
         else:
             print("[adp] no US ADP cache - run scripts/refresh_investing.py to populate")
 
+        # US PCE cache (Investing Core PCE Price Index YoY, id 905). USD only;
+        # other currencies stay neutral, TE is the fallback. Refreshed by
+        # refresh_investing.py.
+        investing_pce_data = investing_pce.load_cached()
+        if investing_pce_data:
+            print(f"[pce] using cached US Core PCE: {len(investing_pce_data)} currencies")
+        else:
+            print("[pce] no US PCE cache - run scripts/refresh_investing.py pce to populate")
+
         # Myfxbook PPI cache (CHF + AUD). NZD stays on Investing, the rest on TE.
         # Refreshed by refresh_investing.py.
         myfxbook_ppi_data = myfxbook_ppi.load_cached()
@@ -277,7 +292,7 @@ def main():
         abs_au_mhsi = abs_au.fetch_mhsi()
 
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, investing_retail_sales=investing_retail_sales_data, rates_outlook=rates_outlook, investing_core=investing_core_data, treasury_2y=treasury_2y)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, investing_pce=investing_pce_data, investing_retail_sales=investing_retail_sales_data, rates_outlook=rates_outlook, investing_core=investing_core_data, treasury_2y=treasury_2y)
     out_path = build_heatmap.render(heatmap)
 
     # COT dashboard: fetch 52w of weekly history (separate from the 4w used
@@ -313,6 +328,7 @@ def main():
             investing_cc=investing_cc_data,
             investing_jolts=investing_jolts_data,
             investing_adp=investing_adp_data,
+            investing_pce=investing_pce_data,
             myfxbook_ppi=myfxbook_ppi_data,
             investing_retail_sales=investing_retail_sales_data,
             treasury_2y=treasury_2y,

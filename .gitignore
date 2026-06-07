@@ -61,3 +61,6 @@ data/cache/*.pkl
 # Daily score history for scorecard "Score over time" chart.
 !data/cache/score_history.json
 scripts/.last_refresh
+
+# Claude Code harness artifacts
+.claude/
