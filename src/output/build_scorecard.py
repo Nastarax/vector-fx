@@ -22,8 +22,8 @@ from pathlib import Path
 
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
-CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD", "XAU", "NKY", "XPT", "XAG")
-DISPLAY_NAMES = {"XAU": "Gold", "NKY": "Nikkei 225", "XPT": "Platinum", "XAG": "Silver"}
+CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD", "XAU", "NKY", "NDX", "XPT", "XAG")
+DISPLAY_NAMES = {"XAU": "Gold", "NKY": "Nikkei 225", "NDX": "NASDAQ", "XPT": "Platinum", "XAG": "Silver"}
 
 # Sub-section bias thresholds. Range varies by section, so we threshold on
 # a fraction of the theoretical max-abs score for that section.

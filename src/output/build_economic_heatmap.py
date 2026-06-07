@@ -64,6 +64,13 @@ METAL_IMPACT = {
 }
 
 
+# Stock indices score US macro releases too, but with the EdgeFinder "stocks"
+# direction (growth + jobs up_is_bullish, inflation + rates down_is_bullish), and
+# their Interest Rate cell comes from the US 2Y yield, not the rate outlook. The
+# index "currency impact" chip IS the stocks impact already computed per row.
+INDICES = ("NDX",)
+
+
 def _flip(label: str) -> str:
     """Flip a Bullish/Bearish impact chip; Neutral / n/a pass through."""
     if label == "Bullish":
@@ -116,6 +123,50 @@ def _metal_rates_row(treasury_2y, metal: str) -> dict:
         "previous": previous,
         "currency_impact": impact,
         "stocks_impact": "n/a",
+    }
+
+
+def _index_row(usd_row: dict, ind_id: str) -> dict:
+    """Re-cast a USD economic row for a stock index: the index's currency-impact
+    chip is the USD row's stocks impact (growth/jobs un-inverted, inflation
+    inverted). Data values (the US release) are shown unchanged."""
+    row = dict(usd_row)
+    row["currency_impact"] = usd_row.get("stocks_impact", "n/a")
+    row["ind_id"] = ind_id
+    return row
+
+
+def _index_rates_row(treasury_2y) -> dict:
+    """Interest Rate row for a stock index: the US 2Y Treasury yield vs its
+    21-day SMA. Rising yield = hawkish = bearish equities (inverted), matching
+    EdgeFinder's "2 Yr Yield (21 day SMA)" index cell."""
+    actual = previous = None
+    date = ""
+    impact = "n/a"
+    obs = list(treasury_2y or [])
+    if len(obs) >= 21:
+        yields_asc = [o.value for o in reversed(obs)]
+        sma21 = sum(yields_asc[-21:]) / 21
+        latest = yields_asc[-1]
+        actual = round(latest, 2)
+        previous = round(sma21, 2)
+        date = getattr(obs[0], "date", "") or ""
+        if latest > sma21:
+            impact = "Bearish"
+        elif latest < sma21:
+            impact = "Bullish"
+        else:
+            impact = "Neutral"
+    return {
+        "indicator": "2 Yr Yield (21 day SMA)",
+        "date": date,
+        "surprise": None,
+        "actual": actual,
+        "forecast": None,
+        "previous": previous,
+        "currency_impact": impact,
+        "stocks_impact": impact,
+        "ind_id": "rates",
     }
 
 
@@ -320,6 +371,7 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
     """
     out: dict[str, list[dict]] = {}
     metals_acc: dict[str, list[dict]] = {m: [] for m in METALS}
+    indices_acc: dict[str, list[dict]] = {idx: [] for idx in INDICES}
     for ccy in CURRENCIES:
         rows = []
         for ind in INDICATORS:
@@ -342,8 +394,16 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
                         metals_acc[m].append(_metal_rates_row(treasury_2y, m))
                     else:
                         metals_acc[m].append(_metal_row(row, ind["id"], m))
+                # Stock indices: same US rows, re-signed to the stocks direction;
+                # rates comes from the US 2Y yield (21-day SMA) not the outlook.
+                for idx in INDICES:
+                    if ind["id"] == "rates":
+                        indices_acc[idx].append(_index_rates_row(treasury_2y))
+                    else:
+                        indices_acc[idx].append(_index_row(row, ind["id"]))
         out[ccy] = rows
     out.update(metals_acc)
+    out.update(indices_acc)
     return out
 
 

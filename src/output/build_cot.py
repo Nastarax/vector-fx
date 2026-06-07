@@ -34,7 +34,7 @@ def render(cot_data: dict, cot_history: dict | None = None, output_path: Path | 
     # (currencies only). They remain available in the Tool 2 history dropdown.
     # Sourced from the canonical set so new instruments stay in sync.
     from src.fetchers.cot import COMMODITY_CCYS
-    DISPLAY_NAMES = {"XAU": "Gold", "NKY": "Nikkei 225"}
+    DISPLAY_NAMES = {"XAU": "Gold", "NKY": "Nikkei 225", "NDX": "NASDAQ"}
 
     # Latest report rows for Tool 1 (currencies only, no commodities)
     latest = []

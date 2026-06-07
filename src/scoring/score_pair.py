@@ -942,6 +942,36 @@ def build_currency_scores(
                     else:
                         per_ccy[ccy]["rates"] = 0
 
+            if ccy == "NDX":
+                # NASDAQ-100: US equity index. Risk-on mapping driven entirely
+                # by US macro (unlike the Nikkei, whose labour cells stay blank):
+                # growth + jobs mirror the USD currency cells un-inverted (strong
+                # US economy = bullish index); inflation (CPI/PPI/PCE) is inverted
+                # (hot inflation = Fed-hike fear = bearish equities). Interest
+                # Rates uses the US 2Y yield vs its 21-day SMA, inverted (rising
+                # yields = equity headwind) - the "2 Yr Yield (21 day SMA)" cell
+                # EdgeFinder shows for indices. Verified against EdgeFinder's
+                # NASDAQ Asset Scorecard (Fundamentals +1: growth +2, inflation
+                # -3, jobs +2).
+                usd = per_ccy.get("USD", {})
+                for ind_id in ("gdp", "mpmi", "spmi", "retail_sales",
+                               "consumer_conf", "nfp", "adp",
+                               "unemployment_rate", "jobless_claims", "jolts"):
+                    per_ccy[ccy][ind_id] = usd.get(ind_id)
+                for ind_id in ("cpi", "ppi", "pce"):
+                    v = usd.get(ind_id)
+                    per_ccy[ccy][ind_id] = (-v if v is not None else None)
+                if len(treasury_2y) >= 21:
+                    yields_asc = [o.value for o in reversed(treasury_2y)]
+                    sma21 = sum(yields_asc[-21:]) / 21
+                    latest_yield = yields_asc[-1]
+                    if latest_yield > sma21:
+                        per_ccy[ccy]["rates"] = -1
+                    elif latest_yield < sma21:
+                        per_ccy[ccy]["rates"] = 1
+                    else:
+                        per_ccy[ccy]["rates"] = 0
+
             if ccy == "XPT":
                 # Platinum: industrial precious metal (~40% auto-catalyst
                 # demand). Unlike Gold's safe-haven inversion, EdgeFinder scores

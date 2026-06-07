@@ -74,6 +74,22 @@ Interest Rates:       TE rate outlook (TEForecast vs current)
 Unemployment Rate:    TE all 8 (down_is_bullish)
 ```
 
+## Indices (standalone instruments, base ccy + empty quote)
+
+- **NIKKEI** (`NKY`, yfinance `^N225`): Japanese equity index. Growth/jobs/inflation
+  reuse JPY's per-currency cells (risk-on); US-only labour cells left blank; rates =
+  US 2Y yield vs 8-day SMA, inverted. COT = CME "NIKKEI STOCK AVERAGE YEN DENOM".
+- **NASDAQ** (`NDX`, yfinance `^NDX`): US equity index (NASDAQ-100). Risk-on US-macro
+  mapping verified against EdgeFinder's NASDAQ Asset Scorecard: growth + jobs (incl.
+  the US-only labour cells NFP/ADP/JOLTS/Claims/Unemployment) **mirror USD un-inverted**;
+  inflation (CPI/PPI/PCE) **inverted** (hot inflation = bearish equities); rates = US 2Y
+  yield vs **21-day** SMA, inverted (EdgeFinder's "2 Yr Yield (21 day SMA)" cell). COT =
+  CME "NASDAQ MINI" (E-mini Nasdaq-100) Legacy report; crowd = CFTC non-reportable
+  contrarian proxy. Scoring block in `build_currency_scores` (COMMODITY_CCYS loop);
+  scorecard fundamentals rows in `build_economic_heatmap.build_all` via `_index_row` /
+  `_index_rates_row` (reusing each USD row's `stocks_impact`). NB: NASDAQ uses a 21-day
+  yield SMA per EdgeFinder's NASDAQ card; the Nikkei still uses 8-day.
+
 ## Recent changes (committed)
 
 1. **CPI Indicator chart** on the Inflation page (`inflation_template.html`,

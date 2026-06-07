@@ -133,13 +133,20 @@ pairs:
     quote: USD
     yf_ticker: "GC=F"
 
-  # Indices (1). Standalone instrument: empty quote means macro cells use the
+  # Indices (2). Standalone instruments: empty quote means macro cells use the
   # index's own scores directly (no base-quote diff), matching EdgeFinder's
   # absolute index presentation.
   - symbol: NIKKEI
     base: NKY
     quote: ""
     yf_ticker: "^N225"
+  # NASDAQ-100 (US equity index). Risk-on US-macro mapping: growth + jobs mirror
+  # USD un-inverted, inflation inverted, rates from the US 2Y yield. COT from the
+  # CME "NASDAQ MINI" (E-mini Nasdaq-100) Legacy report. yfinance ^NDX = cash index.
+  - symbol: NASDAQ
+    base: NDX
+    quote: ""
+    yf_ticker: "^NDX"
 
   # Platinum. Industrial precious metal: pro-cyclical growth/jobs, inverted
   # inflation/rates. Empty quote = absolute scores, matching EdgeFinder.
