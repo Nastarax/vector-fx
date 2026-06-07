@@ -2,14 +2,17 @@
 Services PMI (sPMI) fetcher.
 
 Data sources by currency:
-  - USD, EUR, GBP, AUD, JPY, CAD: Investing.com  (momentum scoring: Actual vs Previous)
-  - CHF: Investing.com procure.ch PMI page       (Actual vs Forecast scoring)
-  - NZD: BusinessNZ official PSI page            (Actual vs Previous scoring, no forecast)
+  - USD: Investing.com ISM Non-Manufacturing PMI (id 176)  (Actual vs Forecast scoring)
+  - EUR, GBP, AUD, JPY, CAD: Investing.com               (momentum scoring: Actual vs Previous)
+  - CHF: Investing.com procure.ch PMI page               (Actual vs Forecast scoring)
+  - NZD: BusinessNZ official PSI page                    (Actual vs Previous scoring, no forecast)
 
-CHF uses Actual vs Forecast (forecast available); NZD falls back to Actual vs
-Previous because BusinessNZ doesn't publish a consensus forecast. Scoring
-branch in score_pair.py already handles the fallback (forecast -> previous).
-The other 6 keep the standard Investing.com momentum methodology used for mPMI.
+USD uses the ISM Non-Manufacturing (Services) PMI scored Actual vs Forecast
+(the headline US services release, what EdgeFinder tracks). CHF uses Actual vs
+Forecast too. NZD falls back to Actual vs Previous because BusinessNZ doesn't
+publish a consensus forecast. The scoring branch in score_pair.py handles the
+fallback (forecast -> previous). The other 5 (EUR/GBP/AUD/JPY/CAD) keep the
+standard Investing.com momentum methodology used for mPMI.
 
 The cache lives at data/cache/spmi.json (separate from mPMI's investing_pmi.json).
 Refresh runs locally via scripts/refresh_investing.py because Investing.com
@@ -45,7 +48,7 @@ CACHE_FILE = CACHE_DIR / "spmi.json"
 
 # Investing.com Services PMI page URLs.
 SPMI_INVESTING_URLS: dict[str, str] = {
-    "USD": "https://www.investing.com/economic-calendar/united-states-services-purchasing-managers-index-(pmi)-1062",
+    "USD": "https://www.investing.com/economic-calendar/ism-non-manufacturing-pmi-176",  # ISM Non-Manufacturing (Services) PMI, scored Actual vs Forecast
     "EUR": "https://www.investing.com/economic-calendar/european-services-purchasing-managers-index-(pmi)-272",
     "GBP": "https://www.investing.com/economic-calendar/united-kingdom-services-purchasing-managers-index-(pmi)-274",
     "AUD": "https://www.investing.com/economic-calendar/services-pmi-1839",       # S&P Global Australia Services PMI

@@ -507,12 +507,14 @@ def build_currency_scores(
                     rel = investing_mpmi[ccy]
                     per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
                     continue
-                # sPMI special case: CHF (procure.ch) and NZD (BusinessNZ PSI)
-                # score Actual vs Forecast (priority), fall back to Previous.
+                # sPMI special case: USD (ISM Non-Manufacturing), CHF
+                # (procure.ch) and NZD (BusinessNZ PSI) score Actual vs Forecast
+                # (priority), fall back to Previous. USD uses the ISM
+                # Non-Manufacturing PMI, which publishes a consensus forecast.
                 # BusinessNZ doesn't publish a consensus forecast for NZD, so
                 # NZD always uses the Previous fallback in practice.
-                # The other 6 currencies keep the standard momentum approach.
-                if ind_id == "spmi" and ccy in ("CHF", "NZD") and investing_spmi.get(ccy):
+                # The other 5 currencies keep the standard momentum approach.
+                if ind_id == "spmi" and ccy in ("USD", "CHF", "NZD") and investing_spmi.get(ccy):
                     rel = investing_spmi[ccy]
                     actual = rel.get("actual")
                     benchmark = rel.get("forecast")
@@ -672,11 +674,21 @@ def build_currency_scores(
                 if us_mpmi:
                     s = momentum_score([us_mpmi])
                     per_ccy[ccy]["mpmi"] = -s
-                # sPMI: US services PMI, momentum (Actual vs Previous), inverted.
+                # sPMI: US ISM Non-Manufacturing PMI, Actual vs Forecast
+                # (fallback Previous), inverted for the safe-haven mapping.
                 us_spmi = investing_spmi.get("USD")
                 if us_spmi:
-                    s = momentum_score([us_spmi])
-                    per_ccy[ccy]["spmi"] = -s
+                    actual = us_spmi.get("actual")
+                    benchmark = us_spmi.get("forecast")
+                    if benchmark is None:
+                        benchmark = us_spmi.get("previous")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["spmi"] = -1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["spmi"] = 1
+                        else:
+                            per_ccy[ccy]["spmi"] = 0
 
                 # CPI: change (headline + core vs forecast) + location.
                 us_cpi = investing_cpi.get("USD")

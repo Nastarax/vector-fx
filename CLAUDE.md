@@ -50,7 +50,9 @@ COT:                  CFTC Socrata API (Legacy Non-Commercial)
 Crowd Sentiment:      Myfxbook + Forexbenchmark (averaged)
 GDP:                  TE (Actual vs Consensus, fallback TEForecast)
 mPMI:                 Investing per-currency, momentum (Actual vs Previous)
-sPMI:                 Investing 6 ccy + Investing procure.ch (CHF) + BusinessNZ direct (NZD)
+sPMI:                 USD = Investing ISM Non-Manufacturing PMI (id 176, Actual vs Forecast);
+                      EUR/GBP/AUD/JPY/CAD = Investing momentum (Actual vs Previous);
+                      CHF = TE Swiss Services PMI; NZD = BusinessNZ PSI direct
 Retail Sales:         CAD = Investing Retail Sales MoM (id 260, Actual vs Forecast);
                       AUD = ABS MHSI; other 6 = TE (Actual vs Consensus)
 Consumer Conf:        USD = Investing CB Consumer Confidence (Actual vs Forecast);
