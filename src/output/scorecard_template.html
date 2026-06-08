@@ -269,11 +269,21 @@ function renderTechnicalSentiment(scData){
   html += '</div>';
   // Header for cot detail columns (4 numeric headers to match the 4 numeric data cells)
   html += '<div class="cot-grid"><span class="ind-name"></span><span></span><span class="head-num">Long %</span><span class="head-num">Short %</span><span class="head-num"></span><span class="head-num">Change %</span></div>';
+  // Two component rows matching EdgeFinder: Net Positioning (long vs short
+  // balance, Long%/Short%) and Latest Buys/Sells (week-over-week Long% change).
   html += '<div class="row">';
   html += '<span class="ind-name">COT - Net Positioning</span>';
-  html += '<span class="impact">'+impactPill(scData.sentiment_cot.cot_label)+'</span>';
+  html += '<span class="impact">'+impactPill(scData.sentiment_cot.net_pos_label)+'</span>';
   html += '<span class="actual">'+fmtPct(scData.sentiment_cot.long_pct)+'</span>';
   html += '<span class="forecast">'+fmtPct(scData.sentiment_cot.short_pct)+'</span>';
+  html += '<span class="previous"></span>';
+  html += '<span class="surprise"></span>';
+  html += '</div>';
+  html += '<div class="row">';
+  html += '<span class="ind-name">COT - Latest Buys/Sells</span>';
+  html += '<span class="impact">'+impactPill(scData.sentiment_cot.latest_label)+'</span>';
+  html += '<span class="actual"></span>';
+  html += '<span class="forecast"></span>';
   html += '<span class="previous"></span>';
   html += '<span class="surprise">'+(scData.sentiment_cot.change_pct === null || scData.sentiment_cot.change_pct === undefined ? '<span class="num na">n/a</span>' : '<span class="surprise '+(scData.sentiment_cot.change_pct > 0 ? 'pos':'neg')+'">'+(scData.sentiment_cot.change_pct > 0 ? '+':'')+scData.sentiment_cot.change_pct.toFixed(2)+'%</span>')+'</span>';
   html += '</div>';

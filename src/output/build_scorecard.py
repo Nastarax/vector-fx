@@ -93,17 +93,37 @@ def _build_currency(
     crowd_avg = _agg_pair_scores(pair_rows, ccy, "crowd")
     sentiment_cot_score = (cot_s or 0) + (crowd_avg or 0)
 
-    # COT details for the right-side table
+    # COT details for the right-side table. EdgeFinder splits the COT cell into
+    # two component rows (Net Positioning + Latest Buys/Sells), so we surface a
+    # label for each straight from the COT reading's signs:
+    #   Net Positioning   = sign of net_position (long_contracts - short_contracts)
+    #   Latest Buys/Sells = sign of long_pct_change (Long% week-over-week)
+    # The combined score (cot_s) still drives the Institutional-activity section
+    # bias. For commodities/indices both parts are scored (cot_score_commodity);
+    # for currencies only the latest-change part is scored (cot_score), so the
+    # Net Positioning chip there is informational.
     cot_reading = (cot_data or {}).get(ccy)
     long_pct = short_pct = change_pct = None
+    net_position = None
     cot_stale = False
     if cot_reading:
-        # Reading shape per src/fetchers/cot.py: has long_pct, short_pct,
-        # change_pct (Long% week-over-week), is_stale.
+        # Reading shape per src/fetchers/cot.py.
         long_pct = getattr(cot_reading, "long_pct", None)
         short_pct = getattr(cot_reading, "short_pct", None)
-        change_pct = getattr(cot_reading, "change_pct", None)
+        change_pct = getattr(cot_reading, "long_pct_change", None)
+        net_position = getattr(cot_reading, "net_position", None)
         cot_stale = getattr(cot_reading, "is_stale", False)
+
+    def _cot_part_label(v):
+        if v is None:
+            return "n/a"
+        if v > 0:
+            return "Bullish"
+        if v < 0:
+            return "Bearish"
+        return "Neutral"
+    net_pos_label = _cot_part_label(net_position)
+    latest_label = _cot_part_label(change_pct)
 
     # Fundamentals split: bucket econ rows by section
     growth_ids = {"gdp", "mpmi", "spmi", "retail_sales", "consumer_conf"}
@@ -160,6 +180,8 @@ def _build_currency(
             "crowd": crowd_avg,
             "cot_label": _sub_bias(cot_s, 2) if cot_s is not None else "n/a",
             "crowd_label": _sub_bias(crowd_avg, 2) if crowd_avg is not None else "n/a",
+            "net_pos_label": net_pos_label,
+            "latest_label": latest_label,
             "long_pct": long_pct,
             "short_pct": short_pct,
             "change_pct": change_pct,
