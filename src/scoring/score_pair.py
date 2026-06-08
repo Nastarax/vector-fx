@@ -733,7 +733,9 @@ def build_currency_scores(
                             s += 1
                         elif cpi_actual > 3:
                             s += 1
-                    per_ccy[ccy]["cpi"] = s
+                    # Each gold macro cell is a single +1/0/-1 (no +-2): the
+                    # headline/core/location components only decide the sign.
+                    per_ccy[ccy]["cpi"] = max(-1, min(1, s))
 
                 # PPI: change (headline + core vs forecast) + location.
                 us_ppi_rels = te_history.get("USD|ppi", [])
@@ -765,7 +767,7 @@ def build_currency_scores(
                             s += 1
                         elif ppi_actual > 3:
                             s += 1
-                    per_ccy[ccy]["ppi"] = s
+                    per_ccy[ccy]["ppi"] = max(-1, min(1, s))
 
                 # PCE: change (actual vs forecast) + location. USD = Investing
                 # Core PCE Price Index YoY (fallback TE) so the gold cell tracks
@@ -795,7 +797,7 @@ def build_currency_scores(
                             s += 1
                         elif pce_actual > 3:
                             s += 1
-                    per_ccy[ccy]["pce"] = s
+                    per_ccy[ccy]["pce"] = max(-1, min(1, s))
 
                 # Interest rates: 2Y Treasury yield vs 8-day SMA, inverted for gold.
                 if len(treasury_2y) >= 8:
