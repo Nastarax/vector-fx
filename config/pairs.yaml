@@ -128,9 +128,12 @@ pairs:
     yf_ticker: "CADCHF=X"
 
   # Commodities (1)
+  # Gold. Safe-haven precious metal: inverts all US macro. Empty quote =
+  # absolute scores (gold's own +-1 cells), not an XAU-USD diff, matching
+  # EdgeFinder and the other metals/indices below.
   - symbol: XAUUSD
     base: XAU
-    quote: USD
+    quote: ""
     yf_ticker: "GC=F"
 
   # Indices (2). Standalone instruments: empty quote means macro cells use the
