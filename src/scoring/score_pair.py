@@ -245,34 +245,23 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
-                # Consumer Confidence (non-USD): Actual vs PREVIOUS on the
-                # latest release (momentum scoring). The TEForecast comparison
-                # produced counter-intuitive results when TE set a low bar
-                # (e.g., JPY: TEForecast 31.0 vs Previous 33.3, Actual 32.2
-                # technically "beat" the forecast but confidence still
-                # declined month-over-month). Momentum reflects the actual
-                # trend direction, which is what matters for swing trading.
-                # Same methodology EdgeFinder uses for PMI.
+                # Consumer Confidence (non-USD): Actual vs Forecast (Consensus,
+                # TEForecast fallback), the same surprise rule as every other
+                # release. Beating a low TE forecast while declining vs Previous
+                # still scores bullish: that is the surprise principle EF uses,
+                # not a bug. No forecast published -> neutral (via _dir_fcst).
                 if ind_id == "consumer_conf":
                     te_rels = te_history.get(key, [])
                     if not te_rels:
                         per_ccy[ccy][ind_id] = None
                         continue
                     latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
-                    actual = latest.get("actual")
-                    previous = latest.get("previous")
-                    if actual is None or previous is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    if actual > previous:
-                        s = 1
-                    elif actual < previous:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    forecast = latest.get("consensus")
+                    if forecast is None:
+                        forecast = latest.get("forecast")  # TEForecast fallback
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        latest.get("actual"), forecast,
+                        latest.get("previous"), direction, db)
                     continue
 
                 # PPI YoY:

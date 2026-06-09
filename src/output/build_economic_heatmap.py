@@ -287,7 +287,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
 
     # Consumer Conf:
     # - USD: Investing CB Consumer Confidence, Actual vs Forecast (true surprise)
-    # - Other 7: TE momentum scoring uses Previous instead of Forecast
+    # - Other 7: TE Actual vs Forecast (Consensus, TEForecast fallback)
     elif ind_id == "consumer_conf" and ccy == "USD" and (investing_cc or {}).get("USD"):
         rel = investing_cc["USD"]
         actual = rel.get("actual")
@@ -298,7 +298,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
         rel = _get_latest_te(te_history, ccy, "consumer_conf")
         if rel:
             actual = rel.get("actual")
-            forecast = rel.get("previous")  # momentum comparison
+            forecast = rel.get("consensus") or rel.get("forecast")
             previous = rel.get("previous")
             date = rel.get("date") or ""
 

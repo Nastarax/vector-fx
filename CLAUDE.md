@@ -57,7 +57,8 @@ sPMI:                 USD = Investing ISM Non-Manufacturing PMI (id 176, Actual 
 Retail Sales:         CAD = Investing Retail Sales MoM (id 260, Actual vs Forecast);
                       AUD = ABS MHSI; other 6 = TE (Actual vs Consensus)
 Consumer Conf:        USD = Investing CB Consumer Confidence (Actual vs Forecast);
-                      other 7 = TE momentum (Actual vs Previous)
+                      other 7 = TE Actual vs Forecast (Consensus, TEForecast
+                      fallback; no forecast -> neutral)
 CPI YoY:              Investing per-currency (Actual vs Forecast); JPY = Investing Tokyo
                       Core CPI (id 328); fallback Previous for CHF
 PPI YoY:              CHF = Myfxbook Producer & Import Prices YoY (Actual vs Consensus);
