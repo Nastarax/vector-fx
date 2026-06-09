@@ -339,13 +339,18 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
 
     # Benchmark for surprise / impact: Actual vs Forecast, mirroring the Top
     # Setups scorer (EdgeFinder scores every release, PMI included, vs Forecast).
-    # Falls back to Previous when no forecast is published (e.g. CAD mPMI,
-    # AUD retail), so the row doesn't collapse to n/a.
+    # EdgeFinder is surprise-only: there is NO Previous fallback. A release with
+    # no published forecast (e.g. CAD mPMI, AUD retail) has no surprise to
+    # measure, so the chip is Neutral and the surprise reads n/a (matches the
+    # scorer's _dir_fcst, which scores those 0). Consumer-conf for non-USD is the
+    # one exception that arrives here with forecast set to its Previous value.
     benchmark = forecast
-    if benchmark is None:
-        benchmark = previous
-
     surprise = _surprise_pct(actual, benchmark)
+    if benchmark is None and actual is not None:
+        currency_impact = stocks_impact = "Neutral"
+    else:
+        currency_impact = _impact_label(actual, benchmark, direction)
+        stocks_impact = _impact_label(actual, benchmark, stocks_dir)
     return {
         "indicator": ind["label"],
         "date": date,
@@ -353,8 +358,8 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
         "actual": actual,
         "forecast": forecast,
         "previous": previous,
-        "currency_impact": _impact_label(actual, benchmark, direction),
-        "stocks_impact": _impact_label(actual, benchmark, stocks_dir),
+        "currency_impact": currency_impact,
+        "stocks_impact": stocks_impact,
     }
 
 

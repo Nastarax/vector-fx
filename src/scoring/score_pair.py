@@ -72,6 +72,23 @@ def _dir(actual, benchmark, direction, deadband_pct: float = 0.0):
     return s
 
 
+def _dir_fcst(actual, forecast, previous, direction, deadband_pct: float = 0.0):
+    """Surprise score with EdgeFinder's no-forecast rule.
+
+    EdgeFinder is surprise-only: with no published forecast there is no
+    surprise to measure, so the cell is NEUTRAL (0), not a momentum read vs
+    Previous. `previous` is accepted for signature symmetry but intentionally
+    unused for scoring (kept so callers read naturally and a future change can
+    reference it). Returns None only when the release itself is missing
+    (actual is None), so a genuinely absent indicator still shows n/a.
+    """
+    if actual is None:
+        return None
+    if forecast is None:
+        return 0
+    return _dir(actual, forecast, direction, deadband_pct)
+
+
 def bias_label(total: int, thresholds: dict) -> str:
     if total >= thresholds["very_bullish"]:
         return "Very Bullish"
@@ -183,31 +200,17 @@ def build_currency_scores(
                 #   to TEForecast if Consensus missing.
                 if ind_id == "retail_sales" and ccy == "CAD" and investing_retail_sales.get("CAD"):
                     rel = investing_retail_sales["CAD"]
-                    actual = rel.get("actual")
-                    benchmark = rel.get("forecast")
-                    if benchmark is None:
-                        benchmark = rel.get("previous")
-                    if actual is None or benchmark is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        rel.get("actual"), rel.get("forecast"),
+                        rel.get("previous"), direction, db)
                     continue
                 if ind_id == "retail_sales" and ccy == "AUD":
+                    # ABS Monthly Household Spending Indicator publishes no
+                    # consensus forecast, so under EF's surprise-only rule the
+                    # AUD retail cell is neutral (0) whenever a print exists.
                     mhsi = abs_au_mhsi or {}
                     cur = mhsi.get("current_mom")
-                    prev = mhsi.get("previous_mom")
-                    if cur is None or prev is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    if cur > prev:
-                        s = 1
-                    elif cur < prev:
-                        s = -1
-                    else:
-                        s = 0
-                    if direction == "down_is_bullish":
-                        s = -s
-                    per_ccy[ccy][ind_id] = s
+                    per_ccy[ccy][ind_id] = 0 if cur is not None else None
                     continue
                 if ind_id == "retail_sales":
                     te_rels = te_history.get(key, [])
@@ -281,25 +284,15 @@ def build_currency_scores(
                 #   Actual vs Consensus, fall back to TEForecast.
                 if ind_id == "ppi" and ccy in ("CHF", "AUD") and myfxbook_ppi.get(ccy):
                     rel = myfxbook_ppi[ccy]
-                    actual = rel.get("actual")
-                    benchmark = rel.get("consensus")
-                    if benchmark is None:
-                        benchmark = rel.get("previous")
-                    if actual is None or benchmark is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        rel.get("actual"), rel.get("consensus"),
+                        rel.get("previous"), direction, db)
                     continue
                 if ind_id == "ppi" and ccy in ("NZD", "GBP") and investing_ppi.get(ccy):
                     rel = investing_ppi[ccy]
-                    actual = rel.get("actual")
-                    benchmark = rel.get("forecast")
-                    if benchmark is None:
-                        benchmark = rel.get("previous")
-                    if actual is None or benchmark is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        rel.get("actual"), rel.get("forecast"),
+                        rel.get("previous"), direction, db)
                     continue
                 if ind_id == "ppi":
                     te_rels = te_history.get(key, [])
@@ -503,14 +496,9 @@ def build_currency_scores(
                 # release's forecast hasn't been published yet.
                 if ind_id == "cpi" and investing_cpi.get(ccy):
                     rel = investing_cpi[ccy]
-                    actual = rel.get("actual")
-                    forecast = rel.get("forecast")
-                    previous = rel.get("previous")
-                    benchmark = forecast if forecast is not None else previous
-                    if actual is None or benchmark is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        rel.get("actual"), rel.get("forecast"),
+                        rel.get("previous"), direction, db)
                     continue
 
                 # PMI (mpmi, spmi): EdgeFinder scores these Actual vs Forecast,
@@ -518,32 +506,22 @@ def build_currency_scores(
                 # EF's live Top Setups: JPY met both PMI forecasts exactly
                 # (54.5 vs 54.5, 50.0 vs 50.0) and scored 0, so USDJPY mPMI/sPMI
                 # read +1 (USD beat), not +2 (which momentum would give). When a
-                # currency has no published forecast (CAD mPMI, NZD sPMI via
-                # BusinessNZ) we fall back to Actual vs Previous.
+                # currency has no published forecast (CAD mPMI, CAD/NZD/CHF sPMI
+                # via direct sources) the cell is NEUTRAL (0), not momentum.
                 # mPMI prefers Investing.com's per-currency Latest Release page;
                 # sPMI prefers the investing_spmi dict (6 Investing + 2 TE pages).
                 # Both fall back to combined TE + FF history.
                 if ind_id == "mpmi" and investing_mpmi.get(ccy):
                     rel = investing_mpmi[ccy]
-                    actual = rel.get("actual")
-                    forecast = rel.get("forecast")
-                    previous = rel.get("previous")
-                    benchmark = forecast if forecast is not None else previous
-                    if actual is None or benchmark is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        rel.get("actual"), rel.get("forecast"),
+                        rel.get("previous"), direction, db)
                     continue
                 if ind_id == "spmi" and investing_spmi.get(ccy):
                     rel = investing_spmi[ccy]
-                    actual = rel.get("actual")
-                    forecast = rel.get("forecast")
-                    previous = rel.get("previous")
-                    benchmark = forecast if forecast is not None else previous
-                    if actual is None or benchmark is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        rel.get("actual"), rel.get("forecast"),
+                        rel.get("previous"), direction, db)
                     continue
                 if ind_id in ("mpmi", "spmi"):
                     te_rels = te_history.get(key, [])
@@ -565,14 +543,10 @@ def build_currency_scores(
                         per_ccy[ccy][ind_id] = None
                         continue
                     latest = combined[0]
-                    actual = latest.get("actual")
                     forecast = latest.get("consensus") or latest.get("forecast")
-                    previous = latest.get("previous")
-                    benchmark = forecast if forecast is not None else previous
-                    if actual is None or benchmark is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        latest.get("actual"), forecast,
+                        latest.get("previous"), direction, db)
                     continue
 
                 # Interest Rates: EdgeFinder methodology — compare next
