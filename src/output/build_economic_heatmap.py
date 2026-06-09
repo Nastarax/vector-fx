@@ -214,13 +214,6 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
 
     actual = forecast = previous = None
     date = ""
-    # mPMI/sPMI are scored as MOMENTUM (Actual vs Previous), matching the
-    # Top Setups scorer (momentum_score in score_pair.py). Surprise-vs-forecast
-    # here would disagree in sign whenever Actual lands between Previous and
-    # Forecast, producing a Bullish chip on the scorecard while the pair cell on
-    # Top Setups reads bearish. sPMI for USD/CHF/NZD is the exception: those use
-    # Actual vs Forecast in the scorer too, so they stay surprise-based.
-    momentum = False
 
     # CPI: Investing.com cache, per-currency
     if ind_id == "cpi":
@@ -261,7 +254,6 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             forecast = rel.get("forecast")
             previous = rel.get("previous")
             date = rel.get("date") or ""
-        momentum = True  # all 8 currencies score mPMI vs Previous
     elif ind_id == "spmi":
         rel = (investing_spmi or {}).get(ccy)
         if rel:
@@ -269,8 +261,6 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             forecast = rel.get("forecast")
             previous = rel.get("previous")
             date = rel.get("date") or ""
-        # USD/CHF/NZD score sPMI vs Forecast; the other 5 use momentum.
-        momentum = ccy not in ("USD", "CHF", "NZD")
 
     # Retail Sales: Investing for CAD, ABS MHSI for AUD, TE for others
     elif ind_id == "retail_sales" and ccy == "CAD" and (investing_retail_sales or {}).get("CAD"):
@@ -347,15 +337,13 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
             previous = rel.get("previous")
             date = rel.get("date") or ""
 
-    # Benchmark for surprise / impact. Momentum indicators (mPMI/sPMI, and the
-    # non-USD sPMI subset) compare Actual vs Previous to mirror the Top Setups
-    # scorer; everything else is surprise-vs-Forecast with a Previous fallback.
-    if momentum:
+    # Benchmark for surprise / impact: Actual vs Forecast, mirroring the Top
+    # Setups scorer (EdgeFinder scores every release, PMI included, vs Forecast).
+    # Falls back to Previous when no forecast is published (e.g. CAD mPMI,
+    # AUD retail), so the row doesn't collapse to n/a.
+    benchmark = forecast
+    if benchmark is None:
         benchmark = previous
-    else:
-        benchmark = forecast
-        if benchmark is None:
-            benchmark = previous
 
     surprise = _surprise_pct(actual, benchmark)
     return {

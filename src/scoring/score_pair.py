@@ -28,7 +28,7 @@ import yaml
 from src.scoring.score_macro import score_indicator
 from src.fetchers.cot import COMMODITY_CCYS
 from src.scoring.score_sentiment import cot_score, cot_score_commodity, crowd_score_commodity, retail_score
-from src.scoring.score_surprise import momentum_score, surprise_score
+from src.scoring.score_surprise import surprise_score
 from src.scoring.score_technical import seasonality_score, trend_score
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
@@ -513,27 +513,22 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
-                # PMI (mpmi, spmi): EF uses CHANGE from previous to latest, not surprise.
-                # For mPMI we prefer Investing.com's per-currency Latest Release page.
-                # For sPMI we prefer the investing_spmi dict (6 Investing pages + 2 TE pages).
-                # Both fall back to combined TE + FF history if their fresh source is missing.
+                # PMI (mpmi, spmi): EdgeFinder scores these Actual vs Forecast,
+                # the same surprise rule as every other release. Verified against
+                # EF's live Top Setups: JPY met both PMI forecasts exactly
+                # (54.5 vs 54.5, 50.0 vs 50.0) and scored 0, so USDJPY mPMI/sPMI
+                # read +1 (USD beat), not +2 (which momentum would give). When a
+                # currency has no published forecast (CAD mPMI, NZD sPMI via
+                # BusinessNZ) we fall back to Actual vs Previous.
+                # mPMI prefers Investing.com's per-currency Latest Release page;
+                # sPMI prefers the investing_spmi dict (6 Investing + 2 TE pages).
+                # Both fall back to combined TE + FF history.
                 if ind_id == "mpmi" and investing_mpmi.get(ccy):
                     rel = investing_mpmi[ccy]
-                    per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
-                    continue
-                # sPMI special case: USD (ISM Non-Manufacturing), CHF
-                # (procure.ch) and NZD (BusinessNZ PSI) score Actual vs Forecast
-                # (priority), fall back to Previous. USD uses the ISM
-                # Non-Manufacturing PMI, which publishes a consensus forecast.
-                # BusinessNZ doesn't publish a consensus forecast for NZD, so
-                # NZD always uses the Previous fallback in practice.
-                # The other 5 currencies keep the standard momentum approach.
-                if ind_id == "spmi" and ccy in ("USD", "CHF", "NZD") and investing_spmi.get(ccy):
-                    rel = investing_spmi[ccy]
                     actual = rel.get("actual")
-                    benchmark = rel.get("forecast")
-                    if benchmark is None:
-                        benchmark = rel.get("previous")
+                    forecast = rel.get("forecast")
+                    previous = rel.get("previous")
+                    benchmark = forecast if forecast is not None else previous
                     if actual is None or benchmark is None:
                         per_ccy[ccy][ind_id] = None
                         continue
@@ -541,7 +536,14 @@ def build_currency_scores(
                     continue
                 if ind_id == "spmi" and investing_spmi.get(ccy):
                     rel = investing_spmi[ccy]
-                    per_ccy[ccy][ind_id] = momentum_score([rel], direction=direction)
+                    actual = rel.get("actual")
+                    forecast = rel.get("forecast")
+                    previous = rel.get("previous")
+                    benchmark = forecast if forecast is not None else previous
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
                 if ind_id in ("mpmi", "spmi"):
                     te_rels = te_history.get(key, [])
@@ -559,7 +561,18 @@ def build_currency_scores(
                             combined.append(r)
                             seen_dates.add(d)
                     combined.sort(key=lambda x: x.get("date", ""), reverse=True)
-                    per_ccy[ccy][ind_id] = momentum_score(combined, direction=direction)
+                    if not combined:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    latest = combined[0]
+                    actual = latest.get("actual")
+                    forecast = latest.get("consensus") or latest.get("forecast")
+                    previous = latest.get("previous")
+                    benchmark = forecast if forecast is not None else previous
+                    if actual is None or benchmark is None:
+                        per_ccy[ccy][ind_id] = None
+                        continue
+                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # Interest Rates: EdgeFinder methodology — compare next
@@ -683,11 +696,21 @@ def build_currency_scores(
                         else:
                             per_ccy[ccy]["consumer_conf"] = 0
 
-                # mPMI: US manufacturing PMI, momentum (Actual vs Previous), inverted.
+                # mPMI: US manufacturing PMI, Actual vs Forecast (fallback
+                # Previous), inverted for the safe-haven mapping.
                 us_mpmi = investing_mpmi.get("USD")
                 if us_mpmi:
-                    s = momentum_score([us_mpmi])
-                    per_ccy[ccy]["mpmi"] = -s
+                    actual = us_mpmi.get("actual")
+                    benchmark = us_mpmi.get("forecast")
+                    if benchmark is None:
+                        benchmark = us_mpmi.get("previous")
+                    if actual is not None and benchmark is not None:
+                        if actual > benchmark:
+                            per_ccy[ccy]["mpmi"] = -1
+                        elif actual < benchmark:
+                            per_ccy[ccy]["mpmi"] = 1
+                        else:
+                            per_ccy[ccy]["mpmi"] = 0
                 # sPMI: US ISM Non-Manufacturing PMI, Actual vs Forecast
                 # (fallback Previous), inverted for the safe-haven mapping.
                 us_spmi = investing_spmi.get("USD")

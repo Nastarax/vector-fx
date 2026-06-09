@@ -49,10 +49,11 @@ Trend / Seasonality:  yfinance (Daily + 4H)
 COT:                  CFTC Socrata API (Legacy Non-Commercial)
 Crowd Sentiment:      Myfxbook + Forexbenchmark (averaged)
 GDP:                  TE (Actual vs Consensus, fallback TEForecast)
-mPMI:                 Investing per-currency, momentum (Actual vs Previous)
+mPMI:                 Investing per-currency, Actual vs Forecast (fallback Previous)
 sPMI:                 USD = Investing ISM Non-Manufacturing PMI (id 176, Actual vs Forecast);
-                      EUR/GBP/AUD/JPY/CAD = Investing momentum (Actual vs Previous);
-                      CHF = TE Swiss Services PMI; NZD = BusinessNZ PSI direct
+                      EUR/GBP/AUD/JPY/CAD = Investing Actual vs Forecast (fallback Previous);
+                      CHF = TE Swiss Services PMI; NZD = BusinessNZ PSI direct (no
+                      forecast published, so falls back to Previous in practice)
 Retail Sales:         CAD = Investing Retail Sales MoM (id 260, Actual vs Forecast);
                       AUD = ABS MHSI; other 6 = TE (Actual vs Consensus)
 Consumer Conf:        USD = Investing CB Consumer Confidence (Actual vs Forecast);
