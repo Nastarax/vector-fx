@@ -208,9 +208,14 @@ curl_cffi (Cloudflare); plain requests get blocked.
   uses input or output for the UK is unconfirmed; the way to settle it is to read the actual
   UK PPI % number EdgeFinder displays (input ~7.7% vs output ~4.0% as of May 2026). If it's
   output, switch GBP to `ppi-output-yoy`.
-- Backtest harness idea (paused): point-in-time IC test at the currency level (8 currencies,
-  not 28 pairs), starting with trend + COT (clean history), measuring Information
-  Coefficient + return-by-score buckets + a long-top/short-bottom basket vs random.
+- Backtest harness (scaffolded): `python scripts/backtest_ic.py [horizons...]`. Read-only.
+  Reads `score_history.json` + `px_*.pkl`, builds an equal-weighted per-currency basket
+  return (ccy vs all its fiat crosses, +base / -quote), and reports Spearman IC (mean,
+  t-stat, hit rate), return-by-score buckets, and a long-top/short-bottom spread, at
+  forward horizons measured in score snapshots. Sample is small until `score_history.json`
+  accumulates (~30+ snapshots for a meaningful t-stat). Weekend snapshots self-drop (zero
+  forward-return variance). Next steps: filter to trading days; per-sub-score IC
+  (trend/COT/fundamentals/sentiment) to attribute edge; then weight/threshold calibration.
 - From the original handover, still open: calibrate Asset Scorecard sub-bias thresholds;
   calibrate separate currency-row bias thresholds (they reuse pair thresholds, skew
   Neutral); "Delta vs yesterday" column on the main heatmap; delete old probe scripts
