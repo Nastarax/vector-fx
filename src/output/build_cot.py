@@ -16,6 +16,8 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from src.output.timefmt import updated_at_str
+
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 TEMPLATE_DIR = Path(__file__).resolve().parent
 
@@ -64,7 +66,7 @@ def render(cot_data: dict, cot_history: dict | None = None, output_path: Path | 
     tmpl = env.get_template("cot_template.html")
     html = tmpl.render(
         report_date=report_date,
-        updated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        updated_at=updated_at_str(),
         latest_json=json.dumps(latest),
         history_json=json.dumps(history),
         currencies_json=json.dumps(currencies),

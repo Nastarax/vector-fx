@@ -8,6 +8,8 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from src.output.timefmt import updated_at_str
+
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 TEMPLATE_DIR = Path(__file__).resolve().parent
 
@@ -91,7 +93,7 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
 
     tmpl = env.get_template("template.html")
     html = tmpl.render(
-        updated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        updated_at=updated_at_str(),
         as_of_date=as_of,
         indicators=heatmap["indicators"],
         categories=heatmap["categories"],

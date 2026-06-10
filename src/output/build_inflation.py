@@ -28,6 +28,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from src.output.timefmt import updated_at_str
+
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
 # Persistent CPI YoY history archive. Accumulates points from every run and
@@ -267,7 +269,7 @@ def _load_template() -> str:
 def render(payload: dict) -> str:
     """Write data/inflation.html."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    updated_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    updated_str = updated_at_str()
     template = _load_template()
     html = template.replace(
         "__INFLATION_JSON__", json.dumps(payload, default=str)

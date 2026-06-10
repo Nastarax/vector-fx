@@ -24,6 +24,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from src.output.timefmt import updated_at_str
+
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
 CCY_ORDER = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD")
@@ -499,7 +501,7 @@ def render(currency_rows=None, econ_data=None, output_path: Path | None = None) 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     output_path = output_path or (OUTPUT_DIR / "macro.html")
     html = (_HTML
-            .replace("__UPDATED_AT__", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
+            .replace("__UPDATED_AT__", updated_at_str())
             .replace("__MEET_JSON__", json.dumps(MEET))
             .replace("__BIAS_JSON__", json.dumps(_bias_payload(currency_rows)))
             .replace("__PRINTS_JSON__", json.dumps(_prints_payload(econ_data)))

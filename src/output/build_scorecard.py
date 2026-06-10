@@ -20,6 +20,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from src.output.timefmt import updated_at_str
+
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
 CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD", "XAU", "NKY", "NDX", "XPT", "XAG")
@@ -232,7 +234,7 @@ def render(scorecards: dict) -> str:
     from src.scoring.score_history import load_history
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    updated_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    updated_str = updated_at_str()
     labels = {c: DISPLAY_NAMES.get(c, c) for c in CURRENCIES}
     history = load_history()
     template = _load_template()

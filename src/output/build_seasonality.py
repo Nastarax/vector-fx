@@ -14,6 +14,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from src.output.timefmt import updated_at_str
+
 DISPLAY_NAMES = {"XAUUSD": "Gold"}
 
 import pandas as pd
@@ -402,7 +404,7 @@ def _render_yearly(all_data: dict, default_pair: str) -> Path:
     head = _COMMON_HEAD.format(
         page_title="Yearly Seasonality",
         header_subtitle="Yearly Seasonality",
-        updated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        updated_at=updated_at_str(),
         yearly_active='class="active"',
         monthly_active='',
     )
@@ -423,7 +425,7 @@ def _render_monthly(all_data: dict, default_pair: str) -> Path:
     head = _COMMON_HEAD.format(
         page_title="Monthly Seasonality",
         header_subtitle="Monthly Seasonality",
-        updated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        updated_at=updated_at_str(),
         yearly_active='',
         monthly_active='class="active"',
     )

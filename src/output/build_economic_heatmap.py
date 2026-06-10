@@ -19,6 +19,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from src.output.timefmt import updated_at_str
+
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
 CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD")
@@ -575,7 +577,7 @@ def render(all_data: dict, output_path: Path | None = None) -> Path:
     # Plain string replacement avoids the {} escaping headaches that .format()
     # creates with embedded CSS/JS braces.
     html = (_HTML_TEMPLATE
-            .replace("__UPDATED_AT__", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
+            .replace("__UPDATED_AT__", updated_at_str())
             .replace("__DATA_JSON__", json.dumps(all_data))
             .replace("__CURRENCIES_JSON__", json.dumps(currencies)))
     output_path.write_text(html, encoding="utf-8")
