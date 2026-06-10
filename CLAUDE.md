@@ -248,11 +248,15 @@ curl_cffi (Cloudflare); plain requests get blocked.
   accumulates (~30+ snapshots for a meaningful t-stat). Weekend snapshots self-drop (zero
   forward-return variance). Next steps: filter to trading days; per-sub-score IC
   (trend/COT/fundamentals/sentiment) to attribute edge; then weight/threshold calibration.
-- From the original handover, still open: calibrate Asset Scorecard sub-bias thresholds;
-  calibrate separate currency-row bias thresholds (they reuse pair thresholds, skew
-  Neutral); "Delta vs yesterday" column on the main heatmap; delete old probe scripts
+- From the original handover, still open: "Delta vs yesterday" column on the main
+  heatmap (partially superseded by the WATCH Telegram alerts); delete old probe scripts
   (`scripts\probe_te_tokyo.py`, `scripts\probe_te_chart.py`); optional Australia Monthly CPI
   Indicator for a smoother AUD line.
+- Threshold calibration DONE (structural, 2026-06-10): currency rows use
+  `currency_bias_thresholds` in `indicators.yaml` (full 4/8 for USD+XAU's 15 active
+  cells, reduced 3/5 for other fiat's 10; same per-cell fraction as pair thresholds).
+  Scorecard `_sub_bias` got a 0.2 neutral band (one stray cell in a wide section no
+  longer reads directional). Revisit both with the IC bucket data in late July.
 
 ## User context
 

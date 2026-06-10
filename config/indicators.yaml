@@ -100,3 +100,17 @@ bias_thresholds:
   neutral: 4            # |score| < this is neutral
   bearish: -5
   very_bearish: -9
+
+# Currency-row bias thresholds. Currency rows sum fewer cells than pairs
+# (no trend/seasonality/crowd), and non-USD fiat rows also carry hard zeros
+# in the 5 US-only cells (NFP/ADP/JOLTS/Claims/PCE), so reusing the pair
+# thresholds skewed every currency row Neutral. These keep the same
+# per-cell fraction as the pair thresholds (bullish 5/18, very 9/18),
+# scaled to each row's active cell count. Bearish mirrors negative.
+currency_bias_thresholds:
+  full:                  # USD + XAU rows: 15 active cells (COT + 14 macro)
+    bullish: 4
+    very_bullish: 8
+  reduced:               # other fiat rows: 10 active cells (US-only cells always 0)
+    bullish: 3
+    very_bullish: 5

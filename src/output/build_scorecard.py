@@ -28,19 +28,22 @@ DISPLAY_NAMES = {"XAU": "Gold", "NKY": "Nikkei 225", "NDX": "NASDAQ", "XPT": "Pl
 # Sub-section bias thresholds. Range varies by section, so we threshold on
 # a fraction of the theoretical max-abs score for that section.
 #   |frac| >= 0.5  -> Very Bullish / Very Bearish
-#   |frac| >  0    -> Bullish / Bearish
-#   frac  == 0     -> Neutral
+#   |frac| >= 0.2  -> Bullish / Bearish
+#   else           -> Neutral
+# The 0.2 band keeps one stray +1 cell in a wide section (e.g. 1 of 14
+# fundamentals rows) from reading as directional, while leaving the small
+# 2-4 cell sections (technical, sentiment) effectively unchanged.
 def _sub_bias(score: int | float | None, max_abs: int) -> str:
     if score is None or max_abs <= 0:
         return "n/a"
     frac = score / max_abs
     if frac >= 0.5:
         return "Very Bullish"
-    if frac > 0:
+    if frac >= 0.2:
         return "Bullish"
     if frac <= -0.5:
         return "Very Bearish"
-    if frac < 0:
+    if frac <= -0.2:
         return "Bearish"
     return "Neutral"
 

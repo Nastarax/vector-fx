@@ -1186,6 +1186,22 @@ def build_currency_rows(
     cfg = load_indicators_cfg()
     thresholds = cfg["bias_thresholds"]
 
+    # Currency rows sum fewer active cells than pairs, so they get their own
+    # thresholds (see currency_bias_thresholds in indicators.yaml). USD and
+    # XAU carry all 15 cells; other fiat zero the 5 US-only cells.
+    ccy_thresh_cfg = cfg.get("currency_bias_thresholds", {})
+
+    def _ccy_thresholds(ccy: str) -> dict:
+        t = ccy_thresh_cfg.get("full" if ccy in ("USD", "XAU") else "reduced")
+        if not t:
+            return thresholds  # config missing: fall back to pair thresholds
+        return {
+            "very_bullish": t["very_bullish"],
+            "bullish": t["bullish"],
+            "bearish": -t["bullish"],
+            "very_bearish": -t["very_bullish"],
+        }
+
     indicator_ids: list[str] = []
     for cat_name, inds in cfg["categories"].items():
         for ind in inds:
@@ -1219,7 +1235,7 @@ def build_currency_rows(
             "quote": "",
             "scores": scores,
             "total": total,
-            "bias": bias_label(total, thresholds),
+            "bias": bias_label(total, _ccy_thresholds(ccy)),
             "loc_pct": None,
             "setup": None,
             "cot_stale": cot_stale,
