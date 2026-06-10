@@ -64,3 +64,6 @@ scripts/.last_refresh
 
 # Claude Code harness artifacts
 .claude/
+# Pair setup states (WATCH/EXT/MID) from the previous run; the WATCH-flip
+# alert diff baseline. Committed by the workflow so it survives between runs.
+!data/cache/setup_state.json
