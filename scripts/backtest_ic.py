@@ -120,6 +120,35 @@ def _spearman(xs: list[float], ys: list[float]) -> float | None:
     return cov / math.sqrt(vx * vy)
 
 
+def _ic_for_map(score_map, pairs, dates, H, bucket_pool=None):
+    """Run the IC loop for one {ccy: {date: value}} map at horizon H.
+    Returns (ics, spreads). Optionally pools forward returns into bucket_pool
+    keyed by score bucket."""
+    ics, spreads = [], []
+    for i in range(len(dates) - H):
+        d0, d1 = dates[i], dates[i + H]
+        sc, fr = [], []
+        for c in FIAT:
+            if d0 not in score_map.get(c, {}):
+                continue
+            ret = _basket_return(pairs, c, d0, d1)
+            if ret is None:
+                continue
+            sc.append(score_map[c][d0])
+            fr.append(ret)
+        ic = _spearman(sc, fr)
+        if ic is not None:
+            ics.append(ic)
+        if len(sc) >= 2:
+            hi_ret = fr[max(range(len(sc)), key=lambda k: sc[k])]
+            lo_ret = fr[min(range(len(sc)), key=lambda k: sc[k])]
+            spreads.append(hi_ret - lo_ret)
+        if bucket_pool is not None:
+            for s, r in zip(sc, fr):
+                bucket_pool.setdefault(_bucket(s), []).append(r)
+    return ics, spreads
+
+
 def run(horizons: list[int]) -> None:
     scores = _load_scores()
     pairs = _load_pair_closes()
@@ -131,37 +160,15 @@ def run(horizons: list[int]) -> None:
     print(f"Snapshot dates : {len(dates)}  ({dates[0]} .. {dates[-1]})")
     print(f"Pair caches    : {len(pairs)} fiat crosses")
     print("=" * 64)
+    print("TOTAL SCORE")
 
     bucket_pool: dict[str, list[float]] = {}  # score-bucket -> fwd returns (h=first horizon)
-
     for hi, H in enumerate(horizons):
-        ics, spreads = [], []
-        for i in range(len(dates) - H):
-            d0, d1 = dates[i], dates[i + H]
-            sc, fr = [], []
-            for c in FIAT:
-                ret = _basket_return(pairs, c, d0, d1)
-                if ret is None:
-                    continue
-                sc.append(scores[c][d0])
-                fr.append(ret)
-            ic = _spearman(sc, fr)
-            if ic is not None:
-                ics.append(ic)
-            # long-top / short-bottom spread
-            if len(sc) >= 2:
-                hi_ret = fr[max(range(len(sc)), key=lambda k: sc[k])]
-                lo_ret = fr[min(range(len(sc)), key=lambda k: sc[k])]
-                spreads.append(hi_ret - lo_ret)
-            # pool buckets only for the first (shortest) horizon
-            if hi == 0:
-                for s, r in zip(sc, fr):
-                    b = _bucket(s)
-                    bucket_pool.setdefault(b, []).append(r)
-
+        ics, spreads = _ic_for_map(scores, pairs, dates, H, bucket_pool if hi == 0 else None)
         _report_horizon(H, ics, spreads)
 
     _report_buckets(horizons[0], bucket_pool)
+    _report_subscores(pairs, horizons)
 
 
 def _bucket(score: int) -> str:
@@ -211,6 +218,56 @@ def _report_buckets(H: int, pool: dict[str, list[float]]) -> None:
     print("\nMonotonic top>bottom return = signal has edge. Flat/inverted = "
           "rethink weights or thresholds. Sample is tiny for now; it compounds "
           "as score_history.json grows each run.")
+
+
+SUB_COMPONENTS = ["technical", "sentiment_cot", "fundamentals",
+                  "growth", "inflation", "jobs"]
+
+
+def _load_subscores() -> dict[str, dict[str, dict[str, int]]]:
+    """Return {component: {ccy: {date: subscore}}} from history entries that
+    carry a `sub` block. Entries predating sub-score recording are skipped."""
+    with open(os.path.join(CACHE, "score_history.json"), encoding="utf-8") as f:
+        raw = json.load(f)
+    out = {comp: {c: {} for c in FIAT} for comp in SUB_COMPONENTS}
+    for c in FIAT:
+        for row in raw.get(c, []):
+            sub = row.get("sub")
+            if not isinstance(sub, dict):
+                continue
+            for comp in SUB_COMPONENTS:
+                if comp in sub and sub[comp] is not None:
+                    out[comp][c][row["date"]] = sub[comp]
+    return out
+
+
+def _report_subscores(pairs, horizons: list[int]) -> None:
+    """Per-component mean IC, to attribute where the edge lives. Components with
+    too little recorded history print as 'accumulating' rather than a number."""
+    subs = _load_subscores()
+    print("\n" + "=" * 64)
+    print("SUB-SCORE ATTRIBUTION (mean IC by component)")
+    print("  which parts of the score actually predict returns?")
+    need = max(horizons)
+    hdr = "  component       dates   " + "  ".join(f"H{H}" for H in horizons)
+    print(hdr)
+    for comp in SUB_COMPONENTS:
+        smap = subs[comp]
+        if all(smap[c] for c in FIAT):
+            cdates = sorted(set.intersection(*[set(smap[c]) for c in FIAT]))
+        else:
+            cdates = []
+        if len(cdates) <= need:
+            print(f"  {comp:14} {len(cdates):>5}   accumulating (need > {need} snapshots)")
+            continue
+        cells = []
+        for H in horizons:
+            ics, _ = _ic_for_map(smap, pairs, cdates, H)
+            cells.append(f"{(sum(ics)/len(ics)):+.3f}" if ics else "  n/a")
+        print(f"  {comp:14} {len(cdates):>5}   " + "  ".join(cells))
+    print("\nSub-scores are recorded going forward only (no lookahead backfill),"
+          "\nso this fills in as the history grows. Highest-IC components are the"
+          "\nones to weight up; near-zero or negative ones are candidates to cut.")
 
 
 if __name__ == "__main__":

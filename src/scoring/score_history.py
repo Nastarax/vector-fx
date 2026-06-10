@@ -5,7 +5,14 @@ Saves one snapshot per calendar day. Each run of main.py calls save_snapshot()
 which appends today's score if not already recorded. Keeps up to 90 days.
 
 File: data/cache/score_history.json
-Format: {symbol: [{date: "YYYY-MM-DD", score: int}, ...], ...}
+Format: {symbol: [{date: "YYYY-MM-DD", score: int, sub: {...}}, ...], ...}
+
+`sub` holds the per-component sub-scores (technical, sentiment_cot,
+fundamentals, growth, inflation, jobs) for IC attribution
+(scripts/backtest_ic.py --subs). It is written going forward only; older
+entries that predate this change carry just `score`, and the harness skips
+them. We intentionally do NOT backfill sub-scores from current macro caches:
+those are current-only, so a backfill would inject lookahead bias.
 """
 from __future__ import annotations
 
@@ -43,10 +50,21 @@ def save_snapshot(scorecards: dict, date_str: str | None = None):
         if today in dates:
             continue
 
-        history[symbol].append({
+        entry = {
             "date": today,
             "score": sc["total_score"],
-        })
+        }
+        # Per-component sub-scores for IC attribution (currencies carry these;
+        # some symbols may not, so guard). Stored under "sub" going forward.
+        sub = sc.get("sub_scores")
+        if isinstance(sub, dict):
+            entry["sub"] = {
+                k: sub[k] for k in (
+                    "technical", "sentiment_cot", "fundamentals",
+                    "growth", "inflation", "jobs",
+                ) if k in sub
+            }
+        history[symbol].append(entry)
         history[symbol] = sorted(history[symbol], key=lambda x: x["date"])[-MAX_DAYS:]
         added += 1
 
