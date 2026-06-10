@@ -18,9 +18,13 @@ def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None) -> in
 
     Possible scores: -2, -1, +1, +2.
     """
-    if df_daily is None or df_daily.empty or len(df_daily) < 15:
+    if df_daily is None or df_daily.empty:
         return 0
-    closes = df_daily["Close"]
+    # Drop yfinance's NaN partial-day bars: a NaN last close makes the SMAs
+    # NaN, every comparison False, and the score a hardcoded -2.
+    closes = df_daily["Close"].dropna()
+    if len(closes) < 15:
+        return 0
     sma3 = float(closes.rolling(3).mean().iloc[-1])
     sma14 = float(closes.rolling(14).mean().iloc[-1])
     sma14_prev = float(closes.rolling(14).mean().iloc[-2])
@@ -33,6 +37,31 @@ def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None) -> in
     if crossover < 0 and slope > 0:
         return crossover + 1
     return crossover
+
+
+def range_position(df_daily: pd.DataFrame, lookback: int = 40) -> int | None:
+    """
+    Where the last close sits inside the high-low range of the last `lookback`
+    daily bars, as 0..100. 0 = at the range low, 100 = at the range high.
+    Used for the heatmap Location column (supply/demand entry confluence):
+    a bullish-bias pair near the bottom of its range is pulling back into
+    territory where demand zones live; near the top it is extended.
+    """
+    if df_daily is None or df_daily.empty:
+        return None
+    # yfinance sometimes appends a partial current-day bar with NaN OHLC on
+    # crosses; NaN poisons the min/max clamp into a silent 100, so drop it.
+    data = df_daily[["High", "Low", "Close"]].dropna()
+    if len(data) < lookback:
+        return None
+    window = data.tail(lookback)
+    hi = float(window["High"].max())
+    lo = float(window["Low"].min())
+    if hi <= lo:
+        return None
+    close = float(window["Close"].iloc[-1])
+    pct = (close - lo) / (hi - lo) * 100
+    return int(round(max(0.0, min(100.0, pct))))
 
 
 def _sign_bucket(avg: float) -> int:

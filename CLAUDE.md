@@ -94,6 +94,19 @@ Unemployment Rate:    TE all 8 (down_is_bullish)
 
 ## Recent changes (committed)
 
+0. **Location column + Setup ready filter** on the main heatmap (S&D entry confluence).
+   `range_position` in `score_technical.py`: last close's position in the 40-session
+   high-low range, 0..100. `_setup_state` in `score_pair.py` combines it with bias:
+   WATCH (bullish bias + <=35% discount, or bearish + >=65% premium = price pulled back
+   to the zone-hunting side), EXT (biased but at the far end of the range), MID
+   (directional, mid-range); neutral rows show the bare %, currency rows n/a. Chip styles
+   (`.loc-chip`) in `data/vector.css`; "Setup ready" radio filter via `data-setup` attr.
+   - **NaN partial-bar fix** (same commit): yfinance appends a partial current-day bar
+     with NaN OHLC on cross pairs. A NaN last close made the trend SMAs NaN, every
+     comparison False, and `trend_score` a hardcoded -2 for every affected cross
+     (intermittent, whenever the partial bar was present at run time). Both
+     `trend_score` and `range_position` now dropna first. Fixing this moved several
+     pairs out of fake-Neutral (e.g. USDCAD +6 -> +10).
 1. **CPI Indicator chart** on the Inflation page (`inflation_template.html`,
    `build_inflation.py`). A1 EdgeFinder-style per-currency bar+line chart: blue bars
    for CPI actual, pink line for CPI forecast (consensus), dashed horizontal line for
@@ -197,8 +210,6 @@ curl_cffi (Cloudflare); plain requests get blocked.
 
 ## Outstanding / next steps
 
-- **Delete `data/cache/chf_ppi_debug_CHF.html`** (~280KB leftover from parser debugging;
-  the Cowork sandbox lacked delete permission). `git rm` or delete before committing.
 - **CHF/NZD CPI forecast gaps**: Investing.com 403s for CHF and NZD CPI history pages
   (Cloudflare). Their forecast archives only have the latest-release point. Re-running
   `refresh_investing.py cpi_history` periodically will accumulate more points over time

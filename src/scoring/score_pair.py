@@ -29,7 +29,7 @@ from src.scoring.score_macro import score_indicator
 from src.fetchers.cot import COMMODITY_CCYS
 from src.scoring.score_sentiment import cot_score, cot_score_commodity, crowd_score_commodity, retail_score
 from src.scoring.score_surprise import surprise_score
-from src.scoring.score_technical import seasonality_score, trend_score
+from src.scoring.score_technical import range_position, seasonality_score, trend_score
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 
@@ -1021,6 +1021,39 @@ def build_currency_scores(
     return per_ccy
 
 
+# Range-position bands for the setup state. <=35% of the lookback range is
+# "discount" territory, >=65% is "premium"; in between is mid-range.
+_LOC_DISCOUNT = 35
+_LOC_PREMIUM = 65
+
+
+def _setup_state(bias: str, loc_pct: int | None) -> str | None:
+    """
+    Combine pair bias with range position into an entry-readiness state for
+    supply/demand entries:
+      watch    - bias is directional AND price has pulled back to the side of
+                 the range where you'd hunt zones (bullish+discount or
+                 bearish+premium)
+      extended - bias is directional but price is at the far end of the range
+      mid      - bias is directional, price mid-range
+      None     - neutral bias or no price data (rendered as n/a)
+    """
+    if loc_pct is None or bias == "Neutral":
+        return None
+    bullish = bias in ("Bullish", "Very Bullish")
+    if bullish:
+        if loc_pct <= _LOC_DISCOUNT:
+            return "watch"
+        if loc_pct >= _LOC_PREMIUM:
+            return "extended"
+    else:
+        if loc_pct >= _LOC_PREMIUM:
+            return "watch"
+        if loc_pct <= _LOC_DISCOUNT:
+            return "extended"
+    return "mid"
+
+
 def build_pair_rows(
     per_ccy: dict,
     prices: dict,
@@ -1120,6 +1153,9 @@ def build_pair_rows(
                (quote_reading and getattr(quote_reading, "is_stale", False)):
                 cot_stale = True
 
+        bias = bias_label(total, thresholds)
+        loc_pct = range_position(df)
+
         rows.append({
             "symbol": sym,
             "display_name": DISPLAY_NAMES.get(sym, sym),
@@ -1127,7 +1163,9 @@ def build_pair_rows(
             "quote": quote,
             "scores": scores,
             "total": total,
-            "bias": bias_label(total, thresholds),
+            "bias": bias,
+            "loc_pct": loc_pct,
+            "setup": _setup_state(bias, loc_pct),
             "cot_stale": cot_stale,
         })
 
@@ -1182,6 +1220,8 @@ def build_currency_rows(
             "scores": scores,
             "total": total,
             "bias": bias_label(total, thresholds),
+            "loc_pct": None,
+            "setup": None,
             "cot_stale": cot_stale,
             "is_currency": True,
         })

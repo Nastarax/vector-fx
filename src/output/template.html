@@ -48,6 +48,7 @@
   <label><input type="radio" name="bias-filter" value="directional" onchange="applyBiasFilter()"><span>Bullish / Bearish</span></label>
   <label><input type="radio" name="bias-filter" value="bullish" onchange="applyBiasFilter()"><span>Bullish only</span></label>
   <label><input type="radio" name="bias-filter" value="bearish" onchange="applyBiasFilter()"><span>Bearish only</span></label>
+  <label><input type="radio" name="bias-filter" value="watch" onchange="applyBiasFilter()"><span>Setup ready</span></label>
   <span class="sep">|</span>
   <label><input type="checkbox" id="show-pairs" checked onchange="applyBiasFilter()"><span>Pairs</span></label>
   <label><input type="checkbox" id="show-currencies" onchange="applyBiasFilter()"><span>Individual currencies</span></label>
@@ -73,7 +74,7 @@
     <thead>
       <tr class="group-row">
         <th class="sticky-col" colspan="1">&nbsp;</th>
-        <th colspan="2">Output</th>
+        <th colspan="3">Output</th>
         {% for cat, ids in categories.items() %}
           <th colspan="{{ ids|length }}" class="gstart">{{ cat }}</th>
         {% endfor %}
@@ -82,6 +83,7 @@
         <th class="sticky-col">Symbol</th>
         <th>Bias</th>
         <th>Score</th>
+        <th title="Last close's position in the 40-session high-low range (0% = range low, 100% = range high). WATCH = directional bias with price pulled back to the zone-hunting side; EXTENDED = biased but at the far end of the range.">Location</th>
         {% set ns = namespace(prev='') %}
         {% for ind in indicators %}
           <th class="{% if ind.category != ns.prev %}gstart{% endif %}">{{ ind.label }}</th>
@@ -91,7 +93,7 @@
     </thead>
     <tbody>
       {% for r in rows %}
-      <tr data-bias="{{ r.bias_class }}" data-row-type="{% if r.is_currency %}currency{% else %}pair{% endif %}"{% if r.is_currency %} class="currency-row"{% endif %}>
+      <tr data-bias="{{ r.bias_class }}" data-setup="{{ r.setup or '' }}" data-row-type="{% if r.is_currency %}currency{% else %}pair{% endif %}"{% if r.is_currency %} class="currency-row"{% endif %}>
         {% if r.is_currency %}
         <td class="symbol"><a href="scorecard.html#{{ r.symbol }}">{{ r.display_name }} ›</a></td>
         {% else %}
@@ -99,6 +101,17 @@
         {% endif %}
         <td class="bias"><span class="pill {{ r.bias_class }}">{{ r.bias }}</span></td>
         <td class="score mono"><span class="score-chip {{ r.total_class }}">{{ r.total }}</span></td>
+        {% if r.loc_pct is none %}
+        <td class="location na mono">—</td>
+        {% elif r.setup == 'watch' %}
+        <td class="location"><span class="loc-chip loc-watch" title="Bias is directional and price has pulled back to {{ r.loc_pct }}% of its 40-session range: stalk zones here">WATCH · {{ r.loc_pct }}%</span></td>
+        {% elif r.setup == 'extended' %}
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at {{ r.loc_pct }}% of its 40-session range: wait for a pullback">EXT · {{ r.loc_pct }}%</span></td>
+        {% elif r.setup == 'mid' %}
+        <td class="location"><span class="loc-chip loc-mid" title="Price is mid-range ({{ r.loc_pct }}% of its 40-session range)">MID · {{ r.loc_pct }}%</span></td>
+        {% else %}
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at {{ r.loc_pct }}% of its 40-session range">{{ r.loc_pct }}%</span></td>
+        {% endif %}
         {% set ns = namespace(prev='') %}
         {% for ind in indicators %}
           {% set v = r.scores[ind.id] %}
@@ -124,6 +137,7 @@
   <span><span class="sw" style="background:var(--neg1)"></span>−1</span>
   <span><span class="sw" style="background:var(--neg2)"></span>−2</span>
   <span class="note">Pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>
+  <span class="note">Location = last close within the 40-session high-low range. WATCH = directional bias with price pulled back to the zone side (bull ≤35%, bear ≥65%); EXT = biased but at the far end.</span>
 </div>
 
 <footer>
@@ -142,11 +156,13 @@ function applyBiasFilter(){
   var shown = 0;
   rows.forEach(function(tr){
     var bias = tr.getAttribute('data-bias') || '';
+    var setup = tr.getAttribute('data-setup') || '';
     var rowType = tr.getAttribute('data-row-type') || 'pair';
     var show = true;
     if(mode === 'directional'){ show = bias !== 'b-neut'; }
     else if(mode === 'bullish'){ show = (bias === 'b-bull' || bias === 'b-vbull'); }
     else if(mode === 'bearish'){ show = (bias === 'b-bear' || bias === 'b-vbear'); }
+    else if(mode === 'watch'){ show = setup === 'watch'; }
     if(rowType === 'pair'     && !pairsOn) show = false;
     if(rowType === 'currency' && !ccysOn)  show = false;
     tr.style.display = show ? '' : 'none';
@@ -178,7 +194,7 @@ document.addEventListener('click', function(e){
     var td = e.target.closest('td,th');
     if(!td || !td.parentElement) return;
     var idx = Array.prototype.indexOf.call(td.parentElement.children, td);
-    if(idx < 3) return;
+    if(idx < 4) return;
     colCells(idx).forEach(function(c){ c.classList.add('colhi'); });
   });
   table.addEventListener('mouseout', function(){

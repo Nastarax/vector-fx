@@ -116,6 +116,15 @@ table#heatmap{border-collapse:separate;border-spacing:0;min-width:100%;backgroun
 .pill.b-bear {background:rgba(204,51,68,.14);color:#ffb8c0;border-color:rgba(204,51,68,.32)}
 .pill.b-vbear{background:rgba(204,51,68,.24);color:#ff9aa6;border-color:rgba(204,51,68,.5)}
 .score-chip{display:inline-block;min-width:30px;padding:3px 8px;border-radius:6px;color:#fff;font-weight:700}
+#heatmap td.location{text-align:left;min-width:106px}
+#heatmap td.location.na{color:var(--muted)}
+.loc-chip{display:inline-block;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:700;
+          letter-spacing:.4px;border:1px solid transparent;white-space:nowrap;
+          font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace}
+.loc-watch{background:rgba(34,197,94,.16);color:#8ef0b1;border-color:rgba(34,197,94,.42)}
+.loc-ext  {background:rgba(245,158,11,.13);color:#fcd34d;border-color:rgba(245,158,11,.35)}
+.loc-mid  {background:rgba(126,137,184,.12);color:#aab4d8;border-color:rgba(126,137,184,.28)}
+.loc-none {background:transparent;color:var(--muted);border-color:var(--border-soft)}
 .total-c2{background:var(--pos2)} .total-c1{background:var(--pos1)}
 .total-cn1{background:var(--neg1)} .total-cn2{background:var(--neg2)}
 .total-c0{background:var(--zero);color:#cfd6f5}

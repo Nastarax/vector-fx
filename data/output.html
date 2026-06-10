@@ -18,7 +18,7 @@
   </div>
   <div class="meta">
     
-      Updated <b>2026-06-09 23:27 UTC</b><br><b>42</b> pairs scored
+      Updated <b>2026-06-10 03:26 UTC</b><br><b>42</b> pairs scored
     
   </div>
 </header>
@@ -45,6 +45,7 @@
   <label><input type="radio" name="bias-filter" value="directional" onchange="applyBiasFilter()"><span>Bullish / Bearish</span></label>
   <label><input type="radio" name="bias-filter" value="bullish" onchange="applyBiasFilter()"><span>Bullish only</span></label>
   <label><input type="radio" name="bias-filter" value="bearish" onchange="applyBiasFilter()"><span>Bearish only</span></label>
+  <label><input type="radio" name="bias-filter" value="watch" onchange="applyBiasFilter()"><span>Setup ready</span></label>
   <span class="sep">|</span>
   <label><input type="checkbox" id="show-pairs" checked onchange="applyBiasFilter()"><span>Pairs</span></label>
   <label><input type="checkbox" id="show-currencies" onchange="applyBiasFilter()"><span>Individual currencies</span></label>
@@ -58,7 +59,7 @@
     <thead>
       <tr class="group-row">
         <th class="sticky-col" colspan="1">&nbsp;</th>
-        <th colspan="2">Output</th>
+        <th colspan="3">Output</th>
         
           <th colspan="2" class="gstart">Technical</th>
         
@@ -75,6 +76,7 @@
         <th class="sticky-col">Symbol</th>
         <th>Bias</th>
         <th>Score</th>
+        <th title="Last close's position in the 40-session high-low range (0% = range low, 100% = range high). WATCH = directional bias with price pulled back to the zone-hunting side; EXTENDED = biased but at the far end of the range.">Location</th>
         
         
           <th class="gstart">4H/D Trend</th>
@@ -135,12 +137,15 @@
     </thead>
     <tbody>
       
-      <tr data-bias="b-vbull" data-row-type="pair">
+      <tr data-bias="b-vbull" data-setup="extended" data-row-type="pair">
         
-        <td class="symbol">EURAUD</td>
+        <td class="symbol">USDCAD</td>
         
         <td class="bias"><span class="pill b-vbull">Very Bullish</span></td>
-        <td class="score mono"><span class="score-chip total-c2">9</span></td>
+        <td class="score mono"><span class="score-chip total-c2">10</span></td>
+        
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 99% of its 40-session range: wait for a pullback">EXT · 99%</span></td>
+        
         
         
           
@@ -155,7 +160,321 @@
           
           
             
-            <td class="cell mono c2"><span class="cell-inner">2</span></td>
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+      </tr>
+      
+      <tr data-bias="b-bull" data-setup="extended" data-row-type="pair">
+        
+        <td class="symbol">USDCHF</td>
+        
+        <td class="bias"><span class="pill b-bull">Bullish</span></td>
+        <td class="score mono"><span class="score-chip total-c1">8</span></td>
+        
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 98% of its 40-session range: wait for a pullback">EXT · 98%</span></td>
+        
+        
+        
+          
+          
+          
+            
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+      </tr>
+      
+      <tr data-bias="b-bull" data-setup="mid" data-row-type="pair">
+        
+        <td class="symbol">EURAUD</td>
+        
+        <td class="bias"><span class="pill b-bull">Bullish</span></td>
+        <td class="score mono"><span class="score-chip total-c1">8</span></td>
+        
+        <td class="location"><span class="loc-chip loc-mid" title="Price is mid-range (60% of its 40-session range)">MID · 60%</span></td>
+        
+        
+        
+          
+          
+          
+            
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
           
           
         
@@ -285,13 +604,16 @@
         
       </tr>
       
-      <tr data-bias="b-bull" data-row-type="pair">
+      <tr data-bias="b-bull" data-setup="extended" data-row-type="pair">
         
         <td class="symbol">GBPAUD</td>
         
         <td class="bias"><span class="pill b-bull">Bullish</span></td>
         <td class="score mono"><span class="score-chip total-c1">8</span></td>
         
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 78% of its 40-session range: wait for a pullback">EXT · 78%</span></td>
+        
+        
         
           
           
@@ -435,19 +757,22 @@
         
       </tr>
       
-      <tr data-bias="b-bull" data-row-type="pair">
+      <tr data-bias="b-bull" data-setup="extended" data-row-type="pair">
         
-        <td class="symbol">USDCAD</td>
+        <td class="symbol">USDJPY</td>
         
         <td class="bias"><span class="pill b-bull">Bullish</span></td>
         <td class="score mono"><span class="score-chip total-c1">6</span></td>
         
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 91% of its 40-session range: wait for a pullback">EXT · 91%</span></td>
+        
+        
         
           
           
           
             
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
           
           
         
@@ -455,7 +780,7 @@
           
           
             
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+            <td class="cell mono c2"><span class="cell-inner">2</span></td>
           
           
         
@@ -479,7 +804,7 @@
           
           
             
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
           
           
         
@@ -496,6 +821,14 @@
           
             
             <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
           
           
         
@@ -504,14 +837,6 @@
           
             
             <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
           
           
         
@@ -543,7 +868,7 @@
           
           
             
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
           
           
         
@@ -589,167 +914,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
-        
-        <td class="symbol">USDCHF</td>
-        
-        <td class="bias"><span class="pill b-neut">Neutral</span></td>
-        <td class="score mono"><span class="score-chip ">4</span></td>
-        
-        
-          
-          
-          
-            
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-      </tr>
-      
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">EURCAD</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">4</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 54% of its 40-session range">54%</span></td>
+        
+        
         
           
           
@@ -893,13 +1067,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">GBPCAD</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">4</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 77% of its 40-session range">77%</span></td>
+        
+        
         
           
           
@@ -1043,317 +1220,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
-        
-        <td class="symbol">USDJPY</td>
-        
-        <td class="bias"><span class="pill b-neut">Neutral</span></td>
-        <td class="score mono"><span class="score-chip ">3</span></td>
-        
-        
-          
-          
-          
-            
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c2"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-      </tr>
-      
-      <tr data-bias="b-neut" data-row-type="pair">
-        
-        <td class="symbol">EURNZD</td>
-        
-        <td class="bias"><span class="pill b-neut">Neutral</span></td>
-        <td class="score mono"><span class="score-chip ">3</span></td>
-        
-        
-          
-          
-          
-            
-            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono gstart">—</td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-      </tr>
-      
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">GBPNZD</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">3</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 78% of its 40-session range">78%</span></td>
+        
+        
         
           
           
@@ -1497,13 +1373,326 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
+        
+        <td class="symbol">NIKKEI</td>
+        
+        <td class="bias"><span class="pill b-neut">Neutral</span></td>
+        <td class="score mono"><span class="score-chip ">3</span></td>
+        
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 68% of its 40-session range">68%</span></td>
+        
+        
+        
+          
+          
+          
+            
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c2"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
+        
+        <td class="symbol">EURNZD</td>
+        
+        <td class="bias"><span class="pill b-neut">Neutral</span></td>
+        <td class="score mono"><span class="score-chip ">2</span></td>
+        
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 69% of its 40-session range">69%</span></td>
+        
+        
+        
+          
+          
+          
+            
+            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono gstart">—</td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">EURCHF</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">2</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 68% of its 40-session range">68%</span></td>
+        
+        
         
           
           
@@ -1647,13 +1836,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">GBPCHF</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">2</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 81% of its 40-session range">81%</span></td>
+        
+        
         
           
           
@@ -1797,167 +1989,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
-        
-        <td class="symbol">NIKKEI</td>
-        
-        <td class="bias"><span class="pill b-neut">Neutral</span></td>
-        <td class="score mono"><span class="score-chip ">2</span></td>
-        
-        
-          
-          
-          
-            
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c2"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-      </tr>
-      
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">NZDCAD</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">1</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 43% of its 40-session range">43%</span></td>
+        
+        
         
           
           
@@ -2101,169 +2142,22 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">CADCHF</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
-        <td class="score mono"><span class="score-chip ">0</span></td>
-        
-        
-          
-          
-          
-            
-            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono gstart">—</td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c2"><span class="cell-inner">2</span></td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-      </tr>
-      
-      <tr data-bias="b-neut" data-row-type="pair">
-        
-        <td class="symbol">NZDCHF</td>
-        
-        <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">-1</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 49% of its 40-session range">49%</span></td>
+        
+        
         
           
           
           
             
-            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
+            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
           
           
         
@@ -2319,7 +2213,7 @@
           
           
             
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
           
           
         
@@ -2327,7 +2221,7 @@
           
           
             
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
           
           
         
@@ -2335,7 +2229,7 @@
           
           
             
-            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
           
           
         
@@ -2401,13 +2295,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">NASDAQ</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">-1</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 68% of its 40-session range">68%</span></td>
+        
+        
         
           
           
@@ -2555,13 +2452,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">EURGBP</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">-2</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 23% of its 40-session range">23%</span></td>
+        
+        
         
           
           
@@ -2705,19 +2605,175 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
+        
+        <td class="symbol">NZDCHF</td>
+        
+        <td class="bias"><span class="pill b-neut">Neutral</span></td>
+        <td class="score mono"><span class="score-chip ">-2</span></td>
+        
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 51% of its 40-session range">51%</span></td>
+        
+        
+        
+          
+          
+          
+            
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c2 gstart"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono gstart">—</td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c2"><span class="cell-inner">2</span></td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">EURJPY</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
-        <td class="score mono"><span class="score-chip ">-4</span></td>
+        <td class="score mono"><span class="score-chip ">-3</span></td>
+        
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 44% of its 40-session range">44%</span></td>
+        
         
         
           
           
           
             
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
           
           
         
@@ -2855,19 +2911,22 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">GBPJPY</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
-        <td class="score mono"><span class="score-chip ">-4</span></td>
+        <td class="score mono"><span class="score-chip ">-3</span></td>
+        
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 50% of its 40-session range">50%</span></td>
+        
         
         
           
           
           
             
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
           
           
         
@@ -3005,19 +3064,22 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">NZDJPY</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
-        <td class="score mono"><span class="score-chip ">-4</span></td>
+        <td class="score mono"><span class="score-chip ">-3</span></td>
+        
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 39% of its 40-session range">39%</span></td>
+        
         
         
           
           
           
             
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
           
           
         
@@ -3155,13 +3217,322 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="pair">
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
+        
+        <td class="symbol">AUDNZD</td>
+        
+        <td class="bias"><span class="pill b-neut">Neutral</span></td>
+        <td class="score mono"><span class="score-chip ">-4</span></td>
+        
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 49% of its 40-session range">49%</span></td>
+        
+        
+        
+          
+          
+          
+            
+            <td class="cell mono c1 gstart"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono gstart">—</td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
+        
+        <td class="symbol">AUDCAD</td>
+        
+        <td class="bias"><span class="pill b-neut">Neutral</span></td>
+        <td class="score mono"><span class="score-chip ">-4</span></td>
+        
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 44% of its 40-session range">44%</span></td>
+        
+        
+        
+          
+          
+          
+            
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c1"><span class="cell-inner">1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono gstart">—</td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+          
+          
+          
+            <td class="cell na mono">—</td>
+          
+          
+        
+      </tr>
+      
+      <tr data-bias="b-neut" data-setup="" data-row-type="pair">
         
         <td class="symbol">Platinum</td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">-4</span></td>
         
+        <td class="location"><span class="loc-chip loc-none" title="Neutral bias; price at 0% of its 40-session range">0%</span></td>
+        
+        
         
           
           
@@ -3309,163 +3680,16 @@
         
       </tr>
       
-      <tr data-bias="b-bear" data-row-type="pair">
-        
-        <td class="symbol">AUDCAD</td>
-        
-        <td class="bias"><span class="pill b-bear">Bearish</span></td>
-        <td class="score mono"><span class="score-chip total-cn1">-5</span></td>
-        
-        
-          
-          
-          
-            
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono gstart">—</td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-      </tr>
-      
-      <tr data-bias="b-bear" data-row-type="pair">
+      <tr data-bias="b-bear" data-setup="mid" data-row-type="pair">
         
         <td class="symbol">CHFJPY</td>
         
         <td class="bias"><span class="pill b-bear">Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn1">-6</span></td>
         
+        <td class="location"><span class="loc-chip loc-mid" title="Price is mid-range (39% of its 40-session range)">MID · 39%</span></td>
+        
+        
         
           
           
@@ -3609,13 +3833,16 @@
         
       </tr>
       
-      <tr data-bias="b-bear" data-row-type="pair">
+      <tr data-bias="b-bear" data-setup="extended" data-row-type="pair">
         
         <td class="symbol">EURUSD</td>
         
         <td class="bias"><span class="pill b-bear">Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn1">-7</span></td>
         
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 15% of its 40-session range: wait for a pullback">EXT · 15%</span></td>
+        
+        
         
           
           
@@ -3763,13 +3990,16 @@
         
       </tr>
       
-      <tr data-bias="b-bear" data-row-type="pair">
+      <tr data-bias="b-bear" data-setup="extended" data-row-type="pair">
         
         <td class="symbol">CADJPY</td>
         
         <td class="bias"><span class="pill b-bear">Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn1">-7</span></td>
         
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 23% of its 40-session range: wait for a pullback">EXT · 23%</span></td>
+        
+        
         
           
           
@@ -3913,19 +4143,22 @@
         
       </tr>
       
-      <tr data-bias="b-bear" data-row-type="pair">
+      <tr data-bias="b-bear" data-setup="mid" data-row-type="pair">
         
-        <td class="symbol">AUDNZD</td>
+        <td class="symbol">AUDCHF</td>
         
         <td class="bias"><span class="pill b-bear">Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn1">-7</span></td>
         
+        <td class="location"><span class="loc-chip loc-mid" title="Price is mid-range (45% of its 40-session range)">MID · 45%</span></td>
+        
+        
         
           
           
           
             
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
+            <td class="cell mono cn1 gstart"><span class="cell-inner">-1</span></td>
           
           
         
@@ -3933,7 +4166,23 @@
           
           
             
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
+          
+          
+        
+          
+          
+          
+            
+            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
           
           
         
@@ -3950,22 +4199,6 @@
           
             
             <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
           
           
         
@@ -3989,7 +4222,7 @@
           
           
             
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
           
           
         
@@ -3997,7 +4230,7 @@
           
           
             
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
+            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
           
           
         
@@ -4043,7 +4276,7 @@
           
           
             
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
+            <td class="cell mono c0"><span class="cell-inner">0</span></td>
           
           
         
@@ -4063,13 +4296,16 @@
         
       </tr>
       
-      <tr data-bias="b-bear" data-row-type="pair">
+      <tr data-bias="b-bear" data-setup="extended" data-row-type="pair">
         
         <td class="symbol">GBPUSD</td>
         
         <td class="bias"><span class="pill b-bear">Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn1">-8</span></td>
         
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 24% of its 40-session range: wait for a pullback">EXT · 24%</span></td>
+        
+        
         
           
           
@@ -4217,13 +4453,16 @@
         
       </tr>
       
-      <tr data-bias="b-bear" data-row-type="pair">
+      <tr data-bias="b-bear" data-setup="extended" data-row-type="pair">
         
         <td class="symbol">NZDUSD</td>
         
         <td class="bias"><span class="pill b-bear">Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn1">-8</span></td>
         
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 17% of its 40-session range: wait for a pullback">EXT · 17%</span></td>
+        
+        
         
           
           
@@ -4371,13 +4610,16 @@
         
       </tr>
       
-      <tr data-bias="b-vbear" data-row-type="pair">
+      <tr data-bias="b-vbear" data-setup="mid" data-row-type="pair">
         
         <td class="symbol">AUDJPY</td>
         
         <td class="bias"><span class="pill b-vbear">Very Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn2">-9</span></td>
         
+        <td class="location"><span class="loc-chip loc-mid" title="Price is mid-range (40% of its 40-session range)">MID · 40%</span></td>
+        
+        
         
           
           
@@ -4521,163 +4763,16 @@
         
       </tr>
       
-      <tr data-bias="b-vbear" data-row-type="pair">
-        
-        <td class="symbol">AUDCHF</td>
-        
-        <td class="bias"><span class="pill b-vbear">Very Bearish</span></td>
-        <td class="score mono"><span class="score-chip total-cn2">-9</span></td>
-        
-        
-          
-          
-          
-            
-            <td class="cell mono cn2 gstart"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c1"><span class="cell-inner">1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0 gstart"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono gstart">—</td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-          
-          
-          
-            
-            <td class="cell mono c0"><span class="cell-inner">0</span></td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-          
-          
-          
-            <td class="cell na mono">—</td>
-          
-          
-        
-      </tr>
-      
-      <tr data-bias="b-vbear" data-row-type="pair">
+      <tr data-bias="b-vbear" data-setup="extended" data-row-type="pair">
         
         <td class="symbol">Gold</td>
         
         <td class="bias"><span class="pill b-vbear">Very Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn2">-10</span></td>
         
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 1% of its 40-session range: wait for a pullback">EXT · 1%</span></td>
+        
+        
         
           
           
@@ -4825,13 +4920,16 @@
         
       </tr>
       
-      <tr data-bias="b-vbear" data-row-type="pair">
+      <tr data-bias="b-vbear" data-setup="extended" data-row-type="pair">
         
         <td class="symbol">Silver</td>
         
         <td class="bias"><span class="pill b-vbear">Very Bearish</span></td>
         <td class="score mono"><span class="score-chip total-cn2">-10</span></td>
         
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 0% of its 40-session range: wait for a pullback">EXT · 0%</span></td>
+        
+        
         
           
           
@@ -4979,12 +5077,15 @@
         
       </tr>
       
-      <tr data-bias="b-vbear" data-row-type="pair">
+      <tr data-bias="b-vbear" data-setup="extended" data-row-type="pair">
         
         <td class="symbol">AUDUSD</td>
         
         <td class="bias"><span class="pill b-vbear">Very Bearish</span></td>
-        <td class="score mono"><span class="score-chip total-cn2">-13</span></td>
+        <td class="score mono"><span class="score-chip total-cn2">-14</span></td>
+        
+        <td class="location"><span class="loc-chip loc-ext" title="Bias is directional but price is at 5% of its 40-session range: wait for a pullback">EXT · 5%</span></td>
+        
         
         
           
@@ -4999,7 +5100,7 @@
           
           
             
-            <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+            <td class="cell mono cn2"><span class="cell-inner">-2</span></td>
           
           
         
@@ -5133,13 +5234,16 @@
         
       </tr>
       
-      <tr data-bias="b-bull" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-bull" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#USD">USD ›</a></td>
         
         <td class="bias"><span class="pill b-bull">Bullish</span></td>
         <td class="score mono"><span class="score-chip total-c1">7</span></td>
         
+        <td class="location na mono">—</td>
+        
+        
         
           
           
@@ -5284,13 +5388,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-neut" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#JPY">JPY ›</a></td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">4</span></td>
         
+        <td class="location na mono">—</td>
+        
+        
         
           
           
@@ -5435,13 +5542,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-neut" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#EUR">EUR ›</a></td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">2</span></td>
         
+        <td class="location na mono">—</td>
+        
+        
         
           
           
@@ -5586,13 +5696,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-neut" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#GBP">GBP ›</a></td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">2</span></td>
         
+        <td class="location na mono">—</td>
+        
+        
         
           
           
@@ -5737,13 +5850,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-neut" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#NZD">NZD ›</a></td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">1</span></td>
         
+        <td class="location na mono">—</td>
+        
+        
         
           
           
@@ -5888,13 +6004,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-neut" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#CHF">CHF ›</a></td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">0</span></td>
         
+        <td class="location na mono">—</td>
+        
+        
         
           
           
@@ -6039,13 +6158,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-neut" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#CAD">CAD ›</a></td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">-1</span></td>
         
+        <td class="location na mono">—</td>
+        
+        
         
           
           
@@ -6190,13 +6312,16 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-neut" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#AUD">AUD ›</a></td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">-4</span></td>
         
+        <td class="location na mono">—</td>
+        
+        
         
           
           
@@ -6341,12 +6466,15 @@
         
       </tr>
       
-      <tr data-bias="b-neut" data-row-type="currency" class="currency-row">
+      <tr data-bias="b-neut" data-setup="" data-row-type="currency" class="currency-row">
         
         <td class="symbol"><a href="scorecard.html#XAU">Gold ›</a></td>
         
         <td class="bias"><span class="pill b-neut">Neutral</span></td>
         <td class="score mono"><span class="score-chip ">-4</span></td>
+        
+        <td class="location na mono">—</td>
+        
         
         
           
@@ -6503,6 +6631,7 @@
   <span><span class="sw" style="background:var(--neg1)"></span>−1</span>
   <span><span class="sw" style="background:var(--neg2)"></span>−2</span>
   <span class="note">Pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>
+  <span class="note">Location = last close within the 40-session high-low range. WATCH = directional bias with price pulled back to the zone side (bull ≤35%, bear ≥65%); EXT = biased but at the far end.</span>
 </div>
 
 <footer>
@@ -6521,11 +6650,13 @@ function applyBiasFilter(){
   var shown = 0;
   rows.forEach(function(tr){
     var bias = tr.getAttribute('data-bias') || '';
+    var setup = tr.getAttribute('data-setup') || '';
     var rowType = tr.getAttribute('data-row-type') || 'pair';
     var show = true;
     if(mode === 'directional'){ show = bias !== 'b-neut'; }
     else if(mode === 'bullish'){ show = (bias === 'b-bull' || bias === 'b-vbull'); }
     else if(mode === 'bearish'){ show = (bias === 'b-bear' || bias === 'b-vbear'); }
+    else if(mode === 'watch'){ show = setup === 'watch'; }
     if(rowType === 'pair'     && !pairsOn) show = false;
     if(rowType === 'currency' && !ccysOn)  show = false;
     tr.style.display = show ? '' : 'none';
@@ -6557,7 +6688,7 @@ document.addEventListener('click', function(e){
     var td = e.target.closest('td,th');
     if(!td || !td.parentElement) return;
     var idx = Array.prototype.indexOf.call(td.parentElement.children, td);
-    if(idx < 3) return;
+    if(idx < 4) return;
     colCells(idx).forEach(function(c){ c.classList.add('colhi'); });
   });
   table.addEventListener('mouseout', function(){
