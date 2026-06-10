@@ -11,6 +11,7 @@ Resilience strategy:
 """
 from __future__ import annotations
 
+import os
 import time
 from pathlib import Path
 
@@ -29,6 +30,12 @@ def _cache_path(symbol: str, suffix: str = "") -> Path:
 
 
 def _is_fresh(path: Path, max_age_hours: int = 1) -> bool:
+    # On GitHub Actions the checkout resets every file's mtime to checkout
+    # time, so a committed cache ALWAYS looked fresh and yfinance was never
+    # hit: CI rendered with prices frozen at the last local push. Force a
+    # refetch there; on failure the stale-cache fallback still applies.
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        return False
     if not path.exists():
         return False
     return (time.time() - path.stat().st_mtime) < max_age_hours * 3600

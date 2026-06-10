@@ -2,8 +2,9 @@ name: Refresh EdgeFinder
 
 on:
   schedule:
-    # Every hour at :05 past. UTC.
-    - cron: "5 * * * *"
+    # Every 30 minutes (:05 and :35 UTC). GitHub cron is best-effort and
+    # often fires several minutes late, especially at the top of the hour.
+    - cron: "5,35 * * * *"
   workflow_dispatch:  # Allows manual run from the Actions tab
 
 permissions:

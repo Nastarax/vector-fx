@@ -6,8 +6,12 @@ per-pair / per-currency bias (Very Bullish .. Very Bearish). Lives at
 `C:\Users\yanae\Desktop\Swing Trading\edgefinder`, pushed to GitHub repo
 `Nastarax/edgefinder`, served via GitHub Pages. Dark theme, gradient blue "V" mark.
 
-GitHub Actions runs `main.py` hourly at :05 UTC (`.github/workflows/hourly.yml`),
-commits regenerated outputs, GH Pages deploys. The Pages actions
+GitHub Actions runs `main.py` every 30 min at :05/:35 UTC (`.github/workflows/hourly.yml`),
+commits regenerated outputs, GH Pages deploys. NB: checkout resets file mtimes, which
+made the px cache always look "<1h fresh" in CI, so Actions used to render with prices
+frozen at the last local push; `_is_fresh` in `src/fetchers/prices.py` now returns
+False when `GITHUB_ACTIONS=true`, forcing a real yfinance fetch (stale-cache fallback
+still applies on failure). The Pages actions
 (`upload-pages-artifact`, `deploy-pages`) are pinned to v5.0.0 full commit SHAs
 because GitHub's CDN retired the v3 tarballs and v4 was unreliable. If GitHub
 disables the scheduled workflow after 60 days of inactivity, re-enable it from the
