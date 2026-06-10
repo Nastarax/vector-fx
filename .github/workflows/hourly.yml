@@ -36,6 +36,10 @@ jobs:
       - name: Run EdgeFinder pipeline
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          # WATCH-flip alert channels (optional; unset secrets = console only)
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python main.py
 
       - name: Copy output to index.html for Pages
@@ -46,6 +50,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/cache/score_history.json \
+                  data/cache/setup_state.json \
                   data/cache/te_history.json \
                   data/cache/te_rates_outlook.json \
                   data/cache/ff_history.json \

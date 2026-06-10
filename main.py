@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_jolts, investing_pce, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
-from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_macro, build_scorecard, build_seasonality
+from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_macro, build_scorecard, build_seasonality, notify
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 from src.scoring import score_history
 
@@ -336,6 +336,21 @@ def main():
         econ_path = build_economic_heatmap.render(econ_data)
     except Exception as e:
         print(f"[econ-heatmap] render failed: {e}")
+
+    # Pair-level history (score + range location + setup state), recorded
+    # independently of the scorecard so a scorecard failure can't drop it.
+    try:
+        score_history.save_pair_snapshot(heatmap["rows"], date_str=args.date)
+    except Exception as e:
+        print(f"[score-history] pair snapshot failed: {e}")
+
+    # WATCH-flip alerts (live runs only: a backtest render must not ping
+    # or overwrite the live setup-state baseline).
+    if not args.date:
+        try:
+            notify.check_and_notify(heatmap["rows"])
+        except Exception as e:
+            print(f"[notify] failed: {e}")
 
     # Asset Scorecard (per-currency deep dive with gauge + sub-scores)
     scorecard_path = None

@@ -94,6 +94,23 @@ Unemployment Rate:    TE all 8 (down_is_bullish)
 
 ## Recent changes (committed)
 
+00. **Pair-level history + WATCH-flip alerts.**
+    - `save_pair_snapshot` in `score_history.py`: records each pair's daily
+      score/bias/loc/setup into `score_history.json` alongside the currency entries
+      (no key collisions: scorecard uses NKY/NDX/XAU, pairs use NIKKEI/NASDAQ/XAUUSD;
+      the IC harness only reads the 8 fiat keys). Purpose: validate whether
+      bias+WATCH entries outperform bias+EXT once history accumulates. Forward-only,
+      no backfill (lookahead bias).
+    - `src/output/notify.py`: after each live run, diffs pair setup states against
+      `data/cache/setup_state.json` and pushes an alert when a pair ENTERS watch.
+      Channels by env var: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (Telegram) and/or
+      DISCORD_WEBHOOK_URL (Discord webhook); neither set = console print only.
+      First run records a baseline silently; exits from watch never alert; backtest
+      runs (`--date`) skip notify entirely. `hourly.yml` passes the three secrets
+      and commits `setup_state.json` back so the diff survives between runs.
+      **Secrets must be added in repo Settings -> Secrets and variables -> Actions
+      before alerts fire.**
+
 0. **Location column + Setup ready filter** on the main heatmap (S&D entry confluence).
    `range_position` in `score_technical.py`: last close's position in the 40-session
    high-low range, 0..100. `_setup_state` in `score_pair.py` combines it with bias:

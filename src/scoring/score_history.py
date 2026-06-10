@@ -73,3 +73,46 @@ def save_snapshot(scorecards: dict, date_str: str | None = None):
 
     print(f"[score-history] snapshot {today}: {len(scorecards)} symbols"
           + (f", {added} new" if added else ", already recorded"))
+
+
+def save_pair_snapshot(pair_rows: list[dict], date_str: str | None = None):
+    """
+    Record per-pair score + bias + range location + setup state, one snapshot
+    per day, into the same history file. Pair symbols (EURUSD, NIKKEI, ...)
+    live alongside the currency/asset entries (USD, NKY, ...) and are ignored
+    by the currency-level IC harness, which only reads the 8 fiat keys.
+
+    Purpose: validate the Location/WATCH entry filter once enough history
+    accumulates (do bias+pullback entries outperform bias+extended?). Like
+    sub-scores, loc/setup are recorded going forward only; they cannot be
+    backfilled without lookahead bias.
+    """
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    today = date_str or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    history = load_history()
+    added = 0
+
+    for r in pair_rows:
+        if r.get("is_currency"):
+            continue  # currency rows are recorded by save_snapshot
+        symbol = r["symbol"]
+        entries = history.setdefault(symbol, [])
+        if any(e["date"] == today for e in entries):
+            continue
+
+        entry = {"date": today, "score": r["total"], "bias": r["bias"]}
+        if r.get("loc_pct") is not None:
+            entry["loc"] = r["loc_pct"]
+        if r.get("setup"):
+            entry["setup"] = r["setup"]
+        entries.append(entry)
+        history[symbol] = sorted(entries, key=lambda x: x["date"])[-MAX_DAYS:]
+        added += 1
+
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(history, f)
+
+    n_pairs = sum(1 for r in pair_rows if not r.get("is_currency"))
+    print(f"[score-history] pair snapshot {today}: {n_pairs} pairs"
+          + (f", {added} new" if added else ", already recorded"))
