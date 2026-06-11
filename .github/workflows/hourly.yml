@@ -54,19 +54,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/cache/score_history.json \
-                  data/cache/setup_state.json \
-                  data/cache/te_history.json \
-                  data/cache/te_rates_outlook.json \
-                  data/cache/ff_history.json \
-                  data/cache/abs_au_household.json \
-                  data/cache/myfxbook_outlook.json \
-                  data/cache/forexbenchmark_outlook.json \
-                  data/output.html data/index.html \
-                  data/cot.html data/scorecard.html \
-                  data/economic_heatmap.html data/inflation.html \
-                  data/seasonality_yearly.html data/seasonality_monthly.html \
-                  data/macro.html
+          # Stage everything: .gitignore's curated whitelist already decides
+          # what is committable, and a hand-maintained list here kept missing
+          # newly added cache files (setup_state.json, ff_rates_outlook.json),
+          # which also left unstaged changes that broke the rebase retry below.
+          git add -A
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
@@ -86,7 +78,10 @@ jobs:
             fi
             echo "Push rejected; rebasing on latest main (attempt $n)..."
             git fetch origin main
-            git rebase -X theirs origin/main || git rebase --abort
+            # Drop any unstaged regenerated files; rebase refuses a dirty
+            # tree, and everything here is reproducible output anyway.
+            git checkout -- . || true
+            git rebase -X theirs origin/main || git rebase --abort || true
             sleep $((RANDOM % 4 + 2))
           done
 
