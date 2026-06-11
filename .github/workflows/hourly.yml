@@ -2,9 +2,13 @@ name: Refresh EdgeFinder
 
 on:
   schedule:
-    # Every 30 minutes (:05 and :35 UTC). GitHub cron is best-effort and
-    # often fires several minutes late, especially at the top of the hour.
-    - cron: "5,35 * * * *"
+    # Nominally every 15 minutes, on off-peak minutes. GitHub's scheduler is
+    # best-effort and DROPS most events for free-tier repos (observed
+    # 2026-06-10: a 30-min cron fired ~5 times in 12 hours). A denser cron on
+    # uncrowded minutes is the lottery-ticket workaround; actual cadence will
+    # land somewhere between 15 min and a couple of hours. The concurrency
+    # group below serializes any pile-ups.
+    - cron: "3,18,33,48 * * * *"
   workflow_dispatch:  # Allows manual run from the Actions tab
 
 permissions:

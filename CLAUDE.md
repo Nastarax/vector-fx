@@ -6,8 +6,12 @@ per-pair / per-currency bias (Very Bullish .. Very Bearish). Lives at
 `C:\Users\yanae\Desktop\Swing Trading\edgefinder`, pushed to GitHub repo
 `Nastarax/edgefinder`, served via GitHub Pages. Dark theme, gradient blue "V" mark.
 
-GitHub Actions runs `main.py` every 30 min at :05/:35 UTC (`.github/workflows/hourly.yml`),
-commits regenerated outputs, GH Pages deploys. NB: checkout resets file mtimes, which
+GitHub Actions runs `main.py` on a nominal 15-min cron at :03/:18/:33/:48 UTC
+(`.github/workflows/hourly.yml`), commits regenerated outputs, GH Pages deploys.
+NB: GitHub's scheduler drops most cron events on free-tier repos (observed
+2026-06-10: a 30-min cron fired ~5x in 12h), so real cadence is irregular; the
+dense off-peak cron is a workaround, and a guaranteed cadence would need an
+external pinger hitting workflow_dispatch with a PAT. NB: checkout resets file mtimes, which
 made the px cache always look "<1h fresh" in CI, so Actions used to render with prices
 frozen at the last local push; `_is_fresh` in `src/fetchers/prices.py` now returns
 False when `GITHUB_ACTIONS=true`, forcing a real yfinance fetch (stale-cache fallback
