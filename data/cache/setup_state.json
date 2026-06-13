@@ -119,11 +119,6 @@
   "bias": "Bearish",
   "loc": 54
  },
- "XAUUSD": {
-  "setup": "extended",
-  "bias": "Bearish",
-  "loc": 22
- },
  "EURUSD": {
   "setup": "extended",
   "bias": "Bearish",
@@ -138,6 +133,11 @@
   "setup": "extended",
   "bias": "Bearish",
   "loc": 17
+ },
+ "XAUUSD": {
+  "setup": "extended",
+  "bias": "Bearish",
+  "loc": 22
  },
  "AUDJPY": {
   "setup": "mid",
