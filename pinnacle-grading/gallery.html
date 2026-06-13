@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Work | Pinnacle Grading Company Inc.</title>
+  <meta name="description" content="Browse Pinnacle Grading's project gallery — site preparation, grading, excavation, septic systems, and boulder walls across North Carolina.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Gallery-specific background fillers using CSS patterns */
+    .g-item-1  { background: linear-gradient(135deg,#2d5a3d,#1b3a28); }
+    .g-item-2  { background: linear-gradient(135deg,#4a3520,#2d2010); }
+    .g-item-3  { background: linear-gradient(135deg,#3a3228,#2a2420); }
+    .g-item-4  { background: linear-gradient(135deg,#203040,#1a2a38); }
+    .g-item-5  { background: linear-gradient(135deg,#2a4228,#1a3020); }
+    .g-item-6  { background: linear-gradient(135deg,#3a3020,#2d2818); }
+    .g-item-7  { background: linear-gradient(135deg,#1d4030,#142d22); }
+    .g-item-8  { background: linear-gradient(135deg,#4a3828,#352a1e); }
+    .g-item-9  { background: linear-gradient(135deg,#38302a,#28201a); }
+    .g-item-10 { background: linear-gradient(135deg,#2d4a35,#1b3228); }
+    .g-item-11 { background: linear-gradient(135deg,#3d2d20,#2a1e14); }
+    .g-item-12 { background: linear-gradient(135deg,#253840,#1a282e); }
+
+    .gallery-full-item {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .gallery-inner-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 14px 18px;
+      background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gallery-full-item:hover .gallery-inner-label { opacity: 1; }
+
+    .gallery-inner-label strong {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+    .gallery-inner-label span {
+      font-size: 0.72rem;
+      color: var(--gold-light);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .gallery-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.1;
+    }
+    .gallery-icon svg { width: 56px; fill: #fff; }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar scrolled">
+  <div class="container navbar-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-name">Pinnacle Grading</span>
+      <span class="logo-sub">Company Incorporated</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="gallery.html" class="active">Our Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="nav-cta">Free Quote</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ===== PAGE HERO ===== -->
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a> <span>/</span> Our Work</div>
+    <h1>Our Work</h1>
+    <p>25+ years of projects that shaped North Carolina's landscape — one site at a time.</p>
+  </div>
+</div>
+
+<!-- ===== GALLERY ===== -->
+<section class="section gallery-full">
+  <div class="container">
+
+    <div class="gallery-cat-filter">
+      <button class="filter-btn active" data-cat="all">All Projects</button>
+      <button class="filter-btn" data-cat="grading">Grading</button>
+      <button class="filter-btn" data-cat="excavation">Excavation</button>
+      <button class="filter-btn" data-cat="septic">Septic</button>
+      <button class="filter-btn" data-cat="boulders">Boulder Walls</button>
+      <button class="filter-btn" data-cat="land">Land Development</button>
+    </div>
+
+    <div class="gallery-full-grid">
+
+      <div class="gallery-full-item g-item-1" data-cat="grading">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Mountain Lot Grading</strong><span>Asheville, NC &mdash; Grading</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-2" data-cat="excavation">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.86.18-1a3 3 0 0 0-6 0c0 .14.11.56.18 1H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Basement Excavation</strong><span>Weaverville, NC &mdash; Excavation</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-3" data-cat="boulders">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M14 6l-1-2H5v17h2v-7h5l1 2h7V6h-6zm4 8h-4l-1-2H7V6h5l1 2h5v6z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Granite Boulder Wall</strong><span>Black Mountain, NC &mdash; Boulder Walls</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-4" data-cat="septic">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Conventional Septic Install</strong><span>Mars Hill, NC &mdash; Septic</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-5" data-cat="land">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M3 18h18v2H3zm2-6l7-9 7 9H5zm7-5.5L8 13h8l-4-6.5z"/></svg></div>
+        <div class="gallery-inner-label"><strong>10-Acre Land Development</strong><span>Hendersonville, NC &mdash; Land Development</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-6" data-cat="grading">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+        <div class="gallery-inner-label"><strong>House Site Preparation</strong><span>Brevard, NC &mdash; Grading</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-7" data-cat="boulders">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M5 20v-4l2-2 2 2v4h2v-5l-4-4-4 4v5h2z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Tiered Terrace Walls</strong><span>Arden, NC &mdash; Boulder Walls</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-8" data-cat="excavation">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Utility Trench Excavation</strong><span>Swannanoa, NC &mdash; Excavation</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-9" data-cat="septic">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C7.77 16.58 10.6 12.7 17 11z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Alternative Pump System</strong><span>Waynesville, NC &mdash; Septic</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-10" data-cat="land">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M20 6H4v2l8 9 8-9V4zm-8 9.5L4.5 6h15L12 13.5z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Subdivision Road Build</strong><span>Candler, NC &mdash; Land Development</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-11" data-cat="grading">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Steep Slope Driveway Grade</strong><span>Fairview, NC &mdash; Grading</span></div>
+      </div>
+
+      <div class="gallery-full-item g-item-12" data-cat="boulders">
+        <div class="gallery-icon"><svg viewBox="0 0 24 24"><path d="M7 10h10v2H7zm0 4h10v2H7z"/></svg></div>
+        <div class="gallery-inner-label"><strong>Fieldstone Retaining Wall</strong><span>Fletcher, NC &mdash; Boulder Walls</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA BAND ===== -->
+<section class="cta-band">
+  <div class="container">
+    <div class="tag" style="color:rgba(255,255,255,0.7)">Ready to Start?</div>
+    <h2>Your Project Belongs in This Gallery</h2>
+    <p>Let's talk about what your land can become.</p>
+    <div class="cta-btns">
+      <a href="contact.html" class="btn" style="background:#fff;color:var(--green-dark);font-weight:700;font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;">Get a Free Quote</a>
+      <a href="services.html" class="btn btn-outline">View Services</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-name">Pinnacle Grading</span>
+          <span class="logo-sub">Company Incorporated</span>
+        </div>
+        <p class="footer-desc">North Carolina's trusted grading and excavation contractor for over 25 years. We build confidence in the land.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul class="footer-links">
+          <li><a href="services.html#site-prep">Site Preparation</a></li>
+          <li><a href="services.html#grading">Grading</a></li>
+          <li><a href="services.html#excavation">Excavation</a></li>
+          <li><a href="services.html#septic">Septic Systems</a></li>
+          <li><a href="services.html#boulders">Boulder Walls</a></li>
+          <li><a href="services.html#land-dev">Land Development</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul class="footer-links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="gallery.html">Our Work</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html">Free Quote</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul class="footer-contact">
+          <li><span>&#9742;</span> (828) 555-0000</li>
+          <li><span>&#9993;</span> info@pinnaclegradingco.com</li>
+          <li><span>&#9679;</span> Western North Carolina</li>
+          <li><span>&#9679;</span> Licensed &amp; Insured in NC</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2024 Pinnacle Grading Company Incorporated. All rights reserved.</span>
+      <div class="footer-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
