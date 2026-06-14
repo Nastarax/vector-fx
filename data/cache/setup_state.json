@@ -2,7 +2,7 @@
  "USDCAD": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 93
+  "loc": 92
  },
  "EURAUD": {
   "setup": "extended",
@@ -67,7 +67,7 @@
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 66
+  "loc": 58
  },
  "PLATINUM": {
   "setup": null,
@@ -162,6 +162,6 @@
  "AUDCHF": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 33
+  "loc": 26
  }
 }
