@@ -9,15 +9,15 @@
   "bias": "Bullish",
   "loc": 75
  },
- "GBPAUD": {
-  "setup": "extended",
-  "bias": "Bullish",
-  "loc": 84
- },
  "NIKKEI": {
   "setup": "extended",
   "bias": "Bullish",
   "loc": 77
+ },
+ "GBPAUD": {
+  "setup": "extended",
+  "bias": "Bullish",
+  "loc": 84
  },
  "NASDAQ": {
   "setup": null,
@@ -119,11 +119,6 @@
   "bias": "Bearish",
   "loc": 54
  },
- "XAUUSD": {
-  "setup": "extended",
-  "bias": "Bearish",
-  "loc": 24
- },
  "EURUSD": {
   "setup": "extended",
   "bias": "Bearish",
@@ -138,6 +133,11 @@
   "setup": "extended",
   "bias": "Bearish",
   "loc": 17
+ },
+ "XAUUSD": {
+  "setup": "extended",
+  "bias": "Bearish",
+  "loc": 24
  },
  "AUDJPY": {
   "setup": "mid",
