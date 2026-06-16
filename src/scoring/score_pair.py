@@ -1124,7 +1124,7 @@ def build_pair_rows(
 
         # Pair-level indicators
         df_4h = (prices_4h or {}).get(sym)
-        scores["trend"] = trend_score(df, df_4h)
+        scores["trend"] = trend_score(df, df_4h, commodity=base in COMMODITY_CCYS)
         scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date,
                                                    commodity=base == "XAU")
         if base in ("XPT", "XAG") and cot_data:

@@ -24,20 +24,18 @@ def _ma_alignment(closes: pd.Series, windows: tuple[int, ...]) -> tuple[int, int
     return above, below
 
 
-def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None) -> int:
-    """
-    EdgeFinder-style "4H / Daily Chart Trend": where price sits relative to its
-    SMA20/50/200 on the Daily chart and SMA20/50/200 on the 4H chart. Each
-    available SMA on each timeframe casts one above/below vote; the pooled vote
-    fraction is mapped to -2..+2:
+def _trend_ma_alignment(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None) -> int:
+    """Index/metal trend: where price sits relative to SMA20/50/200 on the Daily
+    chart and SMA20/50/200 on the 4H chart. Each available SMA on each timeframe
+    casts one above/below vote; the pooled vote fraction maps to -2..+2:
 
         ratio = (#above - #below) / #votes
         ratio >=  0.5 -> +2,  > 0 -> +1,  == 0 -> 0,  < 0 -> -1,  <= -0.5 -> -2
 
-    Slow MAs (vs the old SMA3/SMA14 crossover) keep a single sharp day from
-    flipping the whole trend, and the 4H chart is now actually included - matching
-    the documented method in config/indicators.yaml. yfinance's NaN partial-day
-    bars are dropped first (a NaN last close would otherwise zero every vote).
+    Slow MAs keep a single sharp day from flipping the trend, and the 4H chart
+    actually contributes - the method EdgeFinder uses on its index/stock cards
+    (and the one documented in config/indicators.yaml). yfinance NaN partial-day
+    bars are dropped first.
     """
     above = below = 0
     for df in (df_daily, df_4h):
@@ -46,7 +44,6 @@ def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None) -> in
         a, b = _ma_alignment(df["Close"].dropna(), (20, 50, 200))
         above += a
         below += b
-
     votes = above + below
     if votes == 0:
         return 0
@@ -60,6 +57,46 @@ def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None) -> in
     if ratio < 0:
         return -1
     return 0
+
+
+def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None,
+                commodity: bool = False) -> int:
+    """
+    "4H / Daily Chart Trend" cell, scored by asset class:
+
+    - FX pairs (commodity=False): EdgeFinder's published FX method - SMA(3) vs
+      SMA(14) crossover (+-2) plus the 14-day SMA slope (+-1). Bullish crossover
+      with a falling SMA -> +1; bearish crossover with a rising SMA -> -1.
+      Possible scores: -2, -1, +1, +2.
+    - Indices / metals (commodity=True): SMA20/50/200 price alignment pooled
+      across the Daily and 4H charts (see _trend_ma_alignment). This is what
+      EdgeFinder's index/stock cards use; the short crossover whipsaws on a single
+      sharp day and ignores the 4H series, which read NASDAQ bearish at all-time
+      highs.
+
+    yfinance NaN partial-day bars are dropped first either way: a NaN last close
+    makes the SMAs NaN, every comparison False, and the score a hardcoded -2.
+    """
+    if commodity:
+        return _trend_ma_alignment(df_daily, df_4h)
+
+    if df_daily is None or df_daily.empty:
+        return 0
+    closes = df_daily["Close"].dropna()
+    if len(closes) < 15:
+        return 0
+    sma3 = float(closes.rolling(3).mean().iloc[-1])
+    sma14 = float(closes.rolling(14).mean().iloc[-1])
+    sma14_prev = float(closes.rolling(14).mean().iloc[-2])
+
+    slope = 1 if sma14 > sma14_prev else -1
+    crossover = 2 if sma3 > sma14 else -2
+
+    if crossover > 0 and slope < 0:
+        return crossover - 1
+    if crossover < 0 and slope > 0:
+        return crossover + 1
+    return crossover
 
 
 def range_position(df_daily: pd.DataFrame, lookback: int = 40) -> int | None:
