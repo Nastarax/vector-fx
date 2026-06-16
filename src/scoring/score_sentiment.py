@@ -6,6 +6,11 @@ from __future__ import annotations
 from src.fetchers.cot import CotReading
 from src.fetchers.retail import RetailReading
 
+# Deadband (in percentage points of Long%) around a 50/50 long/short book for the
+# COT net-positioning component. A near-balanced split (e.g. 49.6/50.4) is not a
+# directional signal, so it reads Neutral rather than Bearish, matching EdgeFinder.
+COT_NET_NEUTRAL_PP = 2.0
+
 
 def cot_score(reading: CotReading | None, neutral_threshold: float = 0.0) -> int:
     """
@@ -53,8 +58,10 @@ def cot_score_commodity(reading: CotReading | None) -> int:
     Two components:
       Part 1 - Weekly change: Long% current - Long% previous.
                Positive -> +1, negative -> -1.
-      Part 2 - Net positioning: long_contracts - short_contracts.
-               Positive -> +1, negative -> -1.
+      Part 2 - Net positioning: Long% vs 50, with a deadband. A book inside
+               50 +- COT_NET_NEUTRAL_PP is balanced -> 0; clearly long-tilted
+               -> +1, short-tilted -> -1. (Long% > 50 iff net_position > 0, so
+               this matches the old sign test but neutralises near-50/50 splits.)
 
     Final score: Part 1 + Part 2, range -2..+2.
     """
@@ -65,7 +72,13 @@ def cot_score_commodity(reading: CotReading | None) -> int:
         s += 1
     elif reading.long_pct_change < 0:
         s -= 1
-    if reading.net_position > 0:
+    lp = getattr(reading, "long_pct", None)
+    if lp is not None:
+        if lp - 50 > COT_NET_NEUTRAL_PP:
+            s += 1
+        elif lp - 50 < -COT_NET_NEUTRAL_PP:
+            s -= 1
+    elif reading.net_position > 0:
         s += 1
     elif reading.net_position < 0:
         s -= 1

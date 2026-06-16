@@ -6,37 +6,60 @@ from __future__ import annotations
 import pandas as pd
 
 
+def _ma_alignment(closes: pd.Series, windows: tuple[int, ...]) -> tuple[int, int]:
+    """Count how many of the given SMA windows the latest close sits above vs
+    below. Windows with insufficient history are skipped. Returns (above, below)."""
+    above = below = 0
+    if closes.empty:
+        return 0, 0
+    px = float(closes.iloc[-1])
+    for w in windows:
+        if len(closes) < w:
+            continue
+        sma = float(closes.rolling(w).mean().iloc[-1])
+        if px > sma:
+            above += 1
+        elif px < sma:
+            below += 1
+    return above, below
+
+
 def trend_score(df_daily: pd.DataFrame, df_4h: pd.DataFrame | None = None) -> int:
     """
-    SMA(3) vs SMA(14) crossover + SMA(14) slope.
+    EdgeFinder-style "4H / Daily Chart Trend": where price sits relative to its
+    SMA20/50/200 on the Daily chart and SMA20/50/200 on the 4H chart. Each
+    available SMA on each timeframe casts one above/below vote; the pooled vote
+    fraction is mapped to -2..+2:
 
-    1. Slope of 14-day SMA: upward -> +1, downward/flat -> -1
-    2. Crossover: 3-day above 14-day -> +2, below -> -2
-    3. If crossover bullish but slope bearish: +2 - 1 = +1
-       If crossover bearish but slope bullish: -2 + 1 = -1
-       Otherwise: crossover value unchanged (+2 or -2)
+        ratio = (#above - #below) / #votes
+        ratio >=  0.5 -> +2,  > 0 -> +1,  == 0 -> 0,  < 0 -> -1,  <= -0.5 -> -2
 
-    Possible scores: -2, -1, +1, +2.
+    Slow MAs (vs the old SMA3/SMA14 crossover) keep a single sharp day from
+    flipping the whole trend, and the 4H chart is now actually included - matching
+    the documented method in config/indicators.yaml. yfinance's NaN partial-day
+    bars are dropped first (a NaN last close would otherwise zero every vote).
     """
-    if df_daily is None or df_daily.empty:
-        return 0
-    # Drop yfinance's NaN partial-day bars: a NaN last close makes the SMAs
-    # NaN, every comparison False, and the score a hardcoded -2.
-    closes = df_daily["Close"].dropna()
-    if len(closes) < 15:
-        return 0
-    sma3 = float(closes.rolling(3).mean().iloc[-1])
-    sma14 = float(closes.rolling(14).mean().iloc[-1])
-    sma14_prev = float(closes.rolling(14).mean().iloc[-2])
+    above = below = 0
+    for df in (df_daily, df_4h):
+        if df is None or df.empty:
+            continue
+        a, b = _ma_alignment(df["Close"].dropna(), (20, 50, 200))
+        above += a
+        below += b
 
-    slope = 1 if sma14 > sma14_prev else -1
-    crossover = 2 if sma3 > sma14 else -2
-
-    if crossover > 0 and slope < 0:
-        return crossover - 1
-    if crossover < 0 and slope > 0:
-        return crossover + 1
-    return crossover
+    votes = above + below
+    if votes == 0:
+        return 0
+    ratio = (above - below) / votes
+    if ratio >= 0.5:
+        return 2
+    if ratio > 0:
+        return 1
+    if ratio <= -0.5:
+        return -2
+    if ratio < 0:
+        return -1
+    return 0
 
 
 def range_position(df_daily: pd.DataFrame, lookback: int = 40) -> int | None:

@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src.output.timefmt import updated_at_str
+from src.scoring.score_sentiment import COT_NET_NEUTRAL_PP
 
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
@@ -127,7 +128,13 @@ def _build_currency(
         if v < 0:
             return "Bearish"
         return "Neutral"
-    net_pos_label = _cot_part_label(net_position)
+    # Net positioning chip uses the same Long%-vs-50 deadband as the score, so a
+    # near-50/50 book reads Neutral here too (not Bearish off a hair-thin tilt).
+    if long_pct is not None:
+        d = long_pct - 50
+        net_pos_label = "Bullish" if d > COT_NET_NEUTRAL_PP else ("Bearish" if d < -COT_NET_NEUTRAL_PP else "Neutral")
+    else:
+        net_pos_label = _cot_part_label(net_position)
     latest_label = _cot_part_label(change_pct)
 
     # Fundamentals split: bucket econ rows by section
