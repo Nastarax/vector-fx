@@ -33,6 +33,11 @@ from src.scoring.score_technical import range_position, seasonality_score, trend
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 
+# Equity indices use EdgeFinder's SMA20/50/200 chart-trend method; FX pairs and
+# metals (the rest of COMMODITY_CCYS) use the published SMA3/14 crossover. See
+# trend_score in score_technical.py and the trend-score-divergence memory.
+INDEX_CCYS = {"NDX", "NKY"}
+
 DISPLAY_NAMES = {"XAUUSD": "Gold", "XAU": "Gold", "PLATINUM": "Platinum", "XPT": "Platinum",
                  "SILVER": "Silver", "XAG": "Silver"}
 
@@ -1124,7 +1129,7 @@ def build_pair_rows(
 
         # Pair-level indicators
         df_4h = (prices_4h or {}).get(sym)
-        scores["trend"] = trend_score(df, df_4h, commodity=base in COMMODITY_CCYS)
+        scores["trend"] = trend_score(df, df_4h, equity_index=base in INDEX_CCYS)
         scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date,
                                                    commodity=base == "XAU")
         if base in ("XPT", "XAG") and cot_data:
