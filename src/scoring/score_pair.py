@@ -1325,6 +1325,15 @@ _MAX_AGE_DAYS = {
 _QUARTERLY_CPI_CCYS = {"AUD", "NZD"}
 _MAX_AGE_CPI_QUARTERLY = 110
 
+# CHF sPMI comes from TE Swiss Services PMI, which is dated by REFERENCE MONTH,
+# not release date like the Investing/BusinessNZ sources. The Swiss reading
+# publishes ~35 days after the reference month starts, so a current CHF value
+# reads ~35 days "older" than its release-dated peers and trips the 40-day sPMI
+# window even when fresh. Widen it for CHF only: 40 (intended since-release) + 35
+# (reference-to-release lag). A genuinely missed release (90+ days) still flags.
+_SPMI_REFERENCE_MONTH_CCYS = {"CHF"}
+_MAX_AGE_SPMI_REFMONTH = 75
+
 
 def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
                             investing_mpmi, investing_spmi, as_of_date,
@@ -1388,9 +1397,11 @@ def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
     for ccy, reading in (investing_mpmi or {}).items():
         _check("mPMI", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["mPMI"])
 
-    # sPMI: monthly for all 8.
+    # sPMI: monthly for all 8. CHF is reference-month-dated (see constants above)
+    # and gets a wider window so a current reading isn't false-flagged.
     for ccy, reading in (investing_spmi or {}).items():
-        _check("sPMI", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["sPMI"])
+        max_age = _MAX_AGE_SPMI_REFMONTH if ccy in _SPMI_REFERENCE_MONTH_CCYS else _MAX_AGE_DAYS["sPMI"]
+        _check("sPMI", ccy, (reading or {}).get("date"), max_age)
 
     # Consumer Confidence (Investing): USD only, monthly.
     for ccy, reading in (investing_cc or {}).items():
