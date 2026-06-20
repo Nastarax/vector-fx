@@ -19,15 +19,15 @@
   "bias": "Bullish",
   "loc": 85
  },
- "NASDAQ": {
-  "setup": "extended",
-  "bias": "Bullish",
-  "loc": 92
- },
  "GBPAUD": {
   "setup": "mid",
   "bias": "Bullish",
   "loc": 56
+ },
+ "NASDAQ": {
+  "setup": "extended",
+  "bias": "Bullish",
+  "loc": 74
  },
  "USDJPY": {
   "setup": "extended",
