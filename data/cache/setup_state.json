@@ -17,7 +17,7 @@
  "NIKKEI": {
   "setup": "extended",
   "bias": "Very Bullish",
-  "loc": 97
+  "loc": 98
  },
  "GBPCAD": {
   "setup": "extended",
@@ -27,7 +27,7 @@
  "NASDAQ": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 92
+  "loc": 74
  },
  "USDJPY": {
   "setup": "extended",
