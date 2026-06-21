@@ -97,7 +97,7 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 11
+  "loc": 4
  },
  "AUDCHF": {
   "setup": null,
@@ -152,7 +152,7 @@
  "XAUUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 29
+  "loc": 19
  },
  "AUDUSD": {
   "setup": "extended",
@@ -162,6 +162,6 @@
  "SILVER": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 12
+  "loc": 6
  }
 }
