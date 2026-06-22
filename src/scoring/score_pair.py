@@ -94,6 +94,31 @@ def _dir_fcst(actual, forecast, previous, direction, deadband_pct: float = 0.0):
     return _dir(actual, forecast, direction, deadband_pct)
 
 
+def _dir_mag(actual, benchmark, direction, t0_pp: float, t1_pp: float):
+    """Magnitude-binned surprise score (-2..+2) for a single currency.
+
+    Unlike _dir (sign-only +-1), this bins by the SIZE of the surprise in
+    percentage points so a large beat/miss can reach +-2 and dominate the
+    pair diff: |surprise| <= t0 -> 0, t0 < |surprise| <= t1 -> +-1,
+    |surprise| > t1 -> +-2. Sign taken from actual - benchmark, flipped for
+    down_is_bullish. Returns None when either input is missing.
+    """
+    if actual is None or benchmark is None:
+        return None
+    diff = actual - benchmark
+    mag = abs(diff)
+    sign = 1 if diff > 0 else (-1 if diff < 0 else 0)
+    if mag <= t0_pp:
+        s = 0
+    elif mag <= t1_pp:
+        s = sign
+    else:
+        s = sign * 2
+    if direction == "down_is_bullish":
+        s = -s
+    return s
+
+
 def bias_label(total: int, thresholds: dict) -> str:
     if total >= thresholds["very_bullish"]:
         return "Very Bullish"
@@ -154,6 +179,16 @@ def build_currency_scores(
             db = float(env_db)
         else:
             db = float(cfg.get("surprise_deadband_pct", 0.0) or 0.0)
+    # PPI magnitude scoring (prototype, off by default). Env VECTOR_PPI_MAGNITUDE
+    # (1/0) overrides the config flag for quick A/B runs.
+    ppi_cfg = cfg.get("ppi_magnitude") or {}
+    ppi_mag_enabled = bool(ppi_cfg.get("enabled", False))
+    env_ppi = os.environ.get("VECTOR_PPI_MAGNITUDE")
+    if env_ppi not in (None, ""):
+        ppi_mag_enabled = env_ppi not in ("0", "false", "False")
+    ppi_t0 = float(ppi_cfg.get("t0_pp", 0.45))
+    ppi_t1 = float(ppi_cfg.get("t1_pp", 0.70))
+    ppi_te_use_forecast = bool(ppi_cfg.get("te_use_forecast", True))
     ff_history = ff_history or {}
     te_history = te_history or {}
     investing_mpmi = investing_mpmi or {}
@@ -276,32 +311,55 @@ def build_currency_scores(
                 #   back to Previous if Consensus missing.
                 # - Other 4 (USD/EUR/JPY/CAD): TE producer-prices page.
                 #   Actual vs Consensus, fall back to TEForecast.
-                if ind_id == "ppi" and ccy in ("CHF", "AUD") and myfxbook_ppi.get(ccy):
-                    rel = myfxbook_ppi[ccy]
-                    per_ccy[ccy][ind_id] = _dir_fcst(
-                        rel.get("actual"), rel.get("consensus"),
-                        rel.get("previous"), direction, db)
-                    continue
-                if ind_id == "ppi" and ccy in ("NZD", "GBP") and investing_ppi.get(ccy):
-                    rel = investing_ppi[ccy]
-                    per_ccy[ccy][ind_id] = _dir_fcst(
-                        rel.get("actual"), rel.get("forecast"),
-                        rel.get("previous"), direction, db)
-                    continue
+                # Source precedence is identical regardless of scoring mode;
+                # only the final scorer differs (sign-only _dir/_dir_fcst vs
+                # magnitude _dir_mag) when ppi_magnitude is enabled.
                 if ind_id == "ppi":
-                    te_rels = te_history.get(key, [])
-                    if not te_rels:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
-                    actual = latest.get("actual")
-                    benchmark = latest.get("consensus")
-                    if benchmark is None:
-                        benchmark = latest.get("forecast")  # TEForecast fallback
-                    if actual is None or benchmark is None:
-                        per_ccy[ccy][ind_id] = None
-                        continue
-                    per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                    src = None
+                    actual = benchmark = previous = None
+                    if ccy in ("CHF", "AUD") and myfxbook_ppi.get(ccy):
+                        rel = myfxbook_ppi[ccy]
+                        actual = rel.get("actual")
+                        benchmark = rel.get("consensus")
+                        previous = rel.get("previous")
+                        src = "fcst"
+                    elif ccy in ("NZD", "GBP") and investing_ppi.get(ccy):
+                        rel = investing_ppi[ccy]
+                        actual = rel.get("actual")
+                        benchmark = rel.get("forecast")
+                        previous = rel.get("previous")
+                        src = "fcst"
+                    else:
+                        te_rels = te_history.get(key, [])
+                        if not te_rels:
+                            per_ccy[ccy][ind_id] = None
+                            continue
+                        latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                        actual = latest.get("actual")
+                        cons = latest.get("consensus")
+                        fcst = latest.get("forecast")  # TEForecast
+                        if ppi_mag_enabled and ppi_te_use_forecast:
+                            benchmark = fcst if fcst is not None else cons
+                        else:
+                            benchmark = cons if cons is not None else fcst
+                        src = "te"
+
+                    if ppi_mag_enabled:
+                        # Magnitude path: when no forecast/consensus is published,
+                        # fall back to Previous (momentum) so a surprise size can
+                        # still be measured; _dir_mag returns None if both absent.
+                        bench = benchmark if benchmark is not None else previous
+                        per_ccy[ccy][ind_id] = _dir_mag(
+                            actual, bench, direction, ppi_t0, ppi_t1)
+                    elif src == "fcst":
+                        # EF no-forecast rule: missing forecast -> neutral.
+                        per_ccy[ccy][ind_id] = _dir_fcst(
+                            actual, benchmark, previous, direction, db)
+                    else:
+                        if actual is None or benchmark is None:
+                            per_ccy[ccy][ind_id] = None
+                        else:
+                            per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
                 # NFP: US-only indicator. TE non-farm-payrolls.

@@ -244,6 +244,19 @@ curl_cffi (Cloudflare); plain requests get blocked.
   uses input or output for the UK is unconfirmed; the way to settle it is to read the actual
   UK PPI % number EdgeFinder displays (input ~7.7% vs output ~4.0% as of May 2026). If it's
   output, switch GBP to `ppi-output-yoy`.
+- **PPI magnitude scoring (wired, default OFF)**: decoded EF's PPI cell as a
+  magnitude-scaled surprise (|surprise|<=0.45pp->0, 0.45-0.70->+-1, >0.70->+-2)
+  scored vs the analyst forecast (TEForecast), not consensus. Reproduced EF's
+  EURUSD/USDJPY/USDCAD/CADCHF/EURCHF cells 5/5 (NZDCHF excluded as a stale EF read).
+  Direction stays up_is_bullish (USD scorecard: 6.5>6.4 fcst = Bullish). Behind
+  `ppi_magnitude` in `config/indicators.yaml` (enabled:false, t0_pp/t1_pp/
+  te_use_forecast); env `VECTOR_PPI_MAGNITUDE=1/0` overrides. Helper `_dir_mag` +
+  consolidated PPI block in `score_pair.py`. Calibration tool
+  `scripts/proto_ppi_magnitude.py`. NOT YET ENABLED: thresholds fit to one snapshot
+  (5 cells); validate across more dates before flipping enabled:true (moves ~15-18
+  of 28 pairs). The TEForecast switch is PPI-only here; generalizing it to other TE
+  indicators needs the same per-indicator validation. Settles the forecast-source
+  half of the GBP PPI question above (EF uses analyst forecast).
 - Backtest harness (scaffolded): `python scripts/backtest_ic.py [horizons...]`. Read-only.
   Reads `score_history.json` + `px_*.pkl`, builds an equal-weighted per-currency basket
   return (ccy vs all its fiat crosses, +base / -quote), and reports Spearman IC (mean,

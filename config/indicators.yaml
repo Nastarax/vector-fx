@@ -114,3 +114,18 @@ currency_bias_thresholds:
   reduced:               # other fiat rows: 10 active cells (US-only cells always 0)
     bullish: 3
     very_bullish: 5
+
+# PPI magnitude scoring (prototype, behind a flag). Default OFF preserves the
+# sign-only +-1 behaviour. When enabled, each currency's PPI cell scores by
+# surprise SIZE (+-2 / +-1 / 0) instead of sign, and TE-sourced currencies
+# (USD/EUR/JPY/CAD) score against the analyst forecast (TEForecast) instead of
+# consensus. Calibrated 2026-06-21 against EdgeFinder's PPI cells: this config
+# reproduced EURUSD/USDJPY/USDCAD/CADCHF/EURCHF 5/5 (NZDCHF excluded as a
+# suspected stale EF reading). See scripts/proto_ppi_magnitude.py. Env override:
+# VECTOR_PPI_MAGNITUDE=1/0 forces enabled on/off. NB: thresholds are fit to one
+# snapshot; validate across more dates before trusting the exact 0.45/0.70 split.
+ppi_magnitude:
+  enabled: false
+  t0_pp: 0.45            # |surprise| <= t0 -> 0 (neutral deadband, percentage points)
+  t1_pp: 0.70            # t0 < |surprise| <= t1 -> +-1 ; > t1 -> +-2
+  te_use_forecast: true  # TE ccys score vs TEForecast not consensus
