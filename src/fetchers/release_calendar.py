@@ -175,11 +175,19 @@ def _period_days(src: _Sources, ind: str, ccy: str) -> tuple[int, str]:
     return default, "default"
 
 
-def build_calendar(today: date | None = None) -> dict:
+def build_calendar(today: date | None = None, prior: dict | None = None) -> dict:
     today = today or date.today()
     src = _Sources()
     labels = _labels()
     entries: dict[str, dict] = {}
+    # Carry forward the last_checked timestamps so the due-gating backoff
+    # survives a rebuild (a cell whose release is late stays marked-checked
+    # and is not re-hammered every run).
+    prior_checked = {}
+    if prior:
+        for k, e in prior.get("entries", {}).items():
+            if e.get("last_checked"):
+                prior_checked[k] = e["last_checked"]
 
     cells = [(i, c) for i in PER_CCY_INDS for c in CCYS] + \
             [(i, "USD") for i in US_ONLY_INDS]
@@ -211,7 +219,8 @@ def build_calendar(today: date | None = None) -> dict:
             except ValueError:
                 pass
 
-        entries[f"{ccy}|{ind}"] = {
+        key = f"{ccy}|{ind}"
+        entries[key] = {
             "currency": ccy,
             "indicator": ind,
             "label": labels.get(ind, ind),
@@ -223,6 +232,7 @@ def build_calendar(today: date | None = None) -> dict:
             "next_basis": "exact" if ind == "rates" else "estimated",
             "days_until": days_until,
             "status": status,
+            "last_checked": prior_checked.get(key),
         }
 
     return {"generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -237,6 +247,29 @@ def save_calendar(cal: dict):
 
 def load_calendar() -> dict:
     return _load(CALENDAR_FILE)
+
+
+def mark_checked(cal: dict, keys, ts: str | None = None):
+    """Stamp last_checked=now on the given cell keys (the due-gating backoff
+    records that we attempted a fetch even if no new release appeared)."""
+    ts = ts or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    for k in keys:
+        if k in cal.get("entries", {}):
+            cal["entries"][k]["last_checked"] = ts
+    return cal
+
+
+def checked_within(entry: dict, hours: float, now: datetime | None = None) -> bool:
+    """True if this cell was checked less than `hours` ago (still cooling down)."""
+    lc = entry.get("last_checked")
+    if not lc:
+        return False
+    now = now or datetime.now(timezone.utc)
+    try:
+        t = datetime.strptime(lc, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return False
+    return (now - t).total_seconds() < hours * 3600
 
 
 def print_calendar(cal: dict):

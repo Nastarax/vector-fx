@@ -29,6 +29,7 @@ from src.fetchers import (investing, investing_adp, investing_consumer_conf,
                           investing_core, investing_cpi, investing_jolts,
                           investing_pce, investing_ppi, investing_retail_sales,
                           myfxbook_ppi, services_pmi)
+from src.fetchers import release_calendar as rc
 
 
 def _summarize(label: str, all_keys, fresh_set, results):
@@ -530,16 +531,127 @@ _CACHE_FILES = {
 # JPY CPI snapshot rides along with the CPI refresh.
 _EXTRA_CACHE_FILES = {"cpi": "data/cache/tokyo_core_cpi.json"}
 
+# Hours to wait before re-attempting a due cell that produced no new release
+# (release ran late or Cloudflare blocked us), so a late print does not make us
+# hammer the source every run.
+_DUE_COOLDOWN_HOURS = 8
+
+
+def _cell_target(ind: str, ccy: str, source: str) -> str | None:
+    """Map a due calendar cell to the refresh target THIS script owns, or None
+    if the cell is fed by a source main.py/GitHub Actions refreshes (TE/ABS).
+
+    This script fetches the Cloudflare-blocked sources: all Investing + Myfxbook
+    cells, plus the whole sPMI sweep (refresh_spmi also pulls TE-Swiss + BusinessNZ)."""
+    if ind == "mpmi":
+        return "mpmi"
+    if ind == "spmi":
+        return "spmi"          # refresh_spmi covers Investing + CHF(TE) + NZD(BusinessNZ)
+    if ind == "cpi":
+        return "cpi"           # all 8 via Investing (JPY = Tokyo Core)
+    if ind == "ppi":
+        if source == "investing":   # NZD/GBP
+            return "ppi"
+        if source == "myfxbook":    # CHF/AUD
+            return "mfx_ppi"
+        return None                 # USD/EUR/JPY/CAD = TE -> main.py
+    if ind == "consumer_conf" and source == "investing":   # USD
+        return "cc"
+    if ind == "pce":
+        return "pce"
+    if ind == "adp":
+        return "adp"
+    if ind == "jolts":
+        return "jolts"
+    if ind == "retail_sales" and source == "investing":    # CAD
+        return "cad_retail"
+    return None
+
+
+def run_due(dry_run: bool = False):
+    """Calendar-gated refresh: fetch only the cells whose release window has
+    passed (status == 'due'), skipping ones checked within the cooldown. Most
+    runs fetch nothing, which is the point: no blind sweep, far fewer 429s."""
+    cal = rc.build_calendar(prior=rc.load_calendar())
+    rc.save_calendar(cal)
+
+    targets: dict[str, list[str]] = {}     # target -> due cell keys driving it
+    skipped_cooldown: list[str] = []
+    not_owned = 0
+    for k, e in cal["entries"].items():
+        if e.get("status") != "due":
+            continue
+        tgt = _cell_target(e["indicator"], e["currency"], e["source"])
+        if tgt is None:
+            not_owned += 1
+            continue
+        if rc.checked_within(e, _DUE_COOLDOWN_HOURS):
+            skipped_cooldown.append(k)
+            continue
+        targets.setdefault(tgt, []).append(k)
+
+    # Core US CPI/PPI (gold scoring) rides along when USD CPI is due.
+    if "cpi" in targets:
+        targets.setdefault("core", [])
+
+    print(f"=== Investing.com refresh (--due{' --dry-run' if dry_run else ''}) ===")
+    due_total = sum(1 for e in cal["entries"].values() if e.get("status") == "due")
+    print(f"due cells: {due_total} ({not_owned} owned by TE/ABS -> main.py, "
+          f"{len(skipped_cooldown)} in cooldown)")
+    if skipped_cooldown:
+        print(f"  cooldown skip: {skipped_cooldown}")
+    if not targets:
+        print("Nothing due to fetch. Done.")
+        return
+
+    order = [t for t in REFRESHERS if t in targets]
+    if dry_run:
+        print("\nWould refresh these targets (dry run, no fetch):")
+        for t in order:
+            print(f"  {t:<11} <- {targets[t] or 'rides along'}")
+        return
+
+    for t in order:
+        driving = targets[t]
+        print(f"\n>>> target '{t}'  (due: {driving or 'rides along'})")
+        REFRESHERS[t]()
+
+    # Rebuild so next_release advances off any new prints, and stamp the cells
+    # we attempted so a still-due (late) release backs off for the cooldown.
+    cal = rc.build_calendar(prior=cal)
+    attempted = [k for ks in targets.values() for k in ks]
+    rc.mark_checked(cal, attempted)
+    rc.save_calendar(cal)
+
+    files = []
+    for t in order:
+        files.append(_CACHE_FILES[t])
+        if t in _EXTRA_CACHE_FILES:
+            files.append(_EXTRA_CACHE_FILES[t])
+    files.append("data/cache/release_calendar.json")
+    print("\nDone. Now commit + push:")
+    print("  git add " + " ".join(files))
+    print("  git commit -m 'Investing refresh (due)'")
+    print("  git push")
+
 
 def main():
-    args = [a.lower().lstrip("-") for a in sys.argv[1:]]
-    if args:
-        unknown = [a for a in args if a not in REFRESHERS]
+    raw = [a.lower() for a in sys.argv[1:]]
+    flags = {a.lstrip("-") for a in raw if a.startswith("-")}
+    targets = [a for a in raw if not a.startswith("-")]
+
+    # Calendar-gated mode: fetch only what the release calendar says is due.
+    if "due" in flags:
+        run_due(dry_run="dry-run" in flags or "dry_run" in flags)
+        return
+
+    if targets:
+        unknown = [a for a in targets if a not in REFRESHERS]
         if unknown:
             print(f"Unknown refresh target(s): {unknown}")
             print(f"Available: {', '.join(REFRESHERS)}")
             return
-        order = args
+        order = targets
     else:
         order = list(REFRESHERS)
 
