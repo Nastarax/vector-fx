@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-23T14:59:04Z",
+  "generated": "2026-06-23T23:13:23Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -23,
       "status": "due",
-      "last_checked": "2026-06-23T14:59:04Z"
+      "last_checked": "2026-06-23T23:13:23Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -14,
       "status": "due",
-      "last_checked": "2026-06-23T14:59:04Z"
+      "last_checked": "2026-06-23T23:13:23Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -6,
       "status": "due",
-      "last_checked": "2026-06-23T14:59:04Z"
+      "last_checked": "2026-06-23T23:13:23Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
@@ -1021,7 +1021,7 @@
       "next_basis": "estimated",
       "days_until": -2,
       "status": "due",
-      "last_checked": "2026-06-23T14:59:04Z"
+      "last_checked": "2026-06-23T23:13:23Z"
     },
     "USD|nfp": {
       "currency": "USD",
