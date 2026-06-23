@@ -21,7 +21,18 @@ because GitHub's CDN retired the v3 tarballs and v4 was unreliable. If GitHub
 disables the scheduled workflow after 60 days of inactivity, re-enable it from the
 Actions tab (yellow banner). Investing.com and Myfxbook are Cloudflare-blocked on
 GH Actions, so those sources are refreshed locally (`scripts/refresh_investing.py`,
-Windows Task Scheduler, daily 9:30 AM) and committed.
+Windows Task Scheduler task "Vector Daily Refresh") and committed. That task runs
+`scripts/daily_refresh.ps1` HOURLY in calendar-gated `--due` mode: it reads
+`data/cache/release_calendar.json` (built by `src/fetchers/release_calendar.py`)
+and fetches only the cells whose release window has passed, so most hourly runs
+fetch nothing and each indicator (e.g. JPY CPI) updates within ~an hour of release
+while the laptop is on. The script self-throttles (skips if it ran <45 min ago) and
+pushes resiliently (fetch + rebase -X theirs + retry, since GH Actions commits
+concurrently). Full manual sweep: `python scripts/refresh_investing.py` (no args);
+preview due cells: `python scripts/refresh_investing.py --due --dry-run`;
+view calendar: `python scripts/show_calendar.py`. NB: Cloudflare blocks GH Actions,
+so JPY CPI etc. can only refresh from the laptop; if it is off at release time the
+cell updates on the next run after login.
 
 ## Deploy flow
 
