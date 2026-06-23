@@ -572,8 +572,10 @@ def run_due(dry_run: bool = False):
     """Calendar-gated refresh: fetch only the cells whose release window has
     passed (status == 'due'), skipping ones checked within the cooldown. Most
     runs fetch nothing, which is the point: no blind sweep, far fewer 429s."""
+    # Build in memory only. We persist the calendar (and thus produce a commit)
+    # ONLY when a fetch actually advances it, so a no-op hourly run leaves the
+    # file untouched instead of churning its "generated" timestamp every hour.
     cal = rc.build_calendar(prior=rc.load_calendar())
-    rc.save_calendar(cal)
 
     targets: dict[str, list[str]] = {}     # target -> due cell keys driving it
     skipped_cooldown: list[str] = []
