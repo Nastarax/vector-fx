@@ -6,10 +6,10 @@
     "previous": 50.4
   },
   "AUD": {
-    "date": "2026-05-31",
-    "actual": 50.7,
-    "forecast": 50.2,
-    "previous": 51.3
+    "date": "2026-06-22",
+    "actual": 51.2,
+    "forecast": null,
+    "previous": 50.7
   },
   "CHF": {
     "date": "2026-06-01",
@@ -24,10 +24,10 @@
     "previous": 52.7
   },
   "GBP": {
-    "date": "2026-06-01",
-    "actual": 53.9,
-    "forecast": 53.7,
-    "previous": 53.7
+    "date": "2026-06-23",
+    "actual": 53.1,
+    "forecast": 53.5,
+    "previous": 53.9
   },
   "EUR": {
     "date": "2026-06-01",
