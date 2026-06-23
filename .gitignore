@@ -67,3 +67,6 @@ scripts/.last_refresh
 # Pair setup states (WATCH/EXT/MID) from the previous run; the WATCH-flip
 # alert diff baseline. Committed by the workflow so it survives between runs.
 !data/cache/setup_state.json
+# Release calendar: next-release date per cell. Drives Phase 2 due-gating and
+# self-advances as each source is fetched; committed so it persists between runs.
+!data/cache/release_calendar.json
