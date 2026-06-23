@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-23T13:24:49Z",
+  "generated": "2026-06-23T14:59:04Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -12,7 +12,8 @@
       "next_release": "2026-06-21",
       "next_basis": "estimated",
       "days_until": -2,
-      "status": "due"
+      "status": "due",
+      "last_checked": null
     },
     "EUR|gdp": {
       "currency": "EUR",
@@ -25,7 +26,8 @@
       "next_release": "2026-06-28",
       "next_basis": "estimated",
       "days_until": 5,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|gdp": {
       "currency": "GBP",
@@ -38,7 +40,8 @@
       "next_release": "2026-06-29",
       "next_basis": "estimated",
       "days_until": 6,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "JPY|gdp": {
       "currency": "JPY",
@@ -51,7 +54,8 @@
       "next_release": "2026-06-29",
       "next_basis": "estimated",
       "days_until": 6,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -64,7 +68,8 @@
       "next_release": "2026-06-15",
       "next_basis": "estimated",
       "days_until": -8,
-      "status": "due"
+      "status": "due",
+      "last_checked": null
     },
     "AUD|gdp": {
       "currency": "AUD",
@@ -77,7 +82,8 @@
       "next_release": "2026-09-02",
       "next_basis": "estimated",
       "days_until": 71,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CAD|gdp": {
       "currency": "CAD",
@@ -90,7 +96,8 @@
       "next_release": "2026-08-28",
       "next_basis": "estimated",
       "days_until": 66,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "NZD|gdp": {
       "currency": "NZD",
@@ -103,7 +110,8 @@
       "next_release": "2026-09-16",
       "next_basis": "estimated",
       "days_until": 85,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|mpmi": {
       "currency": "USD",
@@ -116,7 +124,8 @@
       "next_release": "2026-07-01",
       "next_basis": "estimated",
       "days_until": 8,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "EUR|mpmi": {
       "currency": "EUR",
@@ -129,7 +138,8 @@
       "next_release": "2026-07-01",
       "next_basis": "estimated",
       "days_until": 8,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|mpmi": {
       "currency": "GBP",
@@ -142,7 +152,8 @@
       "next_release": "2026-07-23",
       "next_basis": "estimated",
       "days_until": 30,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "JPY|mpmi": {
       "currency": "JPY",
@@ -155,7 +166,8 @@
       "next_release": "2026-07-01",
       "next_basis": "estimated",
       "days_until": 8,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CHF|mpmi": {
       "currency": "CHF",
@@ -168,7 +180,8 @@
       "next_release": "2026-07-01",
       "next_basis": "estimated",
       "days_until": 8,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "AUD|mpmi": {
       "currency": "AUD",
@@ -181,7 +194,8 @@
       "next_release": "2026-07-22",
       "next_basis": "estimated",
       "days_until": 29,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CAD|mpmi": {
       "currency": "CAD",
@@ -194,7 +208,8 @@
       "next_release": "2026-07-01",
       "next_basis": "estimated",
       "days_until": 8,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "NZD|mpmi": {
       "currency": "NZD",
@@ -207,7 +222,8 @@
       "next_release": "2026-07-11",
       "next_basis": "estimated",
       "days_until": 18,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|spmi": {
       "currency": "USD",
@@ -220,46 +236,50 @@
       "next_release": "2026-07-03",
       "next_basis": "estimated",
       "days_until": 10,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "EUR|spmi": {
       "currency": "EUR",
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "investing",
-      "last_release": "2026-06-03",
+      "last_release": "2026-06-23",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-03",
+      "next_release": "2026-07-23",
       "next_basis": "estimated",
-      "days_until": 10,
-      "status": "upcoming"
+      "days_until": 30,
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|spmi": {
       "currency": "GBP",
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "investing",
-      "last_release": "2026-06-03",
+      "last_release": "2026-06-23",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-03",
+      "next_release": "2026-07-23",
       "next_basis": "estimated",
-      "days_until": 10,
-      "status": "upcoming"
+      "days_until": 30,
+      "status": "upcoming",
+      "last_checked": null
     },
     "JPY|spmi": {
       "currency": "JPY",
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "investing",
-      "last_release": "2026-06-03",
+      "last_release": "2026-06-23",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-03",
+      "next_release": "2026-07-23",
       "next_basis": "estimated",
-      "days_until": 10,
-      "status": "upcoming"
+      "days_until": 30,
+      "status": "upcoming",
+      "last_checked": null
     },
     "CHF|spmi": {
       "currency": "CHF",
@@ -272,7 +292,8 @@
       "next_release": "2026-05-31",
       "next_basis": "estimated",
       "days_until": -23,
-      "status": "due"
+      "status": "due",
+      "last_checked": "2026-06-23T14:59:04Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -285,7 +306,8 @@
       "next_release": "2026-07-02",
       "next_basis": "estimated",
       "days_until": 9,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CAD|spmi": {
       "currency": "CAD",
@@ -298,7 +320,8 @@
       "next_release": "2026-07-03",
       "next_basis": "estimated",
       "days_until": 10,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "NZD|spmi": {
       "currency": "NZD",
@@ -311,7 +334,8 @@
       "next_release": "2026-07-15",
       "next_basis": "estimated",
       "days_until": 22,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|retail_sales": {
       "currency": "USD",
@@ -324,7 +348,8 @@
       "next_release": "2026-07-10",
       "next_basis": "estimated",
       "days_until": 17,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "EUR|retail_sales": {
       "currency": "EUR",
@@ -337,7 +362,8 @@
       "next_release": "2026-07-02",
       "next_basis": "estimated",
       "days_until": 9,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|retail_sales": {
       "currency": "GBP",
@@ -350,7 +376,8 @@
       "next_release": "2026-07-17",
       "next_basis": "estimated",
       "days_until": 24,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "JPY|retail_sales": {
       "currency": "JPY",
@@ -363,7 +390,8 @@
       "next_release": "2026-06-27",
       "next_basis": "estimated",
       "days_until": 4,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CHF|retail_sales": {
       "currency": "CHF",
@@ -376,7 +404,8 @@
       "next_release": "2026-07-01",
       "next_basis": "estimated",
       "days_until": 8,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "AUD|retail_sales": {
       "currency": "AUD",
@@ -389,7 +418,8 @@
       "next_release": null,
       "next_basis": "estimated",
       "days_until": null,
-      "status": "unknown"
+      "status": "unknown",
+      "last_checked": null
     },
     "CAD|retail_sales": {
       "currency": "CAD",
@@ -402,7 +432,8 @@
       "next_release": "2026-07-17",
       "next_basis": "estimated",
       "days_until": 24,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -415,7 +446,8 @@
       "next_release": "2026-08-17",
       "next_basis": "estimated",
       "days_until": 55,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|consumer_conf": {
       "currency": "USD",
@@ -428,7 +460,8 @@
       "next_release": "2026-06-09",
       "next_basis": "estimated",
       "days_until": -14,
-      "status": "due"
+      "status": "due",
+      "last_checked": "2026-06-23T14:59:04Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -441,7 +474,8 @@
       "next_release": "2026-07-06",
       "next_basis": "estimated",
       "days_until": 13,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|consumer_conf": {
       "currency": "GBP",
@@ -454,7 +488,8 @@
       "next_release": "2026-07-16",
       "next_basis": "estimated",
       "days_until": 23,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "JPY|consumer_conf": {
       "currency": "JPY",
@@ -467,7 +502,8 @@
       "next_release": "2026-06-23",
       "next_basis": "estimated",
       "days_until": 0,
-      "status": "due"
+      "status": "due",
+      "last_checked": null
     },
     "CHF|consumer_conf": {
       "currency": "CHF",
@@ -480,7 +516,8 @@
       "next_release": "2026-07-18",
       "next_basis": "estimated",
       "days_until": 25,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "AUD|consumer_conf": {
       "currency": "AUD",
@@ -493,7 +530,8 @@
       "next_release": "2026-07-14",
       "next_basis": "estimated",
       "days_until": 21,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CAD|consumer_conf": {
       "currency": "CAD",
@@ -506,7 +544,8 @@
       "next_release": "2026-05-31",
       "next_basis": "estimated",
       "days_until": -23,
-      "status": "due"
+      "status": "due",
+      "last_checked": null
     },
     "NZD|consumer_conf": {
       "currency": "NZD",
@@ -519,7 +558,8 @@
       "next_release": "2026-09-15",
       "next_basis": "estimated",
       "days_until": 84,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|cpi": {
       "currency": "USD",
@@ -532,7 +572,8 @@
       "next_release": "2026-07-11",
       "next_basis": "estimated",
       "days_until": 18,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "EUR|cpi": {
       "currency": "EUR",
@@ -545,7 +586,8 @@
       "next_release": "2026-07-18",
       "next_basis": "estimated",
       "days_until": 25,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|cpi": {
       "currency": "GBP",
@@ -558,7 +600,8 @@
       "next_release": "2026-07-18",
       "next_basis": "estimated",
       "days_until": 25,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "JPY|cpi": {
       "currency": "JPY",
@@ -571,7 +614,8 @@
       "next_release": "2026-07-19",
       "next_basis": "estimated",
       "days_until": 26,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CHF|cpi": {
       "currency": "CHF",
@@ -584,7 +628,8 @@
       "next_release": "2026-07-05",
       "next_basis": "estimated",
       "days_until": 12,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "AUD|cpi": {
       "currency": "AUD",
@@ -597,7 +642,8 @@
       "next_release": "2026-07-30",
       "next_basis": "estimated",
       "days_until": 37,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CAD|cpi": {
       "currency": "CAD",
@@ -610,7 +656,8 @@
       "next_release": "2026-07-23",
       "next_basis": "estimated",
       "days_until": 30,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "NZD|cpi": {
       "currency": "NZD",
@@ -623,7 +670,8 @@
       "next_release": "2026-07-21",
       "next_basis": "estimated",
       "days_until": 28,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|ppi": {
       "currency": "USD",
@@ -636,7 +684,8 @@
       "next_release": "2026-07-10",
       "next_basis": "estimated",
       "days_until": 17,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "EUR|ppi": {
       "currency": "EUR",
@@ -649,7 +698,8 @@
       "next_release": "2026-07-01",
       "next_basis": "estimated",
       "days_until": 8,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|ppi": {
       "currency": "GBP",
@@ -662,7 +712,8 @@
       "next_release": "2026-06-17",
       "next_basis": "estimated",
       "days_until": -6,
-      "status": "due"
+      "status": "due",
+      "last_checked": "2026-06-23T14:59:04Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
@@ -675,7 +726,8 @@
       "next_release": "2026-07-09",
       "next_basis": "estimated",
       "days_until": 16,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CHF|ppi": {
       "currency": "CHF",
@@ -688,7 +740,8 @@
       "next_release": "2026-07-14",
       "next_basis": "estimated",
       "days_until": 21,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "AUD|ppi": {
       "currency": "AUD",
@@ -701,7 +754,8 @@
       "next_release": "2026-09-30",
       "next_basis": "estimated",
       "days_until": 99,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CAD|ppi": {
       "currency": "CAD",
@@ -714,7 +768,8 @@
       "next_release": "2026-07-17",
       "next_basis": "estimated",
       "days_until": 24,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "NZD|ppi": {
       "currency": "NZD",
@@ -727,7 +782,8 @@
       "next_release": "2026-08-17",
       "next_basis": "estimated",
       "days_until": 55,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|unemployment_rate": {
       "currency": "USD",
@@ -740,7 +796,8 @@
       "next_release": "2026-07-07",
       "next_basis": "estimated",
       "days_until": 14,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "EUR|unemployment_rate": {
       "currency": "EUR",
@@ -753,7 +810,8 @@
       "next_release": "2026-07-01",
       "next_basis": "estimated",
       "days_until": 8,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|unemployment_rate": {
       "currency": "GBP",
@@ -766,7 +824,8 @@
       "next_release": "2026-07-18",
       "next_basis": "estimated",
       "days_until": 25,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "JPY|unemployment_rate": {
       "currency": "JPY",
@@ -779,7 +838,8 @@
       "next_release": "2026-06-27",
       "next_basis": "estimated",
       "days_until": 4,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CHF|unemployment_rate": {
       "currency": "CHF",
@@ -792,7 +852,8 @@
       "next_release": "2026-07-02",
       "next_basis": "estimated",
       "days_until": 9,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "AUD|unemployment_rate": {
       "currency": "AUD",
@@ -805,7 +866,8 @@
       "next_release": "2026-06-22",
       "next_basis": "estimated",
       "days_until": -1,
-      "status": "due"
+      "status": "due",
+      "last_checked": null
     },
     "CAD|unemployment_rate": {
       "currency": "CAD",
@@ -818,7 +880,8 @@
       "next_release": "2026-07-03",
       "next_basis": "estimated",
       "days_until": 10,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "NZD|unemployment_rate": {
       "currency": "NZD",
@@ -831,7 +894,8 @@
       "next_release": "2026-08-04",
       "next_basis": "estimated",
       "days_until": 42,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|rates": {
       "currency": "USD",
@@ -844,7 +908,8 @@
       "next_release": "2026-06-24",
       "next_basis": "exact",
       "days_until": 1,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "EUR|rates": {
       "currency": "EUR",
@@ -857,7 +922,8 @@
       "next_release": "2026-06-25",
       "next_basis": "exact",
       "days_until": 2,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "GBP|rates": {
       "currency": "GBP",
@@ -870,7 +936,8 @@
       "next_release": "2026-07-30",
       "next_basis": "exact",
       "days_until": 37,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "JPY|rates": {
       "currency": "JPY",
@@ -883,7 +950,8 @@
       "next_release": "2026-07-31",
       "next_basis": "exact",
       "days_until": 38,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CHF|rates": {
       "currency": "CHF",
@@ -896,7 +964,8 @@
       "next_release": "2026-06-24",
       "next_basis": "exact",
       "days_until": 1,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "AUD|rates": {
       "currency": "AUD",
@@ -909,7 +978,8 @@
       "next_release": "2026-08-11",
       "next_basis": "exact",
       "days_until": 49,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "CAD|rates": {
       "currency": "CAD",
@@ -922,7 +992,8 @@
       "next_release": "2026-06-24",
       "next_basis": "exact",
       "days_until": 1,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "NZD|rates": {
       "currency": "NZD",
@@ -935,7 +1006,8 @@
       "next_release": "2026-07-08",
       "next_basis": "exact",
       "days_until": 15,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|pce": {
       "currency": "USD",
@@ -948,7 +1020,8 @@
       "next_release": "2026-06-21",
       "next_basis": "estimated",
       "days_until": -2,
-      "status": "due"
+      "status": "due",
+      "last_checked": "2026-06-23T14:59:04Z"
     },
     "USD|nfp": {
       "currency": "USD",
@@ -961,7 +1034,8 @@
       "next_release": "2026-07-07",
       "next_basis": "estimated",
       "days_until": 14,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|adp": {
       "currency": "USD",
@@ -974,7 +1048,8 @@
       "next_release": "2026-07-05",
       "next_basis": "estimated",
       "days_until": 12,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|jolts": {
       "currency": "USD",
@@ -987,7 +1062,8 @@
       "next_release": "2026-07-04",
       "next_basis": "estimated",
       "days_until": 11,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     },
     "USD|jobless_claims": {
       "currency": "USD",
@@ -1000,7 +1076,8 @@
       "next_release": "2026-06-25",
       "next_basis": "estimated",
       "days_until": 2,
-      "status": "upcoming"
+      "status": "upcoming",
+      "last_checked": null
     }
   }
 }
