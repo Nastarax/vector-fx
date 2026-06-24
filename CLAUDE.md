@@ -118,9 +118,12 @@ Unemployment Rate:    TE all 8 (down_is_bullish)
   blank (->0). Rates = 2Y yield vs 21-day SMA, inverted (uses **US** 2Y, the same index
   rate input as NASDAQ/Nikkei; there is no daily UK 2Y gilt feed). No CFTC COT feed for
   the FTSE, so COT + crowd are neutral (0), matching EdgeFinder. Scoring block in
-  `build_currency_scores` (`if ccy == "UKX"` in the COMMODITY_CCYS loop). Heatmap-only so
-  far (not on the Asset Scorecard, like the Nikkei). Displayed as "UK100" (not in
-  DISPLAY_NAMES, so the symbol shows as-is).
+  `build_currency_scores` (`if ccy == "UKX"` in the COMMODITY_CCYS loop). On the Asset
+  Scorecard too: `INDICES`/`INDEX_SOURCE` in `build_economic_heatmap` source UKX's
+  fundamentals rows from GBP (re-signed to stocks), and `build_scorecard.CURRENCIES`/
+  `DISPLAY_NAMES` carry UKX -> "UK100" (no US-only labour rows, so its scorecard shows
+  Growth/Inflation + Unemployment only). Displayed as "UK100" on the heatmap (not in
+  score_pair `DISPLAY_NAMES`, so the symbol shows as-is).
 
 ## Recent changes (committed)
 

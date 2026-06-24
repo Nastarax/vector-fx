@@ -70,7 +70,13 @@ METAL_IMPACT = {
 # direction (growth + jobs up_is_bullish, inflation + rates down_is_bullish), and
 # their Interest Rate cell comes from the US 2Y yield, not the rate outlook. The
 # index "currency impact" chip IS the stocks impact already computed per row.
-INDICES = ("NDX",)
+INDICES = ("NDX", "UKX")
+# Each index reuses its source currency's economic rows, re-signed to the stocks
+# direction. NDX scores US macro (USD rows); UKX (FTSE 100) scores UK macro (GBP
+# rows). US-only labour rows (NFP/ADP/JOLTS/Claims/PCE) only exist on the USD
+# row, so UKX naturally carries no labour rows beyond Unemployment - matching its
+# heatmap cells (those stay blank).
+INDEX_SOURCE = {"NDX": "USD", "UKX": "GBP"}
 
 
 def _flip(label: str) -> str:
@@ -402,13 +408,16 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
                         metals_acc[m].append(_metal_rates_row(treasury_2y, m))
                     else:
                         metals_acc[m].append(_metal_row(row, ind["id"], m))
-                # Stock indices: same US rows, re-signed to the stocks direction;
-                # rates comes from the US 2Y yield (21-day SMA) not the outlook.
-                for idx in INDICES:
-                    if ind["id"] == "rates":
-                        indices_acc[idx].append(_index_rates_row(treasury_2y))
-                    else:
-                        indices_acc[idx].append(_index_row(row, ind["id"]))
+            # Stock indices reuse their source currency's rows re-signed to the
+            # stocks direction (NDX<-USD, UKX<-GBP); the rate cell comes from the
+            # 2Y yield (21-day SMA), not the rate outlook.
+            for idx in INDICES:
+                if INDEX_SOURCE[idx] != ccy:
+                    continue
+                if ind["id"] == "rates":
+                    indices_acc[idx].append(_index_rates_row(treasury_2y))
+                else:
+                    indices_acc[idx].append(_index_row(row, ind["id"]))
         out[ccy] = rows
     out.update(metals_acc)
     out.update(indices_acc)
