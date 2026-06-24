@@ -110,6 +110,17 @@ Unemployment Rate:    TE all 8 (down_is_bullish)
   scorecard fundamentals rows in `build_economic_heatmap.build_all` via `_index_row` /
   `_index_rates_row` (reusing each USD row's `stocks_impact`). NB: NASDAQ uses a 21-day
   yield SMA per EdgeFinder's NASDAQ card; the Nikkei still uses 8-day.
+- **UK100** (`UKX`, yfinance `^FTSE`): FTSE 100, UK equity index. Same risk-on mapping
+  as the NASDAQ but driven by UK macro via **GBP's** cells: growth + jobs (GDP/mPMI/sPMI/
+  Retail/Consumer Conf/Unemployment) **mirror GBP un-inverted**; inflation (CPI/PPI)
+  **inverted** (verified against EdgeFinder's UK100 "Stocks Impact" column: a CPI miss is
+  GBP-bearish but stocks-bullish). US-only labour cells (NFP/ADP/JOLTS/Claims) + PCE stay
+  blank (->0). Rates = 2Y yield vs 21-day SMA, inverted (uses **US** 2Y, the same index
+  rate input as NASDAQ/Nikkei; there is no daily UK 2Y gilt feed). No CFTC COT feed for
+  the FTSE, so COT + crowd are neutral (0), matching EdgeFinder. Scoring block in
+  `build_currency_scores` (`if ccy == "UKX"` in the COMMODITY_CCYS loop). Heatmap-only so
+  far (not on the Asset Scorecard, like the Nikkei). Displayed as "UK100" (not in
+  DISPLAY_NAMES, so the symbol shows as-is).
 
 ## Recent changes (committed)
 

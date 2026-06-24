@@ -36,7 +36,7 @@ CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 # Equity indices use EdgeFinder's SMA20/50/200 chart-trend method; FX pairs and
 # metals (the rest of COMMODITY_CCYS) use the published SMA3/14 crossover. See
 # trend_score in score_technical.py and the trend-score-divergence memory.
-INDEX_CCYS = {"NDX", "NKY"}
+INDEX_CCYS = {"NDX", "NKY", "UKX"}
 
 DISPLAY_NAMES = {"XAUUSD": "Gold", "XAU": "Gold", "PLATINUM": "Platinum", "XPT": "Platinum",
                  "SILVER": "Silver", "XAG": "Silver"}
@@ -1011,6 +1011,35 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = usd.get(ind_id)
                 for ind_id in ("cpi", "ppi", "pce"):
                     v = usd.get(ind_id)
+                    per_ccy[ccy][ind_id] = (-v if v is not None else None)
+                if len(treasury_2y) >= 21:
+                    yields_asc = [o.value for o in reversed(treasury_2y)]
+                    sma21 = sum(yields_asc[-21:]) / 21
+                    latest_yield = yields_asc[-1]
+                    if latest_yield > sma21:
+                        per_ccy[ccy]["rates"] = -1
+                    elif latest_yield < sma21:
+                        per_ccy[ccy]["rates"] = 1
+                    else:
+                        per_ccy[ccy]["rates"] = 0
+
+            if ccy == "UKX":
+                # FTSE 100: UK equity index, same risk-on mapping as the NASDAQ
+                # but driven by UK macro via GBP's cells. Growth + jobs mirror
+                # GBP un-inverted (strong UK economy = bullish index); inflation
+                # (CPI/PPI) is inverted (hot inflation = BoE-hike fear = bearish
+                # equities). Verified against EdgeFinder's UK100 "Stocks Impact"
+                # column: e.g. the CPI miss (2.8 vs 3.0) is GBP-bearish but
+                # stocks-bullish (+1). US-only labour cells (NFP/ADP/JOLTS/Claims)
+                # and PCE stay blank. Interest Rates uses the 2Y yield vs its
+                # 21-day SMA, inverted - the same index rate input as the NASDAQ
+                # (US 2Y; there is no daily UK 2Y gilt feed available).
+                gbp = per_ccy.get("GBP", {})
+                for ind_id in ("gdp", "mpmi", "spmi", "retail_sales",
+                               "consumer_conf", "unemployment_rate"):
+                    per_ccy[ccy][ind_id] = gbp.get(ind_id)
+                for ind_id in ("cpi", "ppi"):
+                    v = gbp.get(ind_id)
                     per_ccy[ccy][ind_id] = (-v if v is not None else None)
                 if len(treasury_2y) >= 21:
                     yields_asc = [o.value for o in reversed(treasury_2y)]

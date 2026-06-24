@@ -151,6 +151,14 @@ pairs:
     quote: ""
     yf_ticker: "^NDX"
 
+  # FTSE 100 (UK equity index). Risk-on UK-macro mapping via GBP cells: growth +
+  # jobs mirror GBP un-inverted, inflation inverted, rates from the 2Y yield. No
+  # CFTC COT feed, so COT/crowd stay neutral. yfinance ^FTSE = cash index.
+  - symbol: UK100
+    base: UKX
+    quote: ""
+    yf_ticker: "^FTSE"
+
   # Platinum. Industrial precious metal: pro-cyclical growth/jobs, inverted
   # inflation/rates. Empty quote = absolute scores, matching EdgeFinder.
   - symbol: PLATINUM

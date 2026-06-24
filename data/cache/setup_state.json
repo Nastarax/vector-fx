@@ -9,85 +9,90 @@
   "bias": "Very Bullish",
   "loc": 98
  },
- "NIKKEI": {
-  "setup": "extended",
-  "bias": "Very Bullish",
-  "loc": 97
- },
  "USDJPY": {
   "setup": "extended",
   "bias": "Bullish",
   "loc": 95
  },
- "EURAUD": {
+ "NIKKEI": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 83
+  "loc": 75
  },
- "GBPCAD": {
+ "EURAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 91
+  "loc": 56
  },
  "EURCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 74
+  "loc": 71
  },
  "EURCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 71
+  "loc": 69
  },
  "GBPAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 68
+  "loc": 94
+ },
+ "GBPCAD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 89
  },
  "GBPCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 84
+  "loc": 93
  },
  "EURNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 97
+  "loc": 98
  },
  "GBPNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 97
+  "loc": 88
  },
  "CADCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 38
+  "loc": 40
+ },
+ "UK100": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 70
  },
  "NZDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 29
+  "loc": 26
  },
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 20
+  "loc": 17
  },
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 2
+  "loc": 1
  },
  "EURGBP": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 5
+  "loc": 4
  },
  "AUDNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 75
+  "loc": 76
  },
  "AUDCHF": {
   "setup": null,
@@ -102,7 +107,7 @@
  "AUDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 47
+  "loc": 44
  },
  "EURJPY": {
   "setup": null,
@@ -137,7 +142,7 @@
  "XAUUSD": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 11
+  "loc": 9
  },
  "EURUSD": {
   "setup": "extended",
@@ -152,7 +157,7 @@
  "SILVER": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 3
+  "loc": 1
  },
  "GBPUSD": {
   "setup": "extended",
