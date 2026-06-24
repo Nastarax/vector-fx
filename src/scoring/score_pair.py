@@ -94,6 +94,20 @@ def _dir_fcst(actual, forecast, previous, direction, deadband_pct: float = 0.0):
     return _dir(actual, forecast, direction, deadband_pct)
 
 
+def _dir_fcst_or_prev(actual, forecast, previous, direction, deadband_pct: float = 0.0):
+    """Surprise score with a momentum fallback: score Actual vs Forecast when a
+    forecast is published, otherwise Actual vs Previous (instead of EdgeFinder's
+    no-forecast=neutral rule). Used only where requested (AUD mPMI / PPI), since
+    those releases routinely publish no forecast. Returns None only when there is
+    nothing to compare against (no actual, or neither forecast nor previous)."""
+    if actual is None:
+        return None
+    benchmark = forecast if forecast is not None else previous
+    if benchmark is None:
+        return None
+    return _dir(actual, benchmark, direction, deadband_pct)
+
+
 def _dir_mag(actual, benchmark, direction, t0_pp: float, t1_pp: float):
     """Magnitude-binned surprise score (-2..+2) for a single currency.
 
@@ -351,6 +365,12 @@ def build_currency_scores(
                         bench = benchmark if benchmark is not None else previous
                         per_ccy[ccy][ind_id] = _dir_mag(
                             actual, bench, direction, ppi_t0, ppi_t1)
+                    elif ccy == "AUD":
+                        # AUD PPI: when no forecast is published, fall back to
+                        # Actual vs Previous (momentum) instead of neutral, per
+                        # request. With a forecast present it behaves like _dir_fcst.
+                        per_ccy[ccy][ind_id] = _dir_fcst_or_prev(
+                            actual, benchmark, previous, direction, db)
                     elif src == "fcst":
                         # EF no-forecast rule: missing forecast -> neutral.
                         per_ccy[ccy][ind_id] = _dir_fcst(
@@ -563,6 +583,15 @@ def build_currency_scores(
                 # mPMI prefers Investing.com's per-currency Latest Release page;
                 # sPMI prefers the investing_spmi dict (6 Investing + 2 TE pages).
                 # Both fall back to combined TE + FF history.
+                # AUD mPMI publishes no forecast, so per request it falls back to
+                # Actual vs Previous (momentum) rather than reading neutral. When
+                # a forecast IS present it scores Actual vs Forecast like the rest.
+                if ind_id == "mpmi" and ccy == "AUD" and investing_mpmi.get("AUD"):
+                    rel = investing_mpmi["AUD"]
+                    per_ccy[ccy][ind_id] = _dir_fcst_or_prev(
+                        rel.get("actual"), rel.get("forecast"),
+                        rel.get("previous"), direction, db)
+                    continue
                 if ind_id == "mpmi" and investing_mpmi.get(ccy):
                     rel = investing_mpmi[ccy]
                     per_ccy[ccy][ind_id] = _dir_fcst(
