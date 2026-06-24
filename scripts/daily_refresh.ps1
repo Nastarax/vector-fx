@@ -16,7 +16,17 @@ $marker = Join-Path $repo "scripts\.last_refresh"
 
 Set-Location $repo
 
-function Log($m) { "$m" | Tee-Object -FilePath $log -Append }
+function Log($m) { Add-Content -Path $log -Value $m }
+
+# Run git, append its (stdout+stderr) output to the log as plain text, and
+# return the exit code. Stringifying each line avoids PowerShell rendering
+# git's normal stderr (e.g. "From github.com...") as red NativeCommandErrors.
+function Git-Run {
+    $out = & git @args 2>&1 | ForEach-Object { "$_" }
+    $code = $LASTEXITCODE
+    if ($out) { Add-Content -Path $log -Value $out }
+    return $code
+}
 
 # Guard against overlapping triggers (e.g. login + hourly firing close together).
 if (Test-Path $marker) {
@@ -29,39 +39,38 @@ if (Test-Path $marker) {
 
 Log "=== $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ==="
 
-python scripts\refresh_investing.py --due 2>&1 | Tee-Object -FilePath $log -Append
+python scripts\refresh_investing.py --due 2>&1 | ForEach-Object { "$_" } | Add-Content -Path $log
 if ($LASTEXITCODE -ne 0) { Log "ERROR: refresh exited $LASTEXITCODE"; exit 1 }
 
 # Commit any changed caches (release_calendar.json included).
 if (git status --porcelain data/cache/) {
-    git add data/cache/ 2>&1 | Tee-Object -FilePath $log -Append
-    git commit -m "Investing refresh (due)" 2>&1 | Tee-Object -FilePath $log -Append
+    Git-Run add data/cache/ | Out-Null
+    Git-Run commit -m "Investing refresh (due)" | Out-Null
 }
 
 # Resilient push: GitHub Actions commits hourly, so a plain push is usually
-# rejected as non-fast-forward. Fetch, rebase (local caches win on conflict
-# since Cloudflare sources can't be fetched in CI), push; retry to ride out CI
-# pushing concurrently. Only acts when we actually have unpushed commits.
-git fetch origin 2>&1 | Tee-Object -FilePath $log -Append
+# rejected as non-fast-forward. Fetch, rebase (local caches win on conflict;
+# --autostash tolerates any stray unstaged file), push; retry to ride out CI
+# pushing concurrently. Only acts when we have unpushed commits.
+Git-Run fetch origin | Out-Null
 $ahead = git rev-list --count origin/main..HEAD
 if (-not $ahead) { $ahead = 0 }
 
 if ([int]$ahead -gt 0) {
     $pushed = $false
     for ($i = 1; $i -le 3; $i++) {
-        git rebase -X theirs origin/main 2>&1 | Tee-Object -FilePath $log -Append
-        if ($LASTEXITCODE -ne 0) {
-            git rebase --abort 2>&1 | Tee-Object -FilePath $log -Append
+        $rc = Git-Run rebase --autostash -X theirs origin/main
+        if ($rc -ne 0) {
+            Git-Run rebase --abort | Out-Null
             Log "Rebase failed (attempt $i), retrying."
             Start-Sleep -Seconds 5
-            git fetch origin 2>&1 | Tee-Object -FilePath $log -Append
+            Git-Run fetch origin | Out-Null
             continue
         }
-        git push 2>&1 | Tee-Object -FilePath $log -Append
-        if ($LASTEXITCODE -eq 0) { $pushed = $true; break }
+        if ((Git-Run push) -eq 0) { $pushed = $true; break }
         Log "Push rejected (attempt $i), retrying."
         Start-Sleep -Seconds 5
-        git fetch origin 2>&1 | Tee-Object -FilePath $log -Append
+        Git-Run fetch origin | Out-Null
     }
     if ($pushed) { Log "Pushed due updates." }
     else { Log "ERROR: could not push after 3 attempts (will retry next run)." }

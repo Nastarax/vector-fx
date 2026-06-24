@@ -61,6 +61,9 @@ data/cache/*.pkl
 # Daily score history for scorecard "Score over time" chart.
 !data/cache/score_history.json
 scripts/.last_refresh
+# Local refresh log: written every run, so tracking it would dirty the working
+# tree and break the scheduler's rebase. Keep it local-only.
+scripts/daily_refresh.log
 
 # Claude Code harness artifacts
 .claude/
