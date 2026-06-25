@@ -30,6 +30,8 @@ data/cache/*.pkl
 !data/cache/investing_ppi.json
 # GDP QoQ cache (Investing.com Japan GDP id 119, JPY only; other 7 use TE). Local refresh.
 !data/cache/investing_gdp.json
+# Household Spending cache (Investing.com Japan id 361, JPY only; Economic Heatmap). Local refresh.
+!data/cache/investing_household.json
 # FF rates outlook (next-meeting consensus forecast per currency). Refreshed
 # every main.py run, cached as fallback.
 !data/cache/ff_rates_outlook.json

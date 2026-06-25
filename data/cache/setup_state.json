@@ -20,59 +20,64 @@
   "loc": 74
  },
  "EURAUD": {
-  "setup": "extended",
-  "bias": "Bullish",
-  "loc": 84
- },
- "PLATINUM": {
-  "setup": "watch",
-  "bias": "Bullish",
-  "loc": 8
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 85
  },
  "GBPAUD": {
-  "setup": "extended",
-  "bias": "Bullish",
-  "loc": 91
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 92
+ },
+ "PLATINUM": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 6
  },
  "EURCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 65
- },
- "GBPCHF": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 81
+  "loc": 67
  },
  "CADCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 51
+  "loc": 52
  },
  "NASDAQ": {
   "setup": null,
   "bias": "Neutral",
   "loc": 65
  },
- "EURNZD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 99
- },
- "GBPNZD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 96
- },
- "GBPCAD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 83
- },
  "UK100": {
   "setup": null,
   "bias": "Neutral",
   "loc": 90
+ },
+ "EURNZD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 93
+ },
+ "GBPCHF": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 82
+ },
+ "GBPNZD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 99
+ },
+ "GBPCAD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 85
+ },
+ "EURGBP": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 14
  },
  "AUDNZD": {
   "setup": null,
@@ -82,12 +87,7 @@
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 3
- },
- "EURGBP": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 11
+  "loc": 25
  },
  "NZDCAD": {
   "setup": null,
@@ -97,17 +97,12 @@
  "EURCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 64
+  "loc": 65
  },
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
   "loc": 45
- },
- "GBPJPY": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 55
  },
  "NZDJPY": {
   "setup": null,
@@ -117,7 +112,12 @@
  "AUDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 12
+  "loc": 14
+ },
+ "GBPJPY": {
+  "setup": "mid",
+  "bias": "Bearish",
+  "loc": 55
  },
  "CADJPY": {
   "setup": "extended",
@@ -144,11 +144,6 @@
   "bias": "Very Bearish",
   "loc": 10
  },
- "SILVER": {
-  "setup": "extended",
-  "bias": "Very Bearish",
-  "loc": 5
- },
  "EURUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
@@ -158,6 +153,11 @@
   "setup": "extended",
   "bias": "Very Bearish",
   "loc": 5
+ },
+ "SILVER": {
+  "setup": "extended",
+  "bias": "Very Bearish",
+  "loc": 2
  },
  "GBPUSD": {
   "setup": "extended",

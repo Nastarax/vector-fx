@@ -94,6 +94,8 @@ PCE YoY:              USD = Investing Core PCE Price Index YoY (id 905, Actual v
 NFP / Jobless Claims: TE, US-only
 ADP:                  Investing ADP Nonfarm Employment Change (id 1), Actual vs Forecast, US-only
 JOLTS:                Investing JOLTS Job Openings (id 1057), Actual vs Forecast, US-only
+Household Spending:   JPY = Investing Japan Household Spending (id 361, Actual vs
+                      Forecast, fallback Previous). JPY-only; Economic Heatmap row.
 Interest Rates:       TE rate outlook (TEForecast vs current)
 Unemployment Rate:    TE all 8 (down_is_bullish)
 ```

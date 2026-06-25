@@ -95,6 +95,8 @@ def resolve_source(ind: str, ccy: str) -> str:
         return "investing" if ccy == "USD" else "te"
     if ind in ("pce", "adp", "jolts"):
         return "investing"          # US-only investing cells
+    if ind == "household_spending":
+        return "investing"          # JPY Household Spending = Investing id 361
     if ind == "gdp":
         return "investing" if ccy == "JPY" else "te"   # JPY GDP = Investing id 119
     if ind in ("unemployment_rate", "rates", "nfp", "jobless_claims"):
@@ -113,6 +115,7 @@ class _Sources:
         self.ppi_inv = _load(CACHE_DIR / "investing_ppi.json")
         self.ppi_mfx = _load(CACHE_DIR / "myfxbook_ppi.json")
         self.gdp_inv = _load(CACHE_DIR / "investing_gdp.json")
+        self.household = _load(CACHE_DIR / "investing_household.json")
         self.cc = _load(CACHE_DIR / "investing_consumer_conf.json")
         self.pce = _load(CACHE_DIR / "investing_pce.json")
         self.adp = _load(CACHE_DIR / "investing_adp.json")
@@ -139,6 +142,8 @@ def _latest_date(src: _Sources, ind: str, ccy: str, source: str):
         return d(src.spmi)
     if ind == "mpmi":
         return d(src.mpmi)
+    if ind == "household_spending":               # JPY Household Spending id 361
+        return d(src.household)
     if ind == "gdp" and source == "investing":   # JPY GDP via Investing id 119
         return d(src.gdp_inv)
     if source == "te":
@@ -184,6 +189,7 @@ def build_calendar(today: date | None = None, prior: dict | None = None) -> dict
     today = today or date.today()
     src = _Sources()
     labels = _labels()
+    labels.setdefault("household_spending", "Household Spending")  # not in indicators.yaml
     entries: dict[str, dict] = {}
     # Carry forward the last_checked timestamps so the due-gating backoff
     # survives a rebuild (a cell whose release is late stays marked-checked
@@ -195,7 +201,8 @@ def build_calendar(today: date | None = None, prior: dict | None = None) -> dict
                 prior_checked[k] = e["last_checked"]
 
     cells = [(i, c) for i in PER_CCY_INDS for c in CCYS] + \
-            [(i, "USD") for i in US_ONLY_INDS]
+            [(i, "USD") for i in US_ONLY_INDS] + \
+            [("household_spending", "JPY")]   # JPY-only extra (Economic Heatmap)
 
     for ind, ccy in cells:
         source = resolve_source(ind, ccy)

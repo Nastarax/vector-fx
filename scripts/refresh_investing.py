@@ -27,8 +27,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.fetchers import (investing, investing_adp, investing_consumer_conf,
                           investing_core, investing_cpi, investing_gdp,
-                          investing_jolts, investing_pce, investing_ppi,
-                          investing_retail_sales, myfxbook_ppi, services_pmi)
+                          investing_household, investing_jolts, investing_pce,
+                          investing_ppi, investing_retail_sales, myfxbook_ppi,
+                          services_pmi)
 from src.fetchers import release_calendar as rc
 
 
@@ -261,6 +262,45 @@ def refresh_gdp():
         print("Cache retains last successful values.")
     else:
         print("GDP: recovered on pass 2.")
+
+
+def refresh_household():
+    print("\n============================================")
+    print("REFRESHING HOUSEHOLD SPENDING (JPY only via Investing)")
+    print("============================================")
+    all_keys = list(investing_household.HOUSEHOLD_URLS.keys())
+    print(f"Targeting {len(all_keys)} currencies\n")
+
+    print("--- Pass 1: full fetch ---")
+    first = investing_household.fetch_household(sleep_between=12.0)
+    fresh1 = set(investing_household._LAST_FRESH)
+    _summarize("household", all_keys, fresh1, first)
+
+    failed = [c for c in all_keys if c not in fresh1]
+    if not failed:
+        print("\nHousehold Spending (JPY): fetched fresh.")
+        return
+
+    print(f"\n--- Pass 2: retry {failed} after 60s cooldown ---")
+    time.sleep(60)
+    orig = investing_household.HOUSEHOLD_URLS.copy()
+    try:
+        for k in list(investing_household.HOUSEHOLD_URLS.keys()):
+            if k not in failed:
+                del investing_household.HOUSEHOLD_URLS[k]
+        second = investing_household.fetch_household(sleep_between=18.0)
+        fresh2 = set(investing_household._LAST_FRESH)
+    finally:
+        investing_household.HOUSEHOLD_URLS.clear()
+        investing_household.HOUSEHOLD_URLS.update(orig)
+
+    still_failed = [c for c in failed if c not in fresh2]
+    print(f"\nHousehold summary: pass 1 fresh={sorted(fresh1)}, pass 2 fresh={sorted(fresh2)}")
+    if still_failed:
+        print(f"Household: still not fresh after 2 passes: {still_failed}")
+        print("Cache retains last successful values.")
+    else:
+        print("Household: recovered on pass 2.")
 
 
 def refresh_consumer_conf():
@@ -544,6 +584,7 @@ REFRESHERS = {
     "cpi_history": refresh_cpi_history,
     "ppi": refresh_ppi,
     "gdp": refresh_gdp,
+    "household": refresh_household,
     "cc": refresh_consumer_conf,
     "jolts": refresh_jolts,
     "adp": refresh_adp,
@@ -561,6 +602,7 @@ _CACHE_FILES = {
     "cpi_history": "data/cache/cpi_investing_history.json",
     "ppi": "data/cache/investing_ppi.json",
     "gdp": "data/cache/investing_gdp.json",
+    "household": "data/cache/investing_household.json",
     "cc": "data/cache/investing_consumer_conf.json",
     "jolts": "data/cache/investing_jolts.json",
     "adp": "data/cache/investing_adp.json",
@@ -590,6 +632,8 @@ def _cell_target(ind: str, ccy: str, source: str) -> str | None:
         return "spmi"          # refresh_spmi covers Investing + CHF(TE) + NZD(BusinessNZ)
     if ind == "gdp" and source == "investing":   # JPY GDP via Investing id 119
         return "gdp"
+    if ind == "household_spending":               # JPY Household Spending id 361
+        return "household"
     if ind == "cpi":
         return "cpi"           # all 8 via Investing (JPY = Tokyo Core)
     if ind == "ppi":

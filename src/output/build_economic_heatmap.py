@@ -32,6 +32,7 @@ INDICATORS = [
     {"id": "mpmi",              "label": "Manufacturing PMI",   "direction": "up_is_bullish",   "stocks": "up_is_bullish",   "ccys": "all"},
     {"id": "spmi",              "label": "Services PMI",        "direction": "up_is_bullish",   "stocks": "up_is_bullish",   "ccys": "all"},
     {"id": "retail_sales",      "label": "Retail Sales",        "direction": "up_is_bullish",   "stocks": "up_is_bullish",   "ccys": "all"},
+    {"id": "household_spending", "label": "Household Spending",  "direction": "up_is_bullish",   "stocks": "up_is_bullish",   "ccys": ["JPY"]},
     {"id": "consumer_conf",     "label": "Consumer Confidence", "direction": "up_is_bullish",   "stocks": "up_is_bullish",   "ccys": "all"},
     {"id": "cpi",               "label": "CPI YoY",             "direction": "up_is_bullish",   "stocks": "down_is_bullish", "ccys": "all"},
     {"id": "ppi",               "label": "PPI YoY",             "direction": "up_is_bullish",   "stocks": "down_is_bullish", "ccys": "all"},
@@ -214,7 +215,8 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
                investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
                investing_cc=None, investing_jolts=None, investing_adp=None,
                investing_pce=None, myfxbook_ppi=None,
-               investing_retail_sales=None, investing_gdp=None):
+               investing_retail_sales=None, investing_gdp=None,
+               investing_household=None):
     """Return the row dict for one (currency, indicator) pair."""
     ind_id = ind["id"]
     direction = ind["direction"]
@@ -223,8 +225,16 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
     actual = forecast = previous = None
     date = ""
 
+    # Household Spending: Investing.com Japan Household Spending (id 361), JPY only.
+    if ind_id == "household_spending" and (investing_household or {}).get(ccy):
+        rel = investing_household[ccy]
+        actual = rel.get("actual")
+        forecast = rel.get("forecast")
+        previous = rel.get("previous")
+        date = rel.get("date") or ""
+
     # GDP: Investing.com Japan GDP QoQ for JPY (Actual vs Forecast); TE otherwise
-    if ind_id == "gdp" and ccy == "JPY" and (investing_gdp or {}).get("JPY"):
+    elif ind_id == "gdp" and ccy == "JPY" and (investing_gdp or {}).get("JPY"):
         rel = investing_gdp["JPY"]
         actual = rel.get("actual")
         forecast = rel.get("forecast")
@@ -364,7 +374,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
     # when no forecast is published, so its chip matches the heatmap CPI cell
     # (the Forecast column still shows n/a; only the impact benchmark falls back).
     benchmark = forecast
-    if ind_id == "cpi" and benchmark is None:
+    if ind_id in ("cpi", "household_spending") and benchmark is None:
         benchmark = previous
     surprise = _surprise_pct(actual, benchmark)
     if benchmark is None and actual is not None:
@@ -389,7 +399,7 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
               rates_outlook=None, investing_cc=None, investing_jolts=None,
               investing_adp=None, investing_pce=None, myfxbook_ppi=None,
               investing_retail_sales=None, treasury_2y=None,
-              investing_gdp=None) -> dict:
+              investing_gdp=None, investing_household=None) -> dict:
     """Return {ccy: [row dicts]} for all currencies plus the metals (XAU/XPT/XAG).
 
     Metals have no domestic macro, so their rows are the USD release rows with
@@ -412,7 +422,8 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
                              investing_adp=investing_adp, investing_pce=investing_pce,
                              myfxbook_ppi=myfxbook_ppi,
                              investing_retail_sales=investing_retail_sales,
-                             investing_gdp=investing_gdp)
+                             investing_gdp=investing_gdp,
+                             investing_household=investing_household)
             rows.append(row)
             # USD carries every indicator (incl. US-only labour rows), so derive
             # the metal rows from it. Rates is special: metals score it off the
