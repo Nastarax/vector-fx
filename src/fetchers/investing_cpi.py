@@ -270,10 +270,11 @@ def load_cached():
 
 
 # ---------------------------------------------------------------------------
-# Japan Tokyo Core CPI YoY (event id 328). Used as the JPY CPI source for both
-# scoring (Actual vs Forecast/consensus) and the inflation page history chart.
-# The full monthly series (~100 releases back to 2018) is embedded in the
-# page's Next.js __NEXT_DATA__ blob, so one page fetch gives latest + history.
+# Japan Tokyo Core CPI YoY (event id 328). Used ONLY for the inflation page
+# history chart now; JPY CPI SCORING uses the National CPI YoY page (id 992) in
+# CPI_URLS above (Actual vs Previous, no forecast). The full monthly series
+# (~100 releases back to 2018) is embedded in the page's Next.js __NEXT_DATA__
+# blob, so one page fetch gives latest + history.
 # ---------------------------------------------------------------------------
 TOKYO_CORE_CPI_URL = (
     "https://www.investing.com/economic-calendar/"

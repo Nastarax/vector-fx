@@ -79,8 +79,10 @@ Retail Sales:         CAD = Investing Retail Sales MoM (id 260, Actual vs Foreca
 Consumer Conf:        USD = Investing CB Consumer Confidence (Actual vs Forecast);
                       other 7 = TE Actual vs Forecast (Consensus, TEForecast
                       fallback; no forecast -> neutral)
-CPI YoY:              Investing per-currency (Actual vs Forecast); JPY = Investing Tokyo
-                      Core CPI (id 328); fallback Previous for CHF
+CPI YoY:              Investing per-currency, Actual vs Forecast, falling back to
+                      Actual vs Previous when no forecast is published (all ccys);
+                      JPY = Investing Japan National CPI YoY (id 992, no forecast ->
+                      vs Previous). Tokyo Core CPI (id 328) is now chart-only.
 PPI YoY:              CHF = Myfxbook Producer & Import Prices YoY (Actual vs Consensus);
                       AUD = Myfxbook Australia PPI YoY (Actual vs Consensus);
                       GBP = Investing PPI Output (id 730, Actual vs Forecast);
