@@ -330,11 +330,11 @@ def build_currency_scores(
                     continue
 
                 # PPI YoY:
-                # - NZD/GBP: Investing.com PPI Output. Actual vs Forecast;
-                #   fall back to Previous if Forecast missing.
+                # - NZD/GBP/JPY: Investing.com PPI (Output for NZD/GBP, id 35 for
+                #   JPY). Actual vs Forecast.
                 # - CHF/AUD: Myfxbook PPI YoY. Actual vs Consensus; fall
                 #   back to Previous if Consensus missing.
-                # - Other 4 (USD/EUR/JPY/CAD): TE producer-prices page.
+                # - Other 3 (USD/EUR/CAD): TE producer-prices page.
                 #   Actual vs Consensus, fall back to TEForecast.
                 # Source precedence is identical regardless of scoring mode;
                 # only the final scorer differs (sign-only _dir/_dir_fcst vs
@@ -348,7 +348,7 @@ def build_currency_scores(
                         benchmark = rel.get("consensus")
                         previous = rel.get("previous")
                         src = "fcst"
-                    elif ccy in ("NZD", "GBP") and investing_ppi.get(ccy):
+                    elif ccy in ("NZD", "GBP", "JPY") and investing_ppi.get(ccy):
                         rel = investing_ppi[ccy]
                         actual = rel.get("actual")
                         benchmark = rel.get("forecast")

@@ -87,7 +87,8 @@ PPI YoY:              CHF = Myfxbook Producer & Import Prices YoY (Actual vs Con
                       AUD = Myfxbook Australia PPI YoY (Actual vs Consensus);
                       GBP = Investing PPI Output (id 730, Actual vs Forecast);
                       NZD = Investing PPI Output (id 247, Actual vs Forecast);
-                      other 4 (USD/EUR/JPY/CAD) = TE (Actual vs Consensus,
+                      JPY = Investing PPI (id 35, Actual vs Forecast);
+                      other 3 (USD/EUR/CAD) = TE (Actual vs Consensus,
                       fallback TEForecast).
 PCE YoY:              USD = Investing Core PCE Price Index YoY (id 905, Actual vs
                       Forecast, fallback Previous); fallback TE. US-only.

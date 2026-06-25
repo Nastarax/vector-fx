@@ -82,7 +82,7 @@ def resolve_source(ind: str, ccy: str) -> str:
     if ind == "ppi":
         if ccy in ("CHF", "AUD"):
             return "myfxbook"
-        if ccy in ("NZD", "GBP"):
+        if ccy in ("NZD", "GBP", "JPY"):
             return "investing"
         return "te"
     if ind == "retail_sales":

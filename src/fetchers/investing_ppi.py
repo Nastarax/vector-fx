@@ -1,8 +1,8 @@
 """
-Investing.com PPI YoY fetcher (NZD + GBP).
+Investing.com PPI YoY fetcher (NZD + GBP + JPY).
 
-NZD PPI Output (id 247) and GBP PPI Output (id 730). Actual vs Forecast,
-fallback to Previous. Other currencies use Myfxbook (CHF/AUD) or TE.
+NZD PPI Output (id 247), GBP PPI Output (id 730), JPY PPI (id 35). Actual vs
+Forecast. Other currencies use Myfxbook (CHF/AUD) or TE.
 
 Same fetch/parse architecture as investing_cpi.py.
 """
@@ -30,6 +30,7 @@ CACHE_FILE = CACHE_DIR / "investing_ppi.json"
 PPI_URLS: dict[str, str] = {
     "NZD": "https://www.investing.com/economic-calendar/ppi-output-247",
     "GBP": "https://www.investing.com/economic-calendar/ppi-output-730",
+    "JPY": "https://www.investing.com/economic-calendar/ppi-35",
 }
 
 

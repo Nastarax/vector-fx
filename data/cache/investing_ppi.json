@@ -10,5 +10,11 @@
     "actual": 4.0,
     "forecast": 4.0,
     "previous": 4.1
+  },
+  "JPY": {
+    "date": "2026-06-09",
+    "actual": 6.3,
+    "forecast": 5.6,
+    "previous": 5.3
   }
 }
