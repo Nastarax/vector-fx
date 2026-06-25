@@ -572,14 +572,15 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
-                # CPI YoY: Investing.com per-currency Latest Release. Actual
-                # vs Forecast where the forecast is published. Falls back to
-                # Actual vs Previous for JPY (Investing's Japan CPI YoY page
-                # never lists a forecast) and for CHF when the next Swiss
-                # release's forecast hasn't been published yet.
+                # CPI YoY: Investing.com per-currency Latest Release. Actual vs
+                # Forecast where a forecast is published; otherwise Actual vs
+                # Previous (momentum) instead of neutral, per request. Currencies
+                # whose Investing CPI page lists no forecast (e.g. JPY, CAD, CHF
+                # when the next forecast isn't out yet) are scored on the change
+                # vs the previous print.
                 if ind_id == "cpi" and investing_cpi.get(ccy):
                     rel = investing_cpi[ccy]
-                    per_ccy[ccy][ind_id] = _dir_fcst(
+                    per_ccy[ccy][ind_id] = _dir_fcst_or_prev(
                         rel.get("actual"), rel.get("forecast"),
                         rel.get("previous"), direction, db)
                     continue

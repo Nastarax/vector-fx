@@ -360,7 +360,12 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
     # measure, so the chip is Neutral and the surprise reads n/a (matches the
     # scorer's _dir_fcst, which scores those 0). Consumer-conf for non-USD is the
     # one exception that arrives here with forecast set to its Previous value.
+    # CPI is the other exception: per request it falls back to Actual vs Previous
+    # when no forecast is published, so its chip matches the heatmap CPI cell
+    # (the Forecast column still shows n/a; only the impact benchmark falls back).
     benchmark = forecast
+    if ind_id == "cpi" and benchmark is None:
+        benchmark = previous
     surprise = _surprise_pct(actual, benchmark)
     if benchmark is None and actual is not None:
         currency_impact = stocks_impact = "Neutral"
