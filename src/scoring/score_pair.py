@@ -610,9 +610,13 @@ def build_currency_scores(
                         rel.get("actual"), rel.get("forecast"),
                         rel.get("previous"), direction, db)
                     continue
+                # sPMI falls back to Actual vs Previous (momentum) when no forecast
+                # is published (e.g. CHF Swiss services, NZD PSI, CAD), per request,
+                # rather than reading neutral. With a forecast it scores Actual vs
+                # Forecast like everything else.
                 if ind_id == "spmi" and investing_spmi.get(ccy):
                     rel = investing_spmi[ccy]
-                    per_ccy[ccy][ind_id] = _dir_fcst(
+                    per_ccy[ccy][ind_id] = _dir_fcst_or_prev(
                         rel.get("actual"), rel.get("forecast"),
                         rel.get("previous"), direction, db)
                     continue
@@ -637,7 +641,10 @@ def build_currency_scores(
                         continue
                     latest = combined[0]
                     forecast = latest.get("consensus") or latest.get("forecast")
-                    per_ccy[ccy][ind_id] = _dir_fcst(
+                    # sPMI falls back to Actual vs Previous when no forecast (per
+                    # request); mPMI keeps the EF surprise-only rule (neutral).
+                    score_fn = _dir_fcst_or_prev if ind_id == "spmi" else _dir_fcst
+                    per_ccy[ccy][ind_id] = score_fn(
                         latest.get("actual"), forecast,
                         latest.get("previous"), direction, db)
                     continue
