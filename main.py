@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_jolts, investing_pce, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
-from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_macro, build_scorecard, build_seasonality, notify
+from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_macro, build_retail, build_scorecard, build_seasonality, notify
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 from src.scoring import score_history
 
@@ -408,6 +408,13 @@ def main():
     except Exception as e:
         print(f"[macro] render failed: {e}")
 
+    # Retail Sentiment page (contrarian crowd positioning).
+    retail_path = None
+    try:
+        retail_path = build_retail.render(rt)
+    except Exception as e:
+        print(f"[retail] render failed: {e}")
+
     print(f"\nDone in {time.time()-t0:.1f}s")
     print(f"  Heatmap        -> {out_path}")
     if cot_path:
@@ -424,6 +431,8 @@ def main():
         print(f"  Inflation page -> {inflation_path}")
     if macro_path:
         print(f"  Macro center   -> {macro_path}")
+    if retail_path:
+        print(f"  Retail page    -> {retail_path}")
     print("\nTop 5 bullish:")
     for r in heatmap["rows"][:5]:
         print(f"  {r['symbol']:7s}  {r['bias']:13s}  total={r['total']:+d}")

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vector | Retail Sentiment</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%233d77e8'/><stop offset='1' stop-color='%231e4fd1'/></linearGradient></defs><rect width='32' height='32' rx='7' fill='url(%23g)'/><text x='16' y='23' font-family='Arial' font-size='18' font-weight='bold' fill='white' text-anchor='middle'>V</text></svg>">
+<link rel="stylesheet" href="vector.css">
+<style>
+  body{line-height:1.5}
+  main{max-width:1120px;margin:0 auto;padding:22px 24px 60px}
+  .rs-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+  .rs-intro h2{font-size:16px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:9px}
+  .rs-intro h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .rs-intro p{color:var(--muted);font-size:12.5px;margin:0;max-width:680px}
+  .rs-search{background:var(--row);color:var(--text);border:1px solid var(--border);
+    padding:8px 12px;border-radius:7px;font-size:12.5px;min-width:170px}
+  .rs-search:focus{outline:none;border-color:var(--accent)}
+
+  .rs-legend{display:flex;gap:16px;align-items:center;margin:0 0 14px;font-size:11.5px;color:var(--muted)}
+  .rs-legend .k{display:inline-flex;align-items:center;gap:6px}
+  .rs-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .sw.long{background:var(--bull)} .sw.short{background:var(--bear)}
+  .sw.sbear{background:#e2571f} .sw.sbull{background:var(--bull)} .sw.sneut{background:#5a627e}
+
+  .rs-list{display:flex;flex-direction:column;gap:6px}
+  .rs-row{display:flex;align-items:stretch;height:30px}
+  .rs-label{flex:0 0 134px;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:12px;letter-spacing:.4px;color:#fff;text-transform:uppercase;
+    border-radius:5px 0 0 5px}
+  .rs-label.bear{background:#e2571f}
+  .rs-label.bull{background:var(--bull)}
+  .rs-label.neut{background:#5a627e}
+  .rs-bar{flex:1;display:flex;align-items:stretch;background:var(--row);
+    border-radius:0 5px 5px 0;overflow:hidden}
+  .rs-long,.rs-short{display:flex;align-items:center;justify-content:flex-end;min-width:0}
+  .rs-long{background:var(--bull)}
+  .rs-short{background:var(--bear)}
+  .rs-long span,.rs-short span{font-size:11.5px;font-weight:600;color:#fff;
+    padding:0 9px;white-space:nowrap}
+  .rs-empty{color:var(--muted);font-size:13px;padding:16px}
+  footer{color:var(--muted);font-size:11px;text-align:center;margin-top:36px;
+    border-top:1px solid var(--border);padding-top:16px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="brand-mark">V</div>
+    <div>
+      <div class="brand-name">VECTOR</div>
+      <h1>Retail Sentiment</h1>
+    </div>
+  </div>
+  <div class="meta">Updated <b>2026-06-24 22:05 EDT</b></div>
+</header>
+
+<nav class="topnav">
+  <a class="navlink" href="index.html">Top Setups</a>
+  <a class="navlink" href="cot.html">COT Detail</a>
+  <a class="navlink" href="economic_heatmap.html">Economic Heatmap</a>
+  <a class="navlink" href="scorecard.html">Asset Scorecard</a>
+  <a class="navlink" href="inflation.html">Inflation</a>
+  <a class="navlink" href="macro.html">Macro Calendar</a>
+  <a class="navlink active" href="retail.html">Retail Sentiment</a>
+  <div class="dropdown">
+    <a class="navlink dropbtn" href="#" onclick="event.preventDefault();this.parentElement.classList.toggle('open')">Seasonality &#9662;</a>
+    <div class="dropdown-content">
+      <a href="seasonality_yearly.html">Yearly Seasonality</a>
+      <a href="seasonality_monthly.html">Monthly Seasonality</a>
+    </div>
+  </div>
+  <span class="nav-spacer"></span>
+</nav>
+
+<main>
+  <div class="rs-top">
+    <div class="rs-intro">
+      <h2><span class="dot"></span>Contrarian Signal</h2>
+      <p>Crowd positioning from retail brokers (Myfxbook + Forexbenchmark, averaged), the
+        same feed behind the heatmap's Crowd cell. Read it contrarian: a heavily long crowd
+        leans bearish, a heavily short crowd leans bullish. Sorted most-long first.</p>
+    </div>
+    <input id="rs-search" class="rs-search" type="search" placeholder="Filter symbol..." autocomplete="off">
+  </div>
+
+  <div class="rs-legend">
+    <span class="k"><span class="sw long"></span>Long%</span>
+    <span class="k"><span class="sw short"></span>Short%</span>
+    <span class="k" style="margin-left:10px">Signal:</span>
+    <span class="k"><span class="sw sbear"></span>Bearish (crowd long)</span>
+    <span class="k"><span class="sw sneut"></span>Neutral</span>
+    <span class="k"><span class="sw sbull"></span>Bullish (crowd short)</span>
+  </div>
+
+  <div class="rs-list" id="rs-list">
+<div class="rs-row" data-sym="USDCAD"><div class="rs-label bear">USDCAD</div><div class="rs-bar"><div class="rs-long" style="width:87.4000%"><span>87.4%</span></div><div class="rs-short" style="width:12.6000%"><span>12.6%</span></div></div></div>
+<div class="rs-row" data-sym="USDCHF"><div class="rs-label bear">USDCHF</div><div class="rs-bar"><div class="rs-long" style="width:80.9500%"><span>81%</span></div><div class="rs-short" style="width:19.0500%"><span>19%</span></div></div></div>
+<div class="rs-row" data-sym="GBPNZD"><div class="rs-label bear">GBPNZD</div><div class="rs-bar"><div class="rs-long" style="width:76.6500%"><span>76.7%</span></div><div class="rs-short" style="width:23.3500%"><span>23.3%</span></div></div></div>
+<div class="rs-row" data-sym="EURNZD"><div class="rs-label bear">EURNZD</div><div class="rs-bar"><div class="rs-long" style="width:72.7500%"><span>72.8%</span></div><div class="rs-short" style="width:27.2500%"><span>27.2%</span></div></div></div>
+<div class="rs-row" data-sym="EURCHF"><div class="rs-label bear">EURCHF</div><div class="rs-bar"><div class="rs-long" style="width:69.6500%"><span>69.7%</span></div><div class="rs-short" style="width:30.3500%"><span>30.3%</span></div></div></div>
+<div class="rs-row" data-sym="GBPCHF"><div class="rs-label bear">GBPCHF</div><div class="rs-bar"><div class="rs-long" style="width:68.0500%"><span>68%</span></div><div class="rs-short" style="width:31.9500%"><span>32%</span></div></div></div>
+<div class="rs-row" data-sym="GBPAUD"><div class="rs-label bear">GBPAUD</div><div class="rs-bar"><div class="rs-long" style="width:64.3000%"><span>64.3%</span></div><div class="rs-short" style="width:35.7000%"><span>35.7%</span></div></div></div>
+<div class="rs-row" data-sym="USDJPY"><div class="rs-label bear">USDJPY</div><div class="rs-bar"><div class="rs-long" style="width:62.4500%"><span>62.5%</span></div><div class="rs-short" style="width:37.5500%"><span>37.5%</span></div></div></div>
+<div class="rs-row" data-sym="EURAUD"><div class="rs-label neut">EURAUD</div><div class="rs-bar"><div class="rs-long" style="width:59.3500%"><span>59.4%</span></div><div class="rs-short" style="width:40.6500%"><span>40.6%</span></div></div></div>
+<div class="rs-row" data-sym="GBPCAD"><div class="rs-label neut">GBPCAD</div><div class="rs-bar"><div class="rs-long" style="width:59.0500%"><span>59%</span></div><div class="rs-short" style="width:40.9500%"><span>41%</span></div></div></div>
+<div class="rs-row" data-sym="EURCAD"><div class="rs-label neut">EURCAD</div><div class="rs-bar"><div class="rs-long" style="width:51.0000%"><span>51%</span></div><div class="rs-short" style="width:49.0000%"><span>49%</span></div></div></div>
+<div class="rs-row" data-sym="AUDCHF"><div class="rs-label neut">AUDCHF</div><div class="rs-bar"><div class="rs-long" style="width:48.1500%"><span>48.1%</span></div><div class="rs-short" style="width:51.8500%"><span>51.9%</span></div></div></div>
+<div class="rs-row" data-sym="AUDNZD"><div class="rs-label neut">AUDNZD</div><div class="rs-bar"><div class="rs-long" style="width:47.9500%"><span>48%</span></div><div class="rs-short" style="width:52.0500%"><span>52%</span></div></div></div>
+<div class="rs-row" data-sym="CADCHF"><div class="rs-label neut">CADCHF</div><div class="rs-bar"><div class="rs-long" style="width:45.8500%"><span>45.9%</span></div><div class="rs-short" style="width:54.1500%"><span>54.1%</span></div></div></div>
+<div class="rs-row" data-sym="NZDCHF"><div class="rs-label neut">NZDCHF</div><div class="rs-bar"><div class="rs-long" style="width:42.5000%"><span>42.5%</span></div><div class="rs-short" style="width:57.5000%"><span>57.5%</span></div></div></div>
+<div class="rs-row" data-sym="XAUUSD"><div class="rs-label neut">Gold</div><div class="rs-bar"><div class="rs-long" style="width:41.0000%"><span>41%</span></div><div class="rs-short" style="width:59.0000%"><span>59%</span></div></div></div>
+<div class="rs-row" data-sym="EURGBP"><div class="rs-label bull">EURGBP</div><div class="rs-bar"><div class="rs-long" style="width:37.7500%"><span>37.8%</span></div><div class="rs-short" style="width:62.2500%"><span>62.2%</span></div></div></div>
+<div class="rs-row" data-sym="CHFJPY"><div class="rs-label bull">CHFJPY</div><div class="rs-bar"><div class="rs-long" style="width:37.0500%"><span>37%</span></div><div class="rs-short" style="width:62.9500%"><span>63%</span></div></div></div>
+<div class="rs-row" data-sym="GBPUSD"><div class="rs-label bull">GBPUSD</div><div class="rs-bar"><div class="rs-long" style="width:36.2500%"><span>36.2%</span></div><div class="rs-short" style="width:63.7500%"><span>63.8%</span></div></div></div>
+<div class="rs-row" data-sym="EURJPY"><div class="rs-label bull">EURJPY</div><div class="rs-bar"><div class="rs-long" style="width:30.2000%"><span>30.2%</span></div><div class="rs-short" style="width:69.8000%"><span>69.8%</span></div></div></div>
+<div class="rs-row" data-sym="AUDCAD"><div class="rs-label bull">AUDCAD</div><div class="rs-bar"><div class="rs-long" style="width:30.1000%"><span>30.1%</span></div><div class="rs-short" style="width:69.9000%"><span>69.9%</span></div></div></div>
+<div class="rs-row" data-sym="NZDCAD"><div class="rs-label bull">NZDCAD</div><div class="rs-bar"><div class="rs-long" style="width:30.0500%"><span>30.1%</span></div><div class="rs-short" style="width:69.9500%"><span>70%</span></div></div></div>
+<div class="rs-row" data-sym="GBPJPY"><div class="rs-label bull">GBPJPY</div><div class="rs-bar"><div class="rs-long" style="width:27.6000%"><span>27.6%</span></div><div class="rs-short" style="width:72.4000%"><span>72.4%</span></div></div></div>
+<div class="rs-row" data-sym="AUDJPY"><div class="rs-label bull">AUDJPY</div><div class="rs-bar"><div class="rs-long" style="width:26.6500%"><span>26.6%</span></div><div class="rs-short" style="width:73.3500%"><span>73.3%</span></div></div></div>
+<div class="rs-row" data-sym="EURUSD"><div class="rs-label bull">EURUSD</div><div class="rs-bar"><div class="rs-long" style="width:21.8000%"><span>21.8%</span></div><div class="rs-short" style="width:78.2000%"><span>78.2%</span></div></div></div>
+<div class="rs-row" data-sym="CADJPY"><div class="rs-label bull">CADJPY</div><div class="rs-bar"><div class="rs-long" style="width:20.5500%"><span>20.6%</span></div><div class="rs-short" style="width:79.4500%"><span>79.5%</span></div></div></div>
+<div class="rs-row" data-sym="AUDUSD"><div class="rs-label bull">AUDUSD</div><div class="rs-bar"><div class="rs-long" style="width:16.6000%"><span>16.6%</span></div><div class="rs-short" style="width:83.4000%"><span>83.4%</span></div></div></div>
+<div class="rs-row" data-sym="NZDJPY"><div class="rs-label bull">NZDJPY</div><div class="rs-bar"><div class="rs-long" style="width:12.6500%"><span>12.7%</span></div><div class="rs-short" style="width:87.3500%"><span>87.3%</span></div></div></div>
+<div class="rs-row" data-sym="NZDUSD"><div class="rs-label bull">NZDUSD</div><div class="rs-bar"><div class="rs-long" style="width:12.3500%"><span>12.3%</span></div><div class="rs-short" style="width:87.6500%"><span>87.7%</span></div></div></div>
+  </div>
+
+  <footer>Source: Myfxbook + Forexbenchmark (averaged) &middot; contrarian thresholds 60% / 40% long</footer>
+</main>
+
+<script>
+  (function(){
+    var box = document.getElementById('rs-search');
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#rs-list .rs-row'));
+    box.addEventListener('input', function(){
+      var q = box.value.trim().toUpperCase();
+      rows.forEach(function(r){
+        r.style.display = (!q || r.getAttribute('data-sym').indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  })();
+</script>
+</body>
+</html>

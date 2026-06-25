@@ -181,6 +181,7 @@ _COMMON_HEAD = """<!doctype html>
   <a class="navlink" href="scorecard.html">Asset Scorecard</a>
   <a class="navlink" href="inflation.html">Inflation</a>
   <a class="navlink" href="macro.html">Macro Calendar</a>
+  <a class="navlink" href="retail.html">Retail Sentiment</a>
   <a class="navlink active" href="seasonality_yearly.html">Seasonality</a>
   <span class="nav-spacer"></span>
 </nav>

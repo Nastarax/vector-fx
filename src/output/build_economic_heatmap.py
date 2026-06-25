@@ -477,6 +477,7 @@ _HTML_TEMPLATE = """<!doctype html>
   <a class="navlink" href="scorecard.html">Asset Scorecard</a>
   <a class="navlink" href="inflation.html">Inflation</a>
   <a class="navlink" href="macro.html">Macro Calendar</a>
+  <a class="navlink" href="retail.html">Retail Sentiment</a>
   <div class="dropdown">
     <a class="navlink dropbtn" href="#" onclick="event.preventDefault();this.parentElement.classList.toggle('open')">Seasonality &#9662;</a>
     <div class="dropdown-content">

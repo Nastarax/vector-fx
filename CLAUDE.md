@@ -250,6 +250,14 @@ curl_cffi (Cloudflare); plain requests get blocked.
   (bar+forecast line+target rate, A1 EdgeFinder style). Persistent archives at
   `data/cache/cpi_history_archive.json` (actuals) and `data/cache/cpi_forecast_archive.json`
   (consensus forecasts). Both merge every run, never drop old points.
+- Retail Sentiment (`data/retail.html` via `build_retail`): EdgeFinder-style contrarian
+  view, one horizontal bar per instrument (blue Long% / red Short%), sorted most-long
+  first, left label chip coloured by the contrarian signal (>=60% long = bearish/orange,
+  <=40% = bullish/blue, else neutral/grey, matching `retail_score`). Built from the live
+  `rt` readings (Myfxbook + Forexbenchmark averaged) passed from main.py; filtered to
+  symbols with real source coverage (the 28 FX pairs + Gold). Indices/metals use a
+  COT-proxy crowd, not the retail feed, so they are not shown. Static page + a small
+  client-side symbol filter.
 
 ## Dead endpoints (do not retry)
 
