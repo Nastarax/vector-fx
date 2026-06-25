@@ -129,7 +129,8 @@ def parse_latest_release(html, debug_path=None):
     CB Consumer Confidence values are plain index numbers (e.g. '98.4'), so the
     shared VAL pattern (optional %/KMB suffix) handles them fine.
     """
-    VAL = r"(-|--|[-−]?[\d.,]+\s*[KMB]?\s*%?)"
+    # Number first so a negative last value isn't truncated to a bare "-".
+    VAL = r"([-−]?[\d.,]+\s*[KMB]?\s*%?|--|-)"
     soup = BeautifulSoup(html, "html.parser")
     raw_text_full = soup.get_text(" ", strip=True).replace(" ", " ")
     pat = (r"Latest Release\s+([A-Za-z]+\s+\d+,?\s+\d{4})\s+"

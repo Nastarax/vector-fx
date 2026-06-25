@@ -128,7 +128,8 @@ def parse_latest_release(html, debug_path=None):
     K/M/B suffixes to absolute numbers (consistent within this source, which
     is all that matters for Actual vs Forecast scoring).
     """
-    VAL = r"(-|--|[-−]?[\d.,]+\s*[KMB]?\s*%?)"
+    # Number first so a negative last value isn't truncated to a bare "-".
+    VAL = r"([-−]?[\d.,]+\s*[KMB]?\s*%?|--|-)"
     soup = BeautifulSoup(html, "html.parser")
     raw_text_full = soup.get_text(" ", strip=True).replace(" ", " ")
     pat = (r"Latest Release\s+([A-Za-z]+\s+\d+,?\s+\d{4})\s+"

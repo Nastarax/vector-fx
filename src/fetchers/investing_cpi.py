@@ -146,7 +146,7 @@ def parse_latest_release(html, debug_path=None):
     """
     # The value pattern: optional unicode/ASCII minus, digits/commas/dots,
     # optional unit suffix (K/M/B), optional %. Also matches lone '-' / '--'.
-    VAL = r"(-|--|[-−]?[\d.,]+\s*[KMB]?\s*%?)"
+    VAL = r"([-−]?[\d.,]+\s*[KMB]?\s*%?|--|-)"
 
     soup = BeautifulSoup(html, "html.parser")
     # Normalize non-breaking spaces to regular spaces so the regex \s works

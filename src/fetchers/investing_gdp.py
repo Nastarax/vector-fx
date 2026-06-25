@@ -118,7 +118,9 @@ def _parse_date(raw):
 
 def parse_latest_release(html, debug_path=None):
     """Reads the 'Latest Release ... Actual ... Forecast ... Previous' block."""
-    VAL = r"(-|--|[-−]?[\d.,]+\s*[KMB]?\s*%?)"
+    # Number first so a negative last value (e.g. "-2.9%") isn't truncated to a
+    # bare "-" (the no-data placeholder) when nothing follows to force backtracking.
+    VAL = r"([-−]?[\d.,]+\s*[KMB]?\s*%?|--|-)"
     soup = BeautifulSoup(html, "html.parser")
     raw_text_full = soup.get_text(" ", strip=True).replace(" ", " ")
     pat = (r"Latest Release\s+([A-Za-z]+\s+\d+,?\s+\d{4})\s+"

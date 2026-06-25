@@ -122,7 +122,8 @@ def parse_latest_release(html, debug_path=None):
     Same robust parser used in investing_cpi.py. Looks for the
     'Latest Release ... Actual ... Forecast ... Previous ...' block.
     """
-    VAL = r"(-|--|[-−]?[\d.,]+\s*[KMB]?\s*%?)"
+    # Number first so a negative last value isn't truncated to a bare "-".
+    VAL = r"([-−]?[\d.,]+\s*[KMB]?\s*%?|--|-)"
     soup = BeautifulSoup(html, "html.parser")
     raw_text_full = soup.get_text(" ", strip=True).replace(" ", " ")
     pat = (r"Latest Release\s+([A-Za-z]+\s+\d+,?\s+\d{4})\s+"

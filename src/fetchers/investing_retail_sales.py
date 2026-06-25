@@ -120,7 +120,8 @@ def _parse_date(raw):
 
 
 def parse_latest_release(html, debug_path=None):
-    VAL = r"(-|--|[-−]?[\d.,]+\s*[KMB]?\s*%?)"
+    # Number first so a negative last value isn't truncated to a bare "-".
+    VAL = r"([-−]?[\d.,]+\s*[KMB]?\s*%?|--|-)"
     soup = BeautifulSoup(html, "html.parser")
     raw_text_full = soup.get_text(" ", strip=True).replace("\xa0", " ")
     pat = (r"Latest Release\s+([A-Za-z]+\s+\d+,?\s+\d{4})\s+"
