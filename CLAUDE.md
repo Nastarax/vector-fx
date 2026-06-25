@@ -67,7 +67,8 @@ refreshed.
 Trend / Seasonality:  yfinance (Daily + 4H)
 COT:                  CFTC Socrata API (Legacy Non-Commercial)
 Crowd Sentiment:      Myfxbook + Forexbenchmark (averaged)
-GDP:                  TE (Actual vs Consensus, fallback TEForecast)
+GDP:                  JPY = Investing Japan GDP QoQ (id 119, Actual vs Forecast);
+                      other 7 = TE (Actual vs Consensus, fallback TEForecast)
 mPMI:                 Investing per-currency, Actual vs Forecast (fallback Previous)
 sPMI:                 USD = Investing ISM Non-Manufacturing PMI (id 176, Actual vs Forecast);
                       EUR/GBP/AUD/JPY/CAD = Investing Actual vs Forecast (fallback Previous);

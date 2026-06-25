@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_jolts, investing_pce, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
+from src.fetchers import abs_au, cot, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_gdp, investing_jolts, investing_pce, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
 from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_macro, build_retail, build_scorecard, build_seasonality, notify
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 from src.scoring import score_history
@@ -118,6 +118,12 @@ def main():
         cached_ppi = investing_ppi.load_cached()
         investing_ppi_data = {
             c: r for c, r in cached_ppi.items()
+            if r.get("date") and r["date"] <= args.date
+        }
+        # GDP (JPY) cache: same filter
+        cached_gdp = investing_gdp.load_cached()
+        investing_gdp_data = {
+            c: r for c, r in cached_gdp.items()
             if r.get("date") and r["date"] <= args.date
         }
         # US Consumer Confidence (Investing CB) cache: same filter
@@ -231,6 +237,13 @@ def main():
         else:
             print("[ppi] no NZD PPI cache - run scripts/refresh_investing.py to populate")
 
+        # GDP QoQ cache (JPY only via Investing, id 119). Other 7 use TE history.
+        investing_gdp_data = investing_gdp.load_cached()
+        if investing_gdp_data:
+            print(f"[gdp] using cached JPY GDP: {len(investing_gdp_data)} currencies")
+        else:
+            print("[gdp] no JPY GDP cache - run scripts/refresh_investing.py gdp to populate")
+
         # US Consumer Confidence cache (Investing CB Consumer Confidence, id 48).
         # Other 7 currencies use TE momentum. Refreshed by refresh_investing.py.
         investing_cc_data = investing_consumer_conf.load_cached()
@@ -292,7 +305,7 @@ def main():
         abs_au_mhsi = abs_au.fetch_mhsi()
 
     print("[5/5] Scoring + rendering...")
-    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, investing_pce=investing_pce_data, investing_retail_sales=investing_retail_sales_data, rates_outlook=rates_outlook, investing_core=investing_core_data, treasury_2y=treasury_2y)
+    heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, investing_gdp=investing_gdp_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, investing_pce=investing_pce_data, investing_retail_sales=investing_retail_sales_data, rates_outlook=rates_outlook, investing_core=investing_core_data, treasury_2y=treasury_2y)
     out_path = build_heatmap.render(heatmap)
 
     # COT dashboard: fetch 52w of weekly history (separate from the 4w used
@@ -321,6 +334,7 @@ def main():
             te_history=te_history,
             investing_cpi=investing_cpi_data,
             investing_ppi=investing_ppi_data,
+            investing_gdp=investing_gdp_data,
             investing_mpmi=investing_mpmi,
             investing_spmi=investing_spmi,
             abs_au_mhsi=abs_au_mhsi,

@@ -214,7 +214,7 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
                investing_mpmi, investing_spmi, abs_au_mhsi, rates_outlook,
                investing_cc=None, investing_jolts=None, investing_adp=None,
                investing_pce=None, myfxbook_ppi=None,
-               investing_retail_sales=None):
+               investing_retail_sales=None, investing_gdp=None):
     """Return the row dict for one (currency, indicator) pair."""
     ind_id = ind["id"]
     direction = ind["direction"]
@@ -223,8 +223,16 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
     actual = forecast = previous = None
     date = ""
 
+    # GDP: Investing.com Japan GDP QoQ for JPY (Actual vs Forecast); TE otherwise
+    if ind_id == "gdp" and ccy == "JPY" and (investing_gdp or {}).get("JPY"):
+        rel = investing_gdp["JPY"]
+        actual = rel.get("actual")
+        forecast = rel.get("forecast")
+        previous = rel.get("previous")
+        date = rel.get("date") or ""
+
     # CPI: Investing.com cache, per-currency
-    if ind_id == "cpi":
+    elif ind_id == "cpi":
         rel = (investing_cpi or {}).get(ccy)
         if rel:
             actual = rel.get("actual")
@@ -375,7 +383,8 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
               investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None,
               rates_outlook=None, investing_cc=None, investing_jolts=None,
               investing_adp=None, investing_pce=None, myfxbook_ppi=None,
-              investing_retail_sales=None, treasury_2y=None) -> dict:
+              investing_retail_sales=None, treasury_2y=None,
+              investing_gdp=None) -> dict:
     """Return {ccy: [row dicts]} for all currencies plus the metals (XAU/XPT/XAG).
 
     Metals have no domestic macro, so their rows are the USD release rows with
@@ -397,7 +406,8 @@ def build_all(te_history=None, investing_cpi=None, investing_ppi=None,
                              investing_cc=investing_cc, investing_jolts=investing_jolts,
                              investing_adp=investing_adp, investing_pce=investing_pce,
                              myfxbook_ppi=myfxbook_ppi,
-                             investing_retail_sales=investing_retail_sales)
+                             investing_retail_sales=investing_retail_sales,
+                             investing_gdp=investing_gdp)
             rows.append(row)
             # USD carries every indicator (incl. US-only labour rows), so derive
             # the metal rows from it. Rates is special: metals score it off the

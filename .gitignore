@@ -28,6 +28,8 @@ data/cache/*.pkl
 !data/cache/investing_cpi.json
 # PPI YoY cache (Investing.com, NZD only; other 7 use TE history). Local refresh.
 !data/cache/investing_ppi.json
+# GDP QoQ cache (Investing.com Japan GDP id 119, JPY only; other 7 use TE). Local refresh.
+!data/cache/investing_gdp.json
 # FF rates outlook (next-meeting consensus forecast per currency). Refreshed
 # every main.py run, cached as fallback.
 !data/cache/ff_rates_outlook.json

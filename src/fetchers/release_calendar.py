@@ -95,7 +95,9 @@ def resolve_source(ind: str, ccy: str) -> str:
         return "investing" if ccy == "USD" else "te"
     if ind in ("pce", "adp", "jolts"):
         return "investing"          # US-only investing cells
-    if ind in ("gdp", "unemployment_rate", "rates", "nfp", "jobless_claims"):
+    if ind == "gdp":
+        return "investing" if ccy == "JPY" else "te"   # JPY GDP = Investing id 119
+    if ind in ("unemployment_rate", "rates", "nfp", "jobless_claims"):
         return "te"
     return "te"
 
@@ -110,6 +112,7 @@ class _Sources:
         self.cpi = _load(CACHE_DIR / "investing_cpi.json")
         self.ppi_inv = _load(CACHE_DIR / "investing_ppi.json")
         self.ppi_mfx = _load(CACHE_DIR / "myfxbook_ppi.json")
+        self.gdp_inv = _load(CACHE_DIR / "investing_gdp.json")
         self.cc = _load(CACHE_DIR / "investing_consumer_conf.json")
         self.pce = _load(CACHE_DIR / "investing_pce.json")
         self.adp = _load(CACHE_DIR / "investing_adp.json")
@@ -136,6 +139,8 @@ def _latest_date(src: _Sources, ind: str, ccy: str, source: str):
         return d(src.spmi)
     if ind == "mpmi":
         return d(src.mpmi)
+    if ind == "gdp" and source == "investing":   # JPY GDP via Investing id 119
+        return d(src.gdp_inv)
     if source == "te":
         ds = _te_dates(src, ind, ccy)
         return ds[-1] if ds else None

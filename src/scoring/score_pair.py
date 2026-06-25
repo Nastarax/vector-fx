@@ -155,6 +155,7 @@ def build_currency_scores(
     abs_au_mhsi: dict | None = None,
     investing_cpi: dict | None = None,
     investing_ppi: dict | None = None,
+    investing_gdp: dict | None = None,
     myfxbook_ppi: dict | None = None,
     investing_cc: dict | None = None,
     investing_jolts: dict | None = None,
@@ -209,6 +210,7 @@ def build_currency_scores(
     investing_spmi = investing_spmi or {}
     investing_cpi = investing_cpi or {}
     investing_ppi = investing_ppi or {}
+    investing_gdp = investing_gdp or {}
     myfxbook_ppi = myfxbook_ppi or {}
     investing_cc = investing_cc or {}
     investing_jolts = investing_jolts or {}
@@ -228,8 +230,17 @@ def build_currency_scores(
                 direction = ind.get("direction", "up_is_bullish")
                 key = f"{ccy}|{ind_id}"
 
-                # GDP: latest TE release. Actual vs Consensus (priority), fall
-                # back to TEForecast if Consensus is missing for that release.
+                # GDP:
+                # - JPY: Investing.com Japan GDP QoQ (id 119), Actual vs Forecast
+                #   (neutral if no forecast, per EF's surprise rule).
+                # - Other 7: latest TE release, Actual vs Consensus (priority),
+                #   fall back to TEForecast if Consensus is missing.
+                if ind_id == "gdp" and ccy == "JPY" and investing_gdp.get("JPY"):
+                    rel = investing_gdp["JPY"]
+                    per_ccy[ccy][ind_id] = _dir_fcst(
+                        rel.get("actual"), rel.get("forecast"),
+                        rel.get("previous"), direction, db)
+                    continue
                 if ind_id == "gdp":
                     te_rels = te_history.get(key, [])
                     if not te_rels:
@@ -1367,7 +1378,7 @@ def build_currency_rows(
     return rows
 
 
-def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, myfxbook_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, investing_pce=None, investing_retail_sales=None, rates_outlook=None, investing_core=None, treasury_2y=None) -> dict:
+def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_of_date=None, ff_history=None, te_history=None, investing_mpmi=None, investing_spmi=None, abs_au_mhsi=None, investing_cpi=None, investing_ppi=None, investing_gdp=None, myfxbook_ppi=None, investing_cc=None, investing_jolts=None, investing_adp=None, investing_pce=None, investing_retail_sales=None, rates_outlook=None, investing_core=None, treasury_2y=None) -> dict:
     cfg = load_indicators_cfg()
     indicator_meta = []
     cat_groups: dict[str, list[str]] = {}
@@ -1376,7 +1387,7 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
         for i in inds:
             indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
 
-    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, myfxbook_ppi=myfxbook_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, investing_pce=investing_pce, investing_retail_sales=investing_retail_sales, rates_outlook=rates_outlook, investing_core=investing_core, treasury_2y=treasury_2y)
+    per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, investing_gdp=investing_gdp, myfxbook_ppi=myfxbook_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, investing_pce=investing_pce, investing_retail_sales=investing_retail_sales, rates_outlook=rates_outlook, investing_core=investing_core, treasury_2y=treasury_2y)
     pair_rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)
     for r in pair_rows:
         r["is_currency"] = False
