@@ -17,7 +17,7 @@
  "USDJPY": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 96
+  "loc": 97
  },
  "PLATINUM": {
   "setup": "watch",
@@ -102,12 +102,12 @@
  "AUDCAD": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 27
+  "loc": 26
  },
  "CADJPY": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 16
+  "loc": 17
  },
  "CHFJPY": {
   "setup": "extended",
@@ -127,12 +127,12 @@
  "GBPJPY": {
   "setup": "mid",
   "bias": "Bearish",
-  "loc": 56
+  "loc": 57
  },
  "AUDJPY": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 9
+  "loc": 10
  },
  "NZDUSD": {
   "setup": "extended",
@@ -152,7 +152,7 @@
  "SILVER": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 10
+  "loc": 11
  },
  "GBPUSD": {
   "setup": "extended",
