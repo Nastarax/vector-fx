@@ -1,13 +1,13 @@
 {
- "NIKKEI": {
-  "setup": "extended",
-  "bias": "Very Bullish",
-  "loc": 97
- },
  "USDCAD": {
   "setup": "extended",
   "bias": "Very Bullish",
   "loc": 92
+ },
+ "NIKKEI": {
+  "setup": "extended",
+  "bias": "Very Bullish",
+  "loc": 75
  },
  "USDCHF": {
   "setup": "extended",
@@ -25,14 +25,14 @@
   "loc": 8
  },
  "NASDAQ": {
-  "setup": "extended",
+  "setup": "mid",
   "bias": "Bullish",
-  "loc": 65
+  "loc": 56
  },
  "UK100": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 90
+  "loc": 85
  },
  "GBPAUD": {
   "setup": null,
