@@ -25,9 +25,9 @@
   "loc": 8
  },
  "NASDAQ": {
-  "setup": "extended",
+  "setup": "mid",
   "bias": "Bullish",
-  "loc": 65
+  "loc": 56
  },
  "UK100": {
   "setup": "extended",
