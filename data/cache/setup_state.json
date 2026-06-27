@@ -39,15 +39,20 @@
   "bias": "Neutral",
   "loc": 95
  },
+ "GBPNZD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 98
+ },
  "EURAUD": {
   "setup": null,
   "bias": "Neutral",
   "loc": 86
  },
- "GBPNZD": {
+ "GBPCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 98
+  "loc": 82
  },
  "GBPCAD": {
   "setup": null,
@@ -63,11 +68,6 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 47
- },
- "GBPCHF": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 82
  },
  "NZDCAD": {
   "setup": null,
