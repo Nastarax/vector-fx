@@ -1,13 +1,13 @@
 {
- "NIKKEI": {
-  "setup": "extended",
-  "bias": "Very Bullish",
-  "loc": 97
- },
  "USDCAD": {
   "setup": "extended",
   "bias": "Very Bullish",
   "loc": 92
+ },
+ "NIKKEI": {
+  "setup": "extended",
+  "bias": "Very Bullish",
+  "loc": 75
  },
  "USDCHF": {
   "setup": "extended",
