@@ -4,15 +4,15 @@
   "bias": "Very Bullish",
   "loc": 91
  },
- "NIKKEI": {
-  "setup": "extended",
-  "bias": "Very Bullish",
-  "loc": 75
- },
  "USDCHF": {
   "setup": "extended",
   "bias": "Very Bullish",
   "loc": 88
+ },
+ "NIKKEI": {
+  "setup": "extended",
+  "bias": "Very Bullish",
+  "loc": 75
  },
  "USDJPY": {
   "setup": "extended",
@@ -22,7 +22,7 @@
  "PLATINUM": {
   "setup": "watch",
   "bias": "Bullish",
-  "loc": 11
+  "loc": 8
  },
  "NASDAQ": {
   "setup": "mid",
@@ -147,12 +147,12 @@
  "XAUUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 17
+  "loc": 14
  },
  "SILVER": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 11
+  "loc": 6
  },
  "GBPUSD": {
   "setup": "extended",
