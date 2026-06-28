@@ -2,7 +2,7 @@
  "USDCAD": {
   "setup": "extended",
   "bias": "Very Bullish",
-  "loc": 91
+  "loc": 92
  },
  "USDCHF": {
   "setup": "extended",
@@ -22,7 +22,7 @@
  "PLATINUM": {
   "setup": "watch",
   "bias": "Bullish",
-  "loc": 8
+  "loc": 11
  },
  "NASDAQ": {
   "setup": "mid",
@@ -147,12 +147,12 @@
  "XAUUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 14
+  "loc": 17
  },
  "SILVER": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 6
+  "loc": 11
  },
  "GBPUSD": {
   "setup": "extended",
