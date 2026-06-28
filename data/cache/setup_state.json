@@ -2,7 +2,7 @@
  "USDCAD": {
   "setup": "extended",
   "bias": "Very Bullish",
-  "loc": 90
+  "loc": 92
  },
  "USDCHF": {
   "setup": "extended",
@@ -37,37 +37,37 @@
  "GBPAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 95
+  "loc": 97
  },
  "EURAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 86
+  "loc": 95
  },
  "GBPNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 98
+  "loc": 99
  },
  "GBPCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 85
+  "loc": 89
  },
  "AUDNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 83
+  "loc": 77
  },
  "CADCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 43
+  "loc": 42
  },
  "GBPCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 77
+  "loc": 80
  },
  "NZDCAD": {
   "setup": null,
@@ -77,37 +77,37 @@
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 6
+  "loc": 7
  },
  "EURNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 94
- },
- "EURCHF": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 71
+  "loc": 97
  },
  "NZDJPY": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 5
+  "loc": 3
  },
  "EURGBP": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 17
+  "loc": 10
  },
  "AUDCAD": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 25
+  "loc": 21
+ },
+ "GBPJPY": {
+  "setup": "mid",
+  "bias": "Bearish",
+  "loc": 60
  },
  "CADJPY": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 18
+  "loc": 15
  },
  "CHFJPY": {
   "setup": "extended",
@@ -117,27 +117,27 @@
  "EURCAD": {
   "setup": "watch",
   "bias": "Bearish",
-  "loc": 68
+  "loc": 71
  },
  "AUDCHF": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 4
+  "loc": 5
  },
- "GBPJPY": {
+ "EURCHF": {
   "setup": "mid",
   "bias": "Bearish",
-  "loc": 57
+  "loc": 63
  },
  "AUDJPY": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 9
+  "loc": 3
  },
  "NZDUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 4
+  "loc": 3
  },
  "EURJPY": {
   "setup": "mid",
@@ -162,7 +162,7 @@
  "AUDUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 6
+  "loc": 3
  },
  "EURUSD": {
   "setup": "extended",
