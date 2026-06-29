@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-28T15:08:25Z",
+  "generated": "2026-06-29T00:08:14Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -28,
       "status": "due",
-      "last_checked": "2026-06-28T15:08:25Z"
+      "last_checked": "2026-06-29T00:08:14Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -19,
       "status": "due",
-      "last_checked": "2026-06-28T15:08:25Z"
+      "last_checked": "2026-06-29T00:08:14Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -961,9 +961,9 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-16",
+      "next_release": "2026-07-02",
       "next_basis": "exact",
-      "days_until": 18,
+      "days_until": 4,
       "status": "upcoming",
       "last_checked": null
     },
