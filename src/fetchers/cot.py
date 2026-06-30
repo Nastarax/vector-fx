@@ -52,8 +52,9 @@ CFTC_NAMES = {
 # Non-FX assets scored as standalone instruments (own COT, contrarian crowd from
 # non-reportable positioning, no base/quote macro diff). XAU = Gold,
 # XPT = Platinum, XAG = Silver, NKY = Nikkei 225, NDX = NASDAQ-100,
-# UKX = FTSE 100 (no CFTC COT feed -> COT/crowd stay neutral, matching EdgeFinder).
-COMMODITY_CCYS = {"XAU", "XPT", "XAG", "NKY", "NDX", "UKX"}
+# UKX = FTSE 100, DAXI = DAX 40 (UKX/DAXI have no CFTC COT feed -> COT/crowd
+# stay neutral, matching EdgeFinder).
+COMMODITY_CCYS = {"XAU", "XPT", "XAG", "NKY", "NDX", "UKX", "DAXI"}
 
 
 @dataclass

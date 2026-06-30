@@ -36,7 +36,7 @@ CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 # Equity indices use EdgeFinder's SMA20/50/200 chart-trend method; FX pairs and
 # metals (the rest of COMMODITY_CCYS) use the published SMA3/14 crossover. See
 # trend_score in score_technical.py and the trend-score-divergence memory.
-INDEX_CCYS = {"NDX", "NKY", "UKX"}
+INDEX_CCYS = {"NDX", "NKY", "UKX", "DAXI"}
 
 DISPLAY_NAMES = {"XAUUSD": "Gold", "XAU": "Gold", "PLATINUM": "Platinum", "XPT": "Platinum",
                  "SILVER": "Silver", "XAG": "Silver"}
@@ -1088,6 +1088,36 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = gbp.get(ind_id)
                 for ind_id in ("cpi", "ppi"):
                     v = gbp.get(ind_id)
+                    per_ccy[ccy][ind_id] = (-v if v is not None else None)
+                if len(treasury_2y) >= 21:
+                    yields_asc = [o.value for o in reversed(treasury_2y)]
+                    sma21 = sum(yields_asc[-21:]) / 21
+                    latest_yield = yields_asc[-1]
+                    if latest_yield > sma21:
+                        per_ccy[ccy]["rates"] = -1
+                    elif latest_yield < sma21:
+                        per_ccy[ccy]["rates"] = 1
+                    else:
+                        per_ccy[ccy]["rates"] = 0
+
+            if ccy == "DAXI":
+                # DAX 40: German equity index, same risk-on mapping as the UK100
+                # but driven by eurozone macro via EUR's cells. Growth + jobs
+                # mirror EUR un-inverted (strong euro-area economy = bullish
+                # index); inflation (CPI/PPI) is inverted (hot inflation =
+                # ECB-hike fear = bearish equities). EdgeFinder's DAX card uses
+                # eurozone aggregates (e.g. -17.7 consumer confidence, 6.30%
+                # unemployment), which are exactly EUR's cells. US-only labour
+                # cells (NFP/ADP/JOLTS/Claims) and PCE stay blank. Interest Rates
+                # uses the 2Y yield vs its 21-day SMA, inverted - the same index
+                # rate input as the NASDAQ/UK100 (US 2Y; there is no daily euro-area
+                # 2Y feed available).
+                eur = per_ccy.get("EUR", {})
+                for ind_id in ("gdp", "mpmi", "spmi", "retail_sales",
+                               "consumer_conf", "unemployment_rate"):
+                    per_ccy[ccy][ind_id] = eur.get(ind_id)
+                for ind_id in ("cpi", "ppi"):
+                    v = eur.get(ind_id)
                     per_ccy[ccy][ind_id] = (-v if v is not None else None)
                 if len(treasury_2y) >= 21:
                     yields_asc = [o.value for o in reversed(treasury_2y)]

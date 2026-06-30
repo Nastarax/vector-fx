@@ -159,6 +159,16 @@ pairs:
     quote: ""
     yf_ticker: "^FTSE"
 
+  # DAX 40 (German equity index). Risk-on EUR-macro mapping via EUR cells (same
+  # pattern as UK100<-GBP): growth + jobs mirror EUR un-inverted, inflation
+  # inverted, rates from the 2Y yield. No CFTC COT feed, so COT/crowd stay
+  # neutral. EdgeFinder uses eurozone aggregates (e.g. -17.7 consumer confidence,
+  # 6.30% unemployment), which are exactly EUR's cells. yfinance ^GDAXI = cash index.
+  - symbol: DAX
+    base: DAXI
+    quote: ""
+    yf_ticker: "^GDAXI"
+
   # Platinum. Industrial precious metal: pro-cyclical growth/jobs, inverted
   # inflation/rates. Empty quote = absolute scores, matching EdgeFinder.
   - symbol: PLATINUM

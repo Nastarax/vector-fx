@@ -71,13 +71,14 @@ METAL_IMPACT = {
 # direction (growth + jobs up_is_bullish, inflation + rates down_is_bullish), and
 # their Interest Rate cell comes from the US 2Y yield, not the rate outlook. The
 # index "currency impact" chip IS the stocks impact already computed per row.
-INDICES = ("NDX", "UKX")
+INDICES = ("NDX", "UKX", "DAXI")
 # Each index reuses its source currency's economic rows, re-signed to the stocks
 # direction. NDX scores US macro (USD rows); UKX (FTSE 100) scores UK macro (GBP
-# rows). US-only labour rows (NFP/ADP/JOLTS/Claims/PCE) only exist on the USD
-# row, so UKX naturally carries no labour rows beyond Unemployment - matching its
-# heatmap cells (those stay blank).
-INDEX_SOURCE = {"NDX": "USD", "UKX": "GBP"}
+# rows); DAXI (DAX 40) scores euro-area macro (EUR rows). US-only labour rows
+# (NFP/ADP/JOLTS/Claims/PCE) only exist on the USD row, so UKX/DAXI naturally
+# carry no labour rows beyond Unemployment - matching their heatmap cells (those
+# stay blank).
+INDEX_SOURCE = {"NDX": "USD", "UKX": "GBP", "DAXI": "EUR"}
 
 
 def _flip(label: str) -> str:
