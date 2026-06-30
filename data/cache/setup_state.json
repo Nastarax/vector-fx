@@ -1,13 +1,13 @@
 {
+ "USDCHF": {
+  "setup": "extended",
+  "bias": "Very Bullish",
+  "loc": 85
+ },
  "USDCAD": {
   "setup": "extended",
   "bias": "Very Bullish",
   "loc": 92
- },
- "USDCHF": {
-  "setup": "extended",
-  "bias": "Very Bullish",
-  "loc": 83
  },
  "NIKKEI": {
   "setup": "extended",
@@ -22,7 +22,7 @@
  "USDJPY": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 98
+  "loc": 99
  },
  "PLATINUM": {
   "setup": "watch",
@@ -30,134 +30,134 @@
   "loc": 0
  },
  "UK100": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 76
+  "setup": "extended",
+  "bias": "Bullish",
+  "loc": 80
  },
  "GBPAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 88
- },
- "EURAUD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 80
+  "loc": 84
  },
  "GBPCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 97
+  "loc": 95
  },
  "GBPCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 92
+  "loc": 93
  },
  "NZDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 22
+  "loc": 23
  },
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 24
+  "loc": 28
  },
  "CADCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 40
+  "loc": 49
  },
- "GBPJPY": {
+ "EURAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 95
- },
- "GBPNZD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 89
- },
- "AUDNZD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 67
+  "loc": 78
  },
  "AUDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 34
+  "loc": 36
+ },
+ "AUDNZD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 68
+ },
+ "GBPJPY": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 96
  },
  "NZDJPY": {
   "setup": null,
   "bias": "Neutral",
   "loc": 29
  },
- "EURNZD": {
+ "CADJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 84
+  "loc": 45
  },
- "CADJPY": {
-  "setup": "mid",
-  "bias": "Bearish",
-  "loc": 38
+ "EURCAD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 82
  },
- "CHFJPY": {
-  "setup": "mid",
-  "bias": "Bearish",
-  "loc": 46
+ "EURCHF": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 79
+ },
+ "GBPNZD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 89
+ },
+ "AUDCHF": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 31
  },
  "EURGBP": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 5
+  "loc": 8
  },
- "EURCAD": {
-  "setup": "watch",
-  "bias": "Bearish",
-  "loc": 82
- },
- "AUDCHF": {
-  "setup": "extended",
-  "bias": "Bearish",
-  "loc": 22
- },
- "EURCHF": {
-  "setup": "watch",
-  "bias": "Bearish",
-  "loc": 77
- },
- "AUDJPY": {
-  "setup": "extended",
-  "bias": "Bearish",
-  "loc": 32
- },
- "EURJPY": {
+ "EURNZD": {
   "setup": "watch",
   "bias": "Bearish",
   "loc": 85
  },
+ "EURJPY": {
+  "setup": "watch",
+  "bias": "Bearish",
+  "loc": 80
+ },
+ "AUDJPY": {
+  "setup": "extended",
+  "bias": "Bearish",
+  "loc": 34
+ },
+ "CHFJPY": {
+  "setup": "mid",
+  "bias": "Bearish",
+  "loc": 45
+ },
  "NZDUSD": {
   "setup": "extended",
-  "bias": "Very Bearish",
+  "bias": "Bearish",
   "loc": 14
- },
- "XAUUSD": {
-  "setup": "extended",
-  "bias": "Very Bearish",
-  "loc": 8
  },
  "GBPUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 24
+  "loc": 23
  },
  "AUDUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
   "loc": 13
+ },
+ "XAUUSD": {
+  "setup": "extended",
+  "bias": "Very Bearish",
+  "loc": 8
  },
  "SILVER": {
   "setup": "extended",
