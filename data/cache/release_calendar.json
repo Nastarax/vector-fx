@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-30T14:09:31Z",
+  "generated": "2026-07-01T00:06:16Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -34,13 +34,13 @@
       "indicator": "gdp",
       "label": "GDP",
       "source": "te",
-      "last_release": "2026-05-14",
-      "period_days": 46,
+      "last_release": "2026-06-30",
+      "period_days": 47,
       "period_basis": "derived",
-      "next_release": "2026-06-29",
+      "next_release": "2026-08-16",
       "next_basis": "estimated",
-      "days_until": -1,
-      "status": "due",
+      "days_until": 47,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|gdp": {
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-06-30T14:09:31Z"
+      "last_checked": "2026-07-01T00:06:16Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -30,
       "status": "due",
-      "last_checked": "2026-06-30T14:09:31Z"
+      "last_checked": "2026-07-01T00:06:16Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -454,14 +454,14 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "investing",
-      "last_release": "2026-05-26",
+      "last_release": "2026-06-30",
       "period_days": 14,
       "period_basis": "derived",
-      "next_release": "2026-06-09",
+      "next_release": "2026-07-14",
       "next_basis": "estimated",
-      "days_until": -21,
-      "status": "due",
-      "last_checked": "2026-06-30T14:09:31Z"
+      "days_until": 14,
+      "status": "upcoming",
+      "last_checked": "2026-07-01T00:06:16Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -919,10 +919,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-06-30",
+      "next_release": "2026-07-01",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 1,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|rates": {
@@ -1056,14 +1056,14 @@
       "indicator": "jolts",
       "label": "JOLTS",
       "source": "investing",
-      "last_release": "2026-06-02",
-      "period_days": 32,
+      "last_release": "2026-06-30",
+      "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-07-04",
+      "next_release": "2026-07-28",
       "next_basis": "estimated",
-      "days_until": 4,
+      "days_until": 28,
       "status": "upcoming",
-      "last_checked": null
+      "last_checked": "2026-07-01T00:06:16Z"
     },
     "USD|jobless_claims": {
       "currency": "USD",
