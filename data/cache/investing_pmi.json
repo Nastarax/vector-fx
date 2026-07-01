@@ -6,33 +6,33 @@
     "previous": 50.4
   },
   "AUD": {
-    "date": "2026-06-22",
-    "actual": 51.2,
-    "forecast": null,
+    "date": "2026-06-30",
+    "actual": 51.5,
+    "forecast": 51.2,
     "previous": 50.7
   },
   "CHF": {
-    "date": "2026-06-01",
-    "actual": 57.3,
-    "forecast": 54.0,
-    "previous": 54.5
+    "date": "2026-07-01",
+    "actual": 54.3,
+    "forecast": 56.4,
+    "previous": 57.3
   },
   "USD": {
-    "date": "2026-06-01",
-    "actual": 54.0,
-    "forecast": 53.3,
-    "previous": 52.7
+    "date": "2026-07-01",
+    "actual": 53.3,
+    "forecast": 53.8,
+    "previous": 54.0
   },
   "GBP": {
-    "date": "2026-06-23",
-    "actual": 53.1,
-    "forecast": 53.5,
+    "date": "2026-07-01",
+    "actual": 52.5,
+    "forecast": 53.1,
     "previous": 53.9
   },
   "EUR": {
-    "date": "2026-06-23",
-    "actual": 51.3,
-    "forecast": 51.6,
+    "date": "2026-07-01",
+    "actual": 51.4,
+    "forecast": 51.3,
     "previous": 51.6
   },
   "CAD": {
