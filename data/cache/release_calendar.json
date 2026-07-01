@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-01T15:20:03Z",
+  "generated": "2026-07-01T22:00:21Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -398,13 +398,13 @@
       "indicator": "retail_sales",
       "label": "Retail Sales",
       "source": "te",
-      "last_release": "2026-06-01",
+      "last_release": "2026-07-01",
       "period_days": 30,
       "period_basis": "derived",
-      "next_release": "2026-07-01",
+      "next_release": "2026-07-31",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 30,
+      "status": "upcoming",
       "last_checked": null
     },
     "AUD|retail_sales": {
@@ -496,13 +496,13 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-05-29",
-      "period_days": 25,
+      "last_release": "2026-07-01",
+      "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-06-23",
+      "next_release": "2026-07-30",
       "next_basis": "estimated",
-      "days_until": -8,
-      "status": "due",
+      "days_until": 29,
+      "status": "upcoming",
       "last_checked": null
     },
     "CHF|consumer_conf": {
@@ -919,10 +919,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-01",
+      "next_release": "2026-07-23",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 22,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|rates": {
@@ -1042,14 +1042,14 @@
       "indicator": "adp",
       "label": "ADP",
       "source": "investing",
-      "last_release": "2026-06-03",
-      "period_days": 32,
+      "last_release": "2026-07-01",
+      "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-07-05",
+      "next_release": "2026-07-29",
       "next_basis": "estimated",
-      "days_until": 4,
+      "days_until": 28,
       "status": "upcoming",
-      "last_checked": null
+      "last_checked": "2026-07-01T22:00:21Z"
     },
     "USD|jolts": {
       "currency": "USD",
