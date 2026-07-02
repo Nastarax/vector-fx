@@ -36,15 +36,15 @@
     "previous": 51.6
   },
   "CAD": {
-    "date": "2026-06-01",
-    "actual": 52.9,
+    "date": "2026-07-02",
+    "actual": 53.0,
     "forecast": null,
-    "previous": 53.3
+    "previous": 52.9
   },
   "JPY": {
-    "date": "2026-06-23",
-    "actual": 54.9,
-    "forecast": 54.5,
+    "date": "2026-07-01",
+    "actual": 54.8,
+    "forecast": 54.9,
     "previous": 54.5
   }
 }
