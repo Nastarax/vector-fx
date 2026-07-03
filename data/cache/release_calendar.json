@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-02T15:04:48Z",
+  "generated": "2026-07-03T00:02:28Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-07-02T15:04:48Z"
+      "last_checked": "2026-07-03T00:02:28Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,19 +293,19 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-07-02T15:04:48Z"
+      "last_checked": "2026-07-03T00:02:28Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "investing",
-      "last_release": "2026-06-22",
+      "last_release": "2026-07-02",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-22",
+      "next_release": "2026-08-01",
       "next_basis": "estimated",
-      "days_until": 20,
+      "days_until": 30,
       "status": "upcoming",
       "last_checked": null
     },
@@ -538,12 +538,12 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-05-01",
-      "period_days": 30,
-      "period_basis": "default",
-      "next_release": "2026-05-31",
+      "last_release": "2026-06-01",
+      "period_days": 31,
+      "period_basis": "derived",
+      "next_release": "2026-07-02",
       "next_basis": "estimated",
-      "days_until": -32,
+      "days_until": 0,
       "status": "due",
       "last_checked": null
     },
@@ -790,12 +790,12 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-06-05",
-      "period_days": 32,
+      "last_release": "2026-07-02",
+      "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-07-07",
+      "next_release": "2026-07-30",
       "next_basis": "estimated",
-      "days_until": 5,
+      "days_until": 28,
       "status": "upcoming",
       "last_checked": null
     },
@@ -804,13 +804,13 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-06-01",
-      "period_days": 30,
+      "last_release": "2026-07-02",
+      "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-07-01",
+      "next_release": "2026-08-02",
       "next_basis": "estimated",
-      "days_until": -1,
-      "status": "due",
+      "days_until": 31,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|unemployment_rate": {
@@ -933,10 +933,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-02",
+      "next_release": "2026-07-07",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 5,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|rates": {
@@ -961,10 +961,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-02",
+      "next_release": "2026-07-16",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 14,
+      "status": "upcoming",
       "last_checked": null
     },
     "AUD|rates": {
@@ -1028,12 +1028,12 @@
       "indicator": "nfp",
       "label": "NFP",
       "source": "te",
-      "last_release": "2026-06-05",
-      "period_days": 32,
+      "last_release": "2026-07-02",
+      "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-07-07",
+      "next_release": "2026-07-30",
       "next_basis": "estimated",
-      "days_until": 5,
+      "days_until": 28,
       "status": "upcoming",
       "last_checked": null
     },
@@ -1070,13 +1070,13 @@
       "indicator": "jobless_claims",
       "label": "Unemployment Claims",
       "source": "te",
-      "last_release": "2026-06-25",
+      "last_release": "2026-07-02",
       "period_days": 7,
       "period_basis": "derived",
-      "next_release": "2026-07-02",
+      "next_release": "2026-07-09",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 7,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|household_spending": {
