@@ -485,6 +485,7 @@ _HTML_TEMPLATE = """<!doctype html>
   .surprise.neg{color:#ffaab4}
   footer{padding:16px 24px;color:var(--muted);font-size:11px;border-top:1px solid var(--border);text-align:center}
 </style>
+<script defer src="analytics.js"></script>
 </head>
 <body>
 <header>

@@ -287,6 +287,7 @@ _HTML = """<!doctype html>
   footer{color:var(--muted);font-size:11px;text-align:center;margin-top:40px;
     border-top:1px solid var(--border);padding-top:16px}
 </style>
+<script defer src="analytics.js"></script>
 </head>
 <body>
 <header>
