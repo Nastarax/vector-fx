@@ -15,7 +15,7 @@
 // body of this file. No page templates need to change.
 
 (function () {
-  var GOATCOUNTER_CODE = "YOUR_CODE_HERE"; // <-- set this, e.g. "vector-fx"
+  var GOATCOUNTER_CODE = "vector-fx"; // dashboard: https://vector-fx.goatcounter.com
 
   if (!GOATCOUNTER_CODE || GOATCOUNTER_CODE === "YOUR_CODE_HERE") {
     return; // not configured yet
