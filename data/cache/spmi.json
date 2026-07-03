@@ -6,15 +6,15 @@
     "previous": 53.6
   },
   "EUR": {
-    "date": "2026-06-23",
-    "actual": 48.9,
-    "forecast": 48.6,
+    "date": "2026-07-03",
+    "actual": 49.4,
+    "forecast": 48.9,
     "previous": 47.7
   },
   "GBP": {
-    "date": "2026-06-23",
-    "actual": 48.7,
-    "forecast": 50.1,
+    "date": "2026-07-03",
+    "actual": 48.8,
+    "forecast": 48.7,
     "previous": 49.3
   },
   "AUD": {
@@ -24,9 +24,9 @@
     "previous": 48.7
   },
   "JPY": {
-    "date": "2026-06-23",
-    "actual": 51.8,
-    "forecast": null,
+    "date": "2026-07-03",
+    "actual": 52.2,
+    "forecast": 51.8,
     "previous": 50.0
   },
   "CAD": {
