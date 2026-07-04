@@ -44,10 +44,15 @@
   "bias": "Neutral",
   "loc": 87
  },
+ "NZDCAD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 41
+ },
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 26
+  "loc": 20
  },
  "NIKKEI": {
   "setup": null,
@@ -94,11 +99,6 @@
   "bias": "Neutral",
   "loc": 89
  },
- "NZDCAD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 41
- },
  "NZDUSD": {
   "setup": null,
   "bias": "Neutral",
@@ -127,12 +127,12 @@
  "AUDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 15
+  "loc": 13
  },
  "CADCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 7
+  "loc": 5
  },
  "XAUUSD": {
   "setup": null,
