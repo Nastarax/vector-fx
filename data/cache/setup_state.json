@@ -2,7 +2,7 @@
  "UK100": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 93
+  "loc": 96
  },
  "GBPCHF": {
   "setup": "extended",
@@ -49,20 +49,20 @@
   "bias": "Neutral",
   "loc": 26
  },
+ "NIKKEI": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 77
+ },
  "DAX": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 96
+  "loc": 98
  },
  "USDJPY": {
   "setup": null,
   "bias": "Neutral",
   "loc": 75
- },
- "NIKKEI": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 70
  },
  "GBPUSD": {
   "setup": null,
