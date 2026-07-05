@@ -1,13 +1,13 @@
 {
- "UK100": {
-  "setup": "extended",
-  "bias": "Bullish",
-  "loc": 96
- },
  "GBPCHF": {
   "setup": "extended",
   "bias": "Bullish",
   "loc": 85
+ },
+ "UK100": {
+  "setup": "extended",
+  "bias": "Bullish",
+  "loc": 96
  },
  "USDCHF": {
   "setup": null,
@@ -69,6 +69,11 @@
   "bias": "Neutral",
   "loc": 75
  },
+ "GBPNZD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 89
+ },
  "GBPUSD": {
   "setup": null,
   "bias": "Neutral",
@@ -84,20 +89,15 @@
   "bias": "Neutral",
   "loc": 90
  },
- "CADJPY": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 14
- },
- "GBPNZD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 89
- },
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
   "loc": 18
+ },
+ "CADJPY": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 14
  },
  "NZDUSD": {
   "setup": null,
