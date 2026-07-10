@@ -69,6 +69,11 @@
   "bias": "Neutral",
   "loc": 63
  },
+ "DAX": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 63
+ },
  "USDJPY": {
   "setup": null,
   "bias": "Neutral",
@@ -83,11 +88,6 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 62
- },
- "DAX": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 60
  },
  "CADJPY": {
   "setup": null,
