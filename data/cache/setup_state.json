@@ -24,11 +24,6 @@
   "bias": "Neutral",
   "loc": 58
  },
- "NZDCHF": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 79
- },
  "XAUUSD": {
   "setup": null,
   "bias": "Neutral",
@@ -58,6 +53,11 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 74
+ },
+ "NZDCHF": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 69
  },
  "CADCHF": {
   "setup": null,
@@ -117,7 +117,7 @@
  "USDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 81
+  "loc": 82
  },
  "EURAUD": {
   "setup": null,
@@ -127,7 +127,7 @@
  "AUDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 54
+  "loc": 44
  },
  "PLATINUM": {
   "setup": null,
