@@ -368,8 +368,8 @@ def main():
     except Exception as e:
         print(f"[score-history] pair snapshot failed: {e}")
 
-    # WATCH-flip alerts (live runs only: a backtest render must not ping
-    # or overwrite the live setup-state baseline).
+    # Bias-change alerts (live runs only: a backtest render must not ping
+    # or overwrite the live bias-state baseline).
     if not args.date:
         try:
             notify.check_and_notify(heatmap["rows"])

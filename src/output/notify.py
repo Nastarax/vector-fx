@@ -1,21 +1,23 @@
 """
-WATCH-flip alerts.
+Bias-change alerts.
 
-After each scoring run, compare every pair's setup state (watch/extended/mid,
-from the heatmap Location column) against the previous run's state, saved in
-data/cache/setup_state.json. When a pair ENTERS watch (directional bias and
-price pulled back to the zone-hunting side), send a push notification.
+After each scoring run, compare every pair's directional bias against the
+previous run's bias, saved in data/cache/setup_state.json. When a pair newly
+enters a directional bias (Bullish / Very Bullish / Bearish / Very Bearish)
+from Neutral, or flips from the bullish side to the bearish side (or back),
+send a push notification. A pair that stays on the same side between runs is
+not re-alerted, so a persistently-bullish pair only pings once.
 
 Channels, picked by which env vars are set (both optional, both can be on):
   Telegram: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID
   Discord:  DISCORD_WEBHOOK_URL
-With neither set, flips are only printed to the console. On GH Actions the
+With neither set, changes are only printed to the console. On GH Actions the
 secrets are passed as env in .github/workflows/hourly.yml; the state file is
 committed back by the workflow so the diff survives between hourly runs.
 
 The first run (no state file yet) only records state and never alerts, so a
-fresh checkout can't spam every currently-watch pair. Exits from watch are
-recorded but not alerted.
+fresh checkout can't spam every currently-biased pair. A pair going back to
+Neutral is recorded but not alerted.
 """
 from __future__ import annotations
 
@@ -26,6 +28,18 @@ from pathlib import Path
 import requests
 
 STATE_FILE = Path(__file__).resolve().parents[2] / "data" / "cache" / "setup_state.json"
+
+_BULLISH = ("Bullish", "Very Bullish")
+_BEARISH = ("Bearish", "Very Bearish")
+
+
+def _side(bias: str | None) -> str:
+    """Collapse a bias label to its direction: 'bull', 'bear', or 'neutral'."""
+    if bias in _BULLISH:
+        return "bull"
+    if bias in _BEARISH:
+        return "bear"
+    return "neutral"
 
 
 def _load_state(path: Path) -> dict | None:
@@ -73,16 +87,16 @@ def _send_discord(text: str) -> bool:
         return False
 
 
-def _flip_line(sym: str, cur: dict) -> str:
-    side = "demand side" if cur["bias"] in ("Bullish", "Very Bullish") else "supply side"
-    return f"{sym}: {cur['bias']}, price at {cur['loc']}% of its 40-session range ({side})"
+def _change_line(sym: str, cur: dict) -> str:
+    return f"{sym}: {cur['bias']}"
 
 
 def check_and_notify(pair_rows: list[dict], state_path: Path | None = None) -> list[str]:
     """
-    Diff current setup states against the saved ones, alert on entries into
-    watch, persist the new states. Returns the list of flipped symbols
-    (useful for tests; empty on bootstrap or when nothing flipped).
+    Diff current biases against the saved ones, alert when a pair newly enters
+    a directional bias or flips sides, persist the new states. Returns the list
+    of changed symbols (useful for tests; empty on bootstrap or when nothing
+    changed direction).
     """
     path = state_path or STATE_FILE
     prev = _load_state(path)
@@ -102,20 +116,21 @@ def check_and_notify(pair_rows: list[dict], state_path: Path | None = None) -> l
         json.dump(current, f, indent=1)
 
     if prev is None:
-        print("[notify] no previous setup state; recorded baseline, no alerts")
+        print("[notify] no previous bias state; recorded baseline, no alerts")
         return []
 
-    flips = [
+    changed = [
         sym for sym, cur in current.items()
-        if cur["setup"] == "watch" and (prev.get(sym) or {}).get("setup") != "watch"
+        if _side(cur["bias"]) != "neutral"
+        and _side(cur["bias"]) != _side((prev.get(sym) or {}).get("bias"))
     ]
-    if not flips:
-        print("[notify] no new WATCH entries")
+    if not changed:
+        print("[notify] no new directional biases")
         return []
 
-    lines = [_flip_line(sym, current[sym]) for sym in sorted(flips)]
-    text = ("Vector: 1 pair entered WATCH\n" if len(flips) == 1
-            else f"Vector: {len(flips)} pairs entered WATCH\n") + "\n".join(lines)
+    lines = [_change_line(sym, current[sym]) for sym in sorted(changed)]
+    text = ("Vector: 1 pair changed bias\n" if len(changed) == 1
+            else f"Vector: {len(changed)} pairs changed bias\n") + "\n".join(lines)
     print("[notify] " + text.replace("\n", " | "))
 
     sent_tg = _send_telegram(text)
@@ -123,4 +138,4 @@ def check_and_notify(pair_rows: list[dict], state_path: Path | None = None) -> l
     if not (sent_tg or sent_dc):
         print("[notify] no channel configured (set TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID "
               "or DISCORD_WEBHOOK_URL); alert printed only")
-    return flips
+    return changed
