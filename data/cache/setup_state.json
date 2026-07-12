@@ -27,7 +27,7 @@
  "XAUUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 19
+  "loc": 20
  },
  "UK100": {
   "setup": null,
@@ -132,7 +132,7 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 13
+  "loc": 15
  },
  "EURJPY": {
   "setup": null,
@@ -162,7 +162,7 @@
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 9
+  "loc": 10
  },
  "EURNZD": {
   "setup": "mid",
