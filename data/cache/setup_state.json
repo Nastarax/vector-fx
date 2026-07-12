@@ -2,7 +2,7 @@
  "GBPAUD": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 88
+  "loc": 89
  },
  "GBPCAD": {
   "setup": "extended",
@@ -53,11 +53,6 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 49
- },
- "GBPNZD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 74
  },
  "NZDCHF": {
   "setup": null,
@@ -117,12 +112,17 @@
  "USDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 81
+  "loc": 82
  },
  "EURAUD": {
   "setup": null,
   "bias": "Neutral",
   "loc": 51
+ },
+ "GBPNZD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 75
  },
  "AUDCHF": {
   "setup": null,
