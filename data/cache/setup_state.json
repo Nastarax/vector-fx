@@ -1,33 +1,33 @@
 {
- "GBPAUD": {
+ "GBPCAD": {
   "setup": "extended",
   "bias": "Bullish",
   "loc": 87
  },
- "GBPCAD": {
+ "GBPAUD": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 88
+  "loc": 86
  },
  "GBPUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 68
+  "loc": 67
  },
  "GBPCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 93
+  "loc": 92
  },
  "NZDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 60
+  "loc": 59
  },
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 76
+  "loc": 74
  },
  "XAUUSD": {
   "setup": null,
@@ -52,12 +52,12 @@
  "GBPJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 80
+  "loc": 72
  },
  "NZDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 49
+  "loc": 48
  },
  "NASDAQ": {
   "setup": null,
@@ -72,7 +72,7 @@
  "AUDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 46
+  "loc": 42
  },
  "CADCHF": {
   "setup": null,
@@ -92,12 +92,12 @@
  "CADJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 35
+  "loc": 32
  },
  "EURUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 23
+  "loc": 22
  },
  "USDCHF": {
   "setup": null,
@@ -112,12 +112,12 @@
  "EURAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 49
+  "loc": 50
  },
  "EURCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 68
+  "loc": 66
  },
  "GBPNZD": {
   "setup": null,
@@ -137,27 +137,27 @@
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 44
+  "loc": 38
  },
  "AUDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 33
+  "loc": 31
  },
  "CHFJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 23
+  "loc": 26
  },
  "EURCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 63
+  "loc": 62
  },
  "AUDNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 23
+  "loc": 24
  },
  "SILVER": {
   "setup": null,
@@ -167,11 +167,11 @@
  "EURNZD": {
   "setup": "mid",
   "bias": "Bearish",
-  "loc": 42
+  "loc": 43
  },
  "EURGBP": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 2
+  "loc": 5
  }
 }
