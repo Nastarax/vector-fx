@@ -4,7 +4,7 @@ Self-hosted FX swing-trading scoring tool branded **Vector**. Aggregates technic
 sentiment, and fundamental indicators into a -2..+2 score per cell, summed to a
 per-pair / per-currency bias (Very Bullish .. Very Bearish). Lives at
 `C:\Users\yanae\Desktop\Swing Trading\edgefinder`, pushed to GitHub repo
-`Nastarax/edgefinder`, served via GitHub Pages. Dark theme, gradient blue "V" mark.
+`Nastarax/vector-fx`, served via GitHub Pages. Dark theme, gradient blue "V" mark.
 
 GitHub Actions runs `main.py` on a nominal 15-min cron at :03/:18/:33/:48 UTC
 (`.github/workflows/hourly.yml`), commits regenerated outputs, GH Pages deploys.
@@ -45,6 +45,32 @@ git push
 ```
 
 Template-only changes need just `python main.py`.
+
+### Unblocker: let GitHub Actions refresh Investing/Myfxbook itself
+
+Cloudflare blocks GH Actions datacenter IPs, which is the whole reason those
+sources had to be refreshed from the laptop. `src/fetchers/unblock.py` adds an
+optional scraping-API path: when `SCRAPER_API_KEY` is set in the environment,
+every Investing + Myfxbook + BusinessNZ fetcher routes its page request through
+the service (residential IP + Cloudflare solve) instead of curl_cffi. No key =
+nothing changes; the laptop keeps using free curl_cffi.
+
+Wiring: each `_fetch_with_retries` (all `investing_*` + `investing.py`, and the
+sPMI Investing pages reuse `investing._fetch_with_retries`) and the Cloudflare
+helpers `_fetch_myfxbook` / `_fetch_businessnz` (services_pmi, myfxbook_ppi)
+start with `if unblock.enabled(): return unblock.fetch(url)`. Providers:
+ScraperAPI (default) and ScrapingBee. Env knobs: `SCRAPER_PROVIDER`,
+`SCRAPER_PREMIUM` (residential pool, use if plain proxying still gets blocked;
+costs more credits), `SCRAPER_RENDER` (JS; leave off, data is in the initial
+HTML), `SCRAPER_COUNTRY`.
+
+To turn it on for Actions: add repo secret **SCRAPER_API_KEY** (Settings ->
+Secrets and variables -> Actions). `hourly.yml` exposes it at job level and runs
+`scripts/refresh_investing.py --due` before `main.py`, gated on
+`env.SCRAPER_API_KEY != ''` and `continue-on-error`. `--due` is calendar-gated
+so most runs fetch nothing and credit use stays tiny (usually inside a free
+tier). Local dev is unaffected because the secret is never set locally. This
+makes the laptop task optional rather than required; keep it as a free backup.
 
 ### Targeted refresh (added this session)
 

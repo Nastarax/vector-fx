@@ -25,6 +25,13 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    # Expose the unblocker key at job level so the refresh step's `if:` can gate
+    # on it. Unset (no secret) -> the Investing/Myfxbook refresh step is skipped
+    # and behaviour is exactly as before (caches refreshed from the laptop).
+    env:
+      SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
+      SCRAPER_PROVIDER: ${{ secrets.SCRAPER_PROVIDER }}
+      SCRAPER_PREMIUM: ${{ secrets.SCRAPER_PREMIUM }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -37,6 +44,17 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      # Cloudflare-blocked sources (Investing.com + Myfxbook). Only runs when the
+      # SCRAPER_API_KEY secret is set: it routes those fetchers through a scraping
+      # API (residential IP + Cloudflare solve), so Actions can refresh them
+      # without the laptop. Calendar-gated (--due) so it fetches only cells whose
+      # release window has passed; most runs fetch nothing. Best-effort: a failure
+      # here must not block the pipeline (main.py still renders from cache).
+      - name: Refresh Cloudflare-blocked sources (Investing/Myfxbook)
+        if: ${{ env.SCRAPER_API_KEY != '' }}
+        continue-on-error: true
+        run: python scripts/refresh_investing.py --due
 
       - name: Run EdgeFinder pipeline
         env:

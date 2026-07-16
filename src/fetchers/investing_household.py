@@ -71,6 +71,9 @@ def _get(url, session=None, profile="chrome120", timeout=20):
 
 
 def _fetch_with_retries(url, max_attempts=3):
+    from src.fetchers import unblock
+    if unblock.enabled():
+        return unblock.fetch(url)
     profiles = ["chrome120", "chrome124", "safari17_2", "chrome116"]
     last_status = 0
     for attempt in range(max_attempts):

@@ -179,6 +179,9 @@ def _fetch_te(url: str, max_attempts: int = 3) -> str | None:
 
 def _fetch_myfxbook(url: str, max_attempts: int = 3) -> str | None:
     """Cloudflare-protected, needs Chrome TLS impersonation."""
+    from src.fetchers import unblock
+    if unblock.enabled():
+        return unblock.fetch(url)[1]
     profiles = ["chrome120", "chrome124", "safari17_2"]
     for attempt in range(max_attempts):
         profile = profiles[attempt % len(profiles)]
@@ -257,6 +260,9 @@ def _parse_myfxbook_calendar(html: str) -> dict | None:
 
 def _fetch_businessnz(url: str, max_attempts: int = 3) -> str | None:
     """BusinessNZ uses Cloudflare too; chrome impersonation is safest."""
+    from src.fetchers import unblock
+    if unblock.enabled():
+        return unblock.fetch(url)[1]
     profiles = ["chrome120", "chrome124", "safari17_2"]
     for attempt in range(max_attempts):
         profile = profiles[attempt % len(profiles)]

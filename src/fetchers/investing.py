@@ -97,7 +97,14 @@ def _fetch_with_retries(url: str, max_attempts: int = 3) -> "tuple[int, str | No
 
     Why this matters: once Cloudflare flags a session with 403, every request on
     that session keeps returning 403. We need a fresh warmed session per retry.
+
+    On GitHub Actions the datacenter IP is Cloudflare-blocked regardless, so when
+    an unblocker key is configured we route through the scraping API instead (see
+    src/fetchers/unblock.py). Locally, no key -> this stays on curl_cffi.
     """
+    from src.fetchers import unblock
+    if unblock.enabled():
+        return unblock.fetch(url)
     profiles = ["chrome120", "chrome124", "safari17_2", "chrome116"]
     last_status = 0
     for attempt in range(max_attempts):

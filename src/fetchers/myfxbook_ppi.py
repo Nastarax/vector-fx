@@ -52,7 +52,11 @@ _HEADERS = {
 
 
 def _fetch_myfxbook(url: str, max_attempts: int = 3) -> str | None:
-    """Cloudflare-protected; needs Chrome TLS impersonation via curl_cffi."""
+    """Cloudflare-protected; needs Chrome TLS impersonation via curl_cffi.
+    On GitHub Actions (blocked IP) route through the unblocker if configured."""
+    from src.fetchers import unblock
+    if unblock.enabled():
+        return unblock.fetch(url)[1]
     profiles = ["chrome120", "chrome124", "safari17_2"]
     for attempt in range(max_attempts):
         profile = profiles[attempt % len(profiles)]
