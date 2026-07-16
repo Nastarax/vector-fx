@@ -10,6 +10,11 @@ on:
     # group below serializes any pile-ups.
     - cron: "3,18,33,48 * * * *"
   workflow_dispatch:  # Allows manual run from the Actions tab
+    inputs:
+      full_refresh:
+        description: "Full Investing/Myfxbook sweep (ignore the release calendar; needs SCRAPER_API_KEY, burns ~a full sweep of credits)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write   # Needed to commit refreshed outputs back to repo
@@ -49,12 +54,14 @@ jobs:
       # SCRAPER_API_KEY secret is set: it routes those fetchers through a scraping
       # API (residential IP + Cloudflare solve), so Actions can refresh them
       # without the laptop. Calendar-gated (--due) so it fetches only cells whose
-      # release window has passed; most runs fetch nothing. Best-effort: a failure
-      # here must not block the pipeline (main.py still renders from cache).
+      # release window has passed; most runs fetch nothing. A manual dispatch with
+      # full_refresh=true drops --due and sweeps everything (costs a full sweep of
+      # scraper credits). Best-effort: a failure here must not block the pipeline
+      # (main.py still renders from cache).
       - name: Refresh Cloudflare-blocked sources (Investing/Myfxbook)
         if: ${{ env.SCRAPER_API_KEY != '' }}
         continue-on-error: true
-        run: python scripts/refresh_investing.py --due
+        run: python scripts/refresh_investing.py ${{ inputs.full_refresh && ' ' || '--due' }}
 
       - name: Run EdgeFinder pipeline
         env:
