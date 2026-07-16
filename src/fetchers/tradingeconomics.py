@@ -561,6 +561,35 @@ def fetch_pce_only():
     return load_history()
 
 
+def fetch_aud_cpi_only():
+    """
+    Refresh CPI YoY for AUD only, from the TE Australia inflation-cpi page
+    (https://tradingeconomics.com/australia/inflation-cpi).
+
+    Scoring spec (handled in score_pair.py): Actual vs Consensus (priority),
+    fall back to TEForecast if Consensus missing, per request. The other 7
+    currencies stay on the Investing.com per-currency CPI cache; AUD keeps
+    the Investing cache as fallback + chart source only.
+    """
+    print("[te] refreshing CPI YoY (AUD only)...")
+    try:
+        releases = fetch_indicator("AUD", "cpi")
+        if releases:
+            releases_sorted = sorted(releases, key=lambda r: r.date, reverse=True)
+            update_history(releases_sorted)
+            latest = releases_sorted[0]
+            a = latest.actual if latest.actual is not None else "n/a"
+            c = latest.consensus if latest.consensus is not None else "n/a"
+            f = latest.forecast if latest.forecast is not None else "n/a"
+            print(f"  AUD: Actual={a}  Consensus={c}  TEForecast={f}  ({latest.date})")
+        else:
+            print("  AUD: no releases")
+    except Exception as e:
+        print(f"  AUD: failed ({e})")
+    print("[te] AUD CPI refresh complete")
+    return load_history()
+
+
 def fetch_ppi_only():
     """
     Refresh PPI YoY data for 7 currencies from TE (NZD uses Investing.com,

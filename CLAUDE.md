@@ -105,10 +105,15 @@ Retail Sales:         CAD = Investing Retail Sales MoM (id 260, Actual vs Foreca
 Consumer Conf:        USD = Investing CB Consumer Confidence (Actual vs Forecast);
                       other 7 = TE Actual vs Forecast (Consensus, TEForecast
                       fallback; no forecast -> neutral)
-CPI YoY:              Investing per-currency, Actual vs Forecast, falling back to
-                      Actual vs Previous when no forecast is published (all ccys);
-                      JPY = Investing Japan National CPI YoY (id 992, no forecast ->
-                      vs Previous). Tokyo Core CPI (id 328) is now chart-only.
+CPI YoY:              AUD = TE Australia inflation-cpi (Actual vs Consensus,
+                      fallback TEForecast; TE carries the MONTHLY CPI indicator so
+                      it's fresher than Investing's quarterly print; refreshed every
+                      main.py run via fetch_aud_cpi_only, Investing cache kept as
+                      fallback + chart source); other 7 = Investing per-currency,
+                      Actual vs Forecast, falling back to Actual vs Previous when no
+                      forecast is published; JPY = Investing Japan National CPI YoY
+                      (id 992, no forecast -> vs Previous). Tokyo Core CPI (id 328)
+                      is now chart-only.
 PPI YoY:              CHF = Myfxbook Producer & Import Prices YoY (Actual vs Consensus);
                       AUD = Myfxbook Australia PPI YoY (Actual vs Consensus);
                       GBP = Investing PPI Output (id 730, Actual vs Forecast);
@@ -331,8 +336,9 @@ curl_cffi (Cloudflare); plain requests get blocked.
   forward-return variance). Next steps: filter to trading days; per-sub-score IC
   (trend/COT/fundamentals/sentiment) to attribute edge; then weight/threshold calibration.
 - From the original handover, still open: "Delta vs yesterday" column on the main
-  heatmap (partially superseded by the WATCH Telegram alerts); optional Australia
-  Monthly CPI Indicator for a smoother AUD line.
+  heatmap (partially superseded by the WATCH Telegram alerts). The Australia
+  Monthly CPI Indicator item is DONE (2026-07-16): AUD CPI now scores from TE's
+  monthly series, Actual vs Consensus.
 - Threshold calibration DONE (structural, 2026-06-10): currency rows use
   `currency_bias_thresholds` in `indicators.yaml` (full 4/8 for USD+XAU's 15 active
   cells, reduced 3/5 for other fiat's 10; same per-cell fraction as pair thresholds).

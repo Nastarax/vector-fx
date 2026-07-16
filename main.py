@@ -200,6 +200,7 @@ def main():
         tradingeconomics.fetch_unemployment_only()
         tradingeconomics.fetch_jobless_claims_only()
         tradingeconomics.fetch_jolts_only()
+        tradingeconomics.fetch_aud_cpi_only()
         te_history = tradingeconomics.load_history()
         print(f"[te] using cached history: {sum(len(v) for v in te_history.values())} releases across {len(te_history)} pairs")
 

@@ -242,14 +242,32 @@ def _build_row(ccy, ind, te_history, investing_cpi, investing_ppi,
         previous = rel.get("previous")
         date = rel.get("date") or ""
 
-    # CPI: Investing.com cache, per-currency
+    # CPI: TE (Actual vs Consensus) for AUD, Investing.com cache otherwise.
+    # AUD falls back to Investing when TE has nothing, matching score_pair.
     elif ind_id == "cpi":
-        rel = (investing_cpi or {}).get(ccy)
-        if rel:
-            actual = rel.get("actual")
-            forecast = rel.get("forecast")
-            previous = rel.get("previous")
-            date = rel.get("date") or ""
+        rel = None
+        if ccy == "AUD":
+            te_rel = _get_latest_te(te_history, ccy, "cpi")
+            te_bench = None
+            if te_rel:
+                te_bench = te_rel.get("consensus")
+                if te_bench is None:
+                    te_bench = te_rel.get("forecast")
+            # Same gate as score_pair: TE needs both actual + benchmark,
+            # otherwise AUD falls through to the Investing cache.
+            if te_rel and te_rel.get("actual") is not None and te_bench is not None:
+                actual = te_rel.get("actual")
+                forecast = te_bench
+                previous = te_rel.get("previous")
+                date = te_rel.get("date") or ""
+                rel = te_rel
+        if rel is None:
+            rel = (investing_cpi or {}).get(ccy)
+            if rel:
+                actual = rel.get("actual")
+                forecast = rel.get("forecast")
+                previous = rel.get("previous")
+                date = rel.get("date") or ""
 
     # PPI: Myfxbook for CHF/AUD, Investing for NZD/GBP/JPY, TE for the rest
     elif ind_id == "ppi":

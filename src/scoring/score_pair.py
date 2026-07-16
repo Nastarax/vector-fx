@@ -572,6 +572,21 @@ def build_currency_scores(
                     per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
                     continue
 
+                # AUD CPI YoY: TE Australia inflation-cpi page, Actual vs
+                # Consensus (TEForecast fallback), per request. Falls through
+                # to the Investing.com cache below when TE has no usable data.
+                if ind_id == "cpi" and ccy == "AUD":
+                    te_rels = te_history.get(key, [])
+                    if te_rels:
+                        latest = sorted(te_rels, key=lambda x: x.get("date", ""), reverse=True)[0]
+                        actual = latest.get("actual")
+                        benchmark = latest.get("consensus")
+                        if benchmark is None:
+                            benchmark = latest.get("forecast")  # TEForecast fallback
+                        if actual is not None and benchmark is not None:
+                            per_ccy[ccy][ind_id] = _dir(actual, benchmark, direction, db)
+                            continue
+
                 # CPI YoY: Investing.com per-currency Latest Release. Actual vs
                 # Forecast where a forecast is published; otherwise Actual vs
                 # Previous (momentum) instead of neutral, per request. Currencies
