@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-17T12:06:01Z",
+  "generated": "2026-07-17T20:38:52Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -18,
       "status": "due",
-      "last_checked": "2026-07-17T12:06:01Z"
+      "last_checked": "2026-07-17T20:38:52Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -16,
       "status": "due",
-      "last_checked": "2026-07-17T12:06:01Z"
+      "last_checked": "2026-07-17T20:38:52Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -433,7 +433,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-07-17T12:06:01Z"
+      "last_checked": "2026-07-17T20:38:52Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-07-17T12:06:01Z"
+      "last_checked": "2026-07-17T20:38:52Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -2,
       "status": "due",
-      "last_checked": "2026-07-17T12:06:01Z"
+      "last_checked": "2026-07-17T20:38:52Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
@@ -919,9 +919,9 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-23",
+      "next_release": "2026-07-21",
       "next_basis": "exact",
-      "days_until": 6,
+      "days_until": 4,
       "status": "upcoming",
       "last_checked": null
     },
@@ -989,9 +989,9 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-02",
+      "next_release": "2026-07-29",
       "next_basis": "exact",
-      "days_until": 47,
+      "days_until": 12,
       "status": "upcoming",
       "last_checked": null
     },
