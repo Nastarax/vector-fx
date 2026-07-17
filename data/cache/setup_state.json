@@ -119,6 +119,11 @@
   "bias": "Neutral",
   "loc": 44
  },
+ "DAX": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 47
+ },
  "USDJPY": {
   "setup": null,
   "bias": "Neutral",
@@ -133,11 +138,6 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 15
- },
- "DAX": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 42
  },
  "USDCHF": {
   "setup": null,
