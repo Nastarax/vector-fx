@@ -22,7 +22,7 @@
  "UK100": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 72
+  "loc": 76
  },
  "EURCHF": {
   "setup": "extended",
@@ -43,11 +43,6 @@
   "setup": "extended",
   "bias": "Bullish",
   "loc": 91
- },
- "NIKKEI": {
-  "setup": "mid",
-  "bias": "Bullish",
-  "loc": 45
  },
  "GBPCAD": {
   "setup": null,
@@ -73,6 +68,11 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 10
+ },
+ "NIKKEI": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 17
  },
  "AUDCHF": {
   "setup": null,
@@ -144,11 +144,6 @@
   "bias": "Neutral",
   "loc": 15
  },
- "DAX": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 47
- },
  "USDCHF": {
   "setup": null,
   "bias": "Neutral",
@@ -163,6 +158,11 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 45
+ },
+ "DAX": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 42
  },
  "GBPNZD": {
   "setup": null,
