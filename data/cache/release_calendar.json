@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-18T09:21:55Z",
+  "generated": "2026-07-18T14:11:50Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -19,
       "status": "due",
-      "last_checked": "2026-07-18T06:05:24Z"
+      "last_checked": "2026-07-18T14:11:50Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -17,
       "status": "due",
-      "last_checked": "2026-07-18T06:05:24Z"
+      "last_checked": "2026-07-18T14:11:50Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -433,7 +433,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-07-18T06:05:24Z"
+      "last_checked": "2026-07-18T14:11:50Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -4,
       "status": "due",
-      "last_checked": "2026-07-18T06:05:24Z"
+      "last_checked": "2026-07-18T14:11:50Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-07-18T06:05:24Z"
+      "last_checked": "2026-07-18T14:11:50Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
