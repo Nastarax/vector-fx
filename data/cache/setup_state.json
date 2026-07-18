@@ -74,11 +74,6 @@
   "bias": "Neutral",
   "loc": 8
  },
- "NIKKEI": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 17
- },
  "AUDCAD": {
   "setup": null,
   "bias": "Neutral",
@@ -118,6 +113,11 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 59
+ },
+ "NIKKEI": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 17
  },
  "USDJPY": {
   "setup": null,
