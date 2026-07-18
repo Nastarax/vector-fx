@@ -42,7 +42,7 @@
  "NZDCHF": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 91
+  "loc": 87
  },
  "GBPCAD": {
   "setup": null,
@@ -52,7 +52,7 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 17
+  "loc": 18
  },
  "EURJPY": {
   "setup": null,
@@ -62,22 +62,32 @@
  "EURCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 10
+  "loc": 9
+ },
+ "GBPAUD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 86
  },
  "XAUUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 10
+  "loc": 8
  },
  "NIKKEI": {
   "setup": null,
   "bias": "Neutral",
   "loc": 17
  },
+ "AUDCAD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 18
+ },
  "AUDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 66
+  "loc": 63
  },
  "CADCHF": {
   "setup": null,
@@ -94,20 +104,10 @@
   "bias": "Neutral",
   "loc": 88
  },
- "AUDCAD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 18
- },
  "EURAUD": {
   "setup": null,
   "bias": "Neutral",
   "loc": 44
- },
- "GBPAUD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 86
  },
  "SILVER": {
   "setup": null,
@@ -172,6 +172,6 @@
  "AUDNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 3
+  "loc": 2
  }
 }
