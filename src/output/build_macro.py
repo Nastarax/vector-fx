@@ -1,186 +1,199 @@
 """
-Macro Command Center page (data/macro.html).
+Macro Calendar page (data/macro.html).
 
-A Vector page that combines three things:
-  1. STATIC (refreshed only when this file is edited):
-     - 2026 central-bank rate-decision calendar for the 8 currencies. The
-       client-side JS recomputes "days away" from the browser's current date,
-       so the countdowns stay live between builds without a rebuild.
-     - "What moves each currency" cheat-sheet.
-     - Curated reading list (daily macro notes, fast news, calendars, podcasts).
-     - A suggested routine.
-  2. DAILY (regenerated every main.py run):
-     - Today's per-currency bias, pulled from the heatmap currency rows.
-     - Latest macro prints: most recent release per indicator across all 8
-       currencies, with surprise % and currency impact, sorted newest-first.
+A deliberately simple month-grid calendar: the current month, one cell per day,
+with a small chip for every economic release and rate decision, colour-coded by
+currency. Three event sources are merged at build time:
 
-Dates were verified against the official central-bank calendars (May 2026):
-Fed, ECB, BoE, BoJ, SNB, BoC, RBA, RBNZ. Banks occasionally reschedule, so the
-calendar is a fast reference, not gospel near the actual day.
+  1. Released prints (econ_data): the latest actual release per indicator per
+     currency, with actual vs forecast and Vector's impact in the tooltip.
+  2. Estimated upcoming releases (data/cache/release_calendar.json): each cell's
+     next expected release date (dashed chip = estimated, not yet published).
+  3. Rate decisions (MEET below): exact central-bank decision dates for the 8
+     currencies (star chip).
+
+The month grid itself is rendered client-side from the browser's date, so the
+"today" highlight and default month stay correct between builds; prev/next
+buttons walk other months. Events are passed as JSON and filtered per month in
+the browser.
 """
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, date, timezone
 from pathlib import Path
 
 from src.output.timefmt import updated_at_str
+from src.fetchers.release_calendar import load_calendar
 
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
 
 CCY_ORDER = ("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "NZD")
 
-# ---- Static: 2026 rate-decision calendar (announcement / decision day) -------
-# [ccy, bank, role, ISO date, type(full|plain), tag]
-# type "full" = projections / forecast / report meeting (heavier, bigger surprise potential)
+# ---- Static: 2026 central-bank rate-decision calendar ------------------------
+# [ccy, bank, short, ISO date, type(full|plain), tag]
+# type "full" = projections / forecast / report meeting (bigger surprise potential)
 MEET = [
     # USD - Federal Reserve (FOMC)
-    ["USD", "Federal Reserve", "Sets the dollar, and the dollar sets everything", "2026-01-28", "plain", ""],
-    ["USD", "Federal Reserve", "Sets the dollar, and the dollar sets everything", "2026-03-18", "full", "Projections"],
-    ["USD", "Federal Reserve", "Sets the dollar, and the dollar sets everything", "2026-04-29", "plain", ""],
-    ["USD", "Federal Reserve", "Sets the dollar, and the dollar sets everything", "2026-06-17", "full", "Dot plot"],
-    ["USD", "Federal Reserve", "Sets the dollar, and the dollar sets everything", "2026-07-29", "plain", ""],
-    ["USD", "Federal Reserve", "Sets the dollar, and the dollar sets everything", "2026-09-16", "full", "Dot plot"],
-    ["USD", "Federal Reserve", "Sets the dollar, and the dollar sets everything", "2026-10-28", "plain", ""],
-    ["USD", "Federal Reserve", "Sets the dollar, and the dollar sets everything", "2026-12-09", "full", "Dot plot"],
+    ["USD", "Federal Reserve", "Fed", "2026-01-28", "plain", ""],
+    ["USD", "Federal Reserve", "Fed", "2026-03-18", "full", "Projections"],
+    ["USD", "Federal Reserve", "Fed", "2026-04-29", "plain", ""],
+    ["USD", "Federal Reserve", "Fed", "2026-06-17", "full", "Dot plot"],
+    ["USD", "Federal Reserve", "Fed", "2026-07-29", "plain", ""],
+    ["USD", "Federal Reserve", "Fed", "2026-09-16", "full", "Dot plot"],
+    ["USD", "Federal Reserve", "Fed", "2026-10-28", "plain", ""],
+    ["USD", "Federal Reserve", "Fed", "2026-12-09", "full", "Dot plot"],
     # EUR - ECB
-    ["EUR", "ECB", "Governing Council rate decision", "2026-03-19", "full", "Projections"],
-    ["EUR", "ECB", "Governing Council rate decision", "2026-04-30", "plain", ""],
-    ["EUR", "ECB", "Governing Council rate decision", "2026-06-11", "full", "Projections"],
-    ["EUR", "ECB", "Governing Council rate decision", "2026-07-23", "plain", ""],
-    ["EUR", "ECB", "Governing Council rate decision", "2026-09-10", "full", "Projections"],
-    ["EUR", "ECB", "Governing Council rate decision", "2026-10-29", "plain", ""],
-    ["EUR", "ECB", "Governing Council rate decision", "2026-12-17", "full", "Projections"],
+    ["EUR", "ECB", "ECB", "2026-03-19", "full", "Projections"],
+    ["EUR", "ECB", "ECB", "2026-04-30", "plain", ""],
+    ["EUR", "ECB", "ECB", "2026-06-11", "full", "Projections"],
+    ["EUR", "ECB", "ECB", "2026-07-23", "plain", ""],
+    ["EUR", "ECB", "ECB", "2026-09-10", "full", "Projections"],
+    ["EUR", "ECB", "ECB", "2026-10-29", "plain", ""],
+    ["EUR", "ECB", "ECB", "2026-12-17", "full", "Projections"],
     # GBP - Bank of England
-    ["GBP", "Bank of England", "MPC Bank Rate decision", "2026-02-05", "full", "MPR"],
-    ["GBP", "Bank of England", "MPC Bank Rate decision", "2026-03-19", "plain", ""],
-    ["GBP", "Bank of England", "MPC Bank Rate decision", "2026-04-30", "full", "MPR"],
-    ["GBP", "Bank of England", "MPC Bank Rate decision", "2026-06-18", "plain", ""],
-    ["GBP", "Bank of England", "MPC Bank Rate decision", "2026-07-30", "full", "MPR"],
-    ["GBP", "Bank of England", "MPC Bank Rate decision", "2026-09-17", "plain", ""],
-    ["GBP", "Bank of England", "MPC Bank Rate decision", "2026-11-05", "full", "MPR"],
-    ["GBP", "Bank of England", "MPC Bank Rate decision", "2026-12-17", "plain", ""],
+    ["GBP", "Bank of England", "BoE", "2026-02-05", "full", "MPR"],
+    ["GBP", "Bank of England", "BoE", "2026-03-19", "plain", ""],
+    ["GBP", "Bank of England", "BoE", "2026-04-30", "full", "MPR"],
+    ["GBP", "Bank of England", "BoE", "2026-06-18", "plain", ""],
+    ["GBP", "Bank of England", "BoE", "2026-07-30", "full", "MPR"],
+    ["GBP", "Bank of England", "BoE", "2026-09-17", "plain", ""],
+    ["GBP", "Bank of England", "BoE", "2026-11-05", "full", "MPR"],
+    ["GBP", "Bank of England", "BoE", "2026-12-17", "plain", ""],
     # JPY - Bank of Japan
-    ["JPY", "Bank of Japan", "Policy decision (day 2)", "2026-01-23", "full", "Outlook"],
-    ["JPY", "Bank of Japan", "Policy decision (day 2)", "2026-03-19", "plain", ""],
-    ["JPY", "Bank of Japan", "Policy decision (day 2)", "2026-04-28", "full", "Outlook"],
-    ["JPY", "Bank of Japan", "Policy decision (day 2)", "2026-06-16", "plain", ""],
-    ["JPY", "Bank of Japan", "Policy decision (day 2)", "2026-07-31", "full", "Outlook"],
-    ["JPY", "Bank of Japan", "Policy decision (day 2)", "2026-09-18", "plain", ""],
-    ["JPY", "Bank of Japan", "Policy decision (day 2)", "2026-10-30", "full", "Outlook"],
-    ["JPY", "Bank of Japan", "Policy decision (day 2)", "2026-12-18", "plain", ""],
+    ["JPY", "Bank of Japan", "BoJ", "2026-01-23", "full", "Outlook"],
+    ["JPY", "Bank of Japan", "BoJ", "2026-03-19", "plain", ""],
+    ["JPY", "Bank of Japan", "BoJ", "2026-04-28", "full", "Outlook"],
+    ["JPY", "Bank of Japan", "BoJ", "2026-06-16", "plain", ""],
+    ["JPY", "Bank of Japan", "BoJ", "2026-07-31", "full", "Outlook"],
+    ["JPY", "Bank of Japan", "BoJ", "2026-09-18", "plain", ""],
+    ["JPY", "Bank of Japan", "BoJ", "2026-10-30", "full", "Outlook"],
+    ["JPY", "Bank of Japan", "BoJ", "2026-12-18", "plain", ""],
     # CHF - SNB (quarterly)
-    ["CHF", "SNB", "Quarterly assessment + forecast", "2026-03-19", "full", "Forecast"],
-    ["CHF", "SNB", "Quarterly assessment + forecast", "2026-06-18", "full", "Forecast"],
-    ["CHF", "SNB", "Quarterly assessment + forecast", "2026-09-24", "full", "Forecast"],
-    ["CHF", "SNB", "Quarterly assessment + forecast", "2026-12-11", "full", "Forecast"],
+    ["CHF", "SNB", "SNB", "2026-03-19", "full", "Forecast"],
+    ["CHF", "SNB", "SNB", "2026-06-18", "full", "Forecast"],
+    ["CHF", "SNB", "SNB", "2026-09-24", "full", "Forecast"],
+    ["CHF", "SNB", "SNB", "2026-12-11", "full", "Forecast"],
     # CAD - Bank of Canada
-    ["CAD", "Bank of Canada", "Overnight rate decision", "2026-01-28", "full", "MPR"],
-    ["CAD", "Bank of Canada", "Overnight rate decision", "2026-03-18", "plain", ""],
-    ["CAD", "Bank of Canada", "Overnight rate decision", "2026-04-29", "full", "MPR"],
-    ["CAD", "Bank of Canada", "Overnight rate decision", "2026-06-10", "plain", ""],
-    ["CAD", "Bank of Canada", "Overnight rate decision", "2026-07-15", "full", "MPR"],
-    ["CAD", "Bank of Canada", "Overnight rate decision", "2026-09-02", "plain", ""],
-    ["CAD", "Bank of Canada", "Overnight rate decision", "2026-10-28", "full", "MPR"],
-    ["CAD", "Bank of Canada", "Overnight rate decision", "2026-12-09", "plain", ""],
+    ["CAD", "Bank of Canada", "BoC", "2026-01-28", "full", "MPR"],
+    ["CAD", "Bank of Canada", "BoC", "2026-03-18", "plain", ""],
+    ["CAD", "Bank of Canada", "BoC", "2026-04-29", "full", "MPR"],
+    ["CAD", "Bank of Canada", "BoC", "2026-06-10", "plain", ""],
+    ["CAD", "Bank of Canada", "BoC", "2026-07-15", "full", "MPR"],
+    ["CAD", "Bank of Canada", "BoC", "2026-09-02", "plain", ""],
+    ["CAD", "Bank of Canada", "BoC", "2026-10-28", "full", "MPR"],
+    ["CAD", "Bank of Canada", "BoC", "2026-12-09", "plain", ""],
     # AUD - RBA
-    ["AUD", "RBA", "Monetary Policy Board (day 2)", "2026-02-03", "full", "SoMP"],
-    ["AUD", "RBA", "Monetary Policy Board (day 2)", "2026-03-17", "plain", ""],
-    ["AUD", "RBA", "Monetary Policy Board (day 2)", "2026-05-05", "full", "SoMP"],
-    ["AUD", "RBA", "Monetary Policy Board (day 2)", "2026-06-16", "plain", ""],
-    ["AUD", "RBA", "Monetary Policy Board (day 2)", "2026-08-11", "full", "SoMP"],
-    ["AUD", "RBA", "Monetary Policy Board (day 2)", "2026-09-29", "plain", ""],
-    ["AUD", "RBA", "Monetary Policy Board (day 2)", "2026-11-03", "full", "SoMP"],
-    ["AUD", "RBA", "Monetary Policy Board (day 2)", "2026-12-08", "plain", ""],
+    ["AUD", "RBA", "RBA", "2026-02-03", "full", "SoMP"],
+    ["AUD", "RBA", "RBA", "2026-03-17", "plain", ""],
+    ["AUD", "RBA", "RBA", "2026-05-05", "full", "SoMP"],
+    ["AUD", "RBA", "RBA", "2026-06-16", "plain", ""],
+    ["AUD", "RBA", "RBA", "2026-08-11", "full", "SoMP"],
+    ["AUD", "RBA", "RBA", "2026-09-29", "plain", ""],
+    ["AUD", "RBA", "RBA", "2026-11-03", "full", "SoMP"],
+    ["AUD", "RBA", "RBA", "2026-12-08", "plain", ""],
     # NZD - RBNZ
-    ["NZD", "RBNZ", "OCR decision", "2026-04-08", "plain", ""],
-    ["NZD", "RBNZ", "OCR decision", "2026-05-27", "full", "MPS"],
-    ["NZD", "RBNZ", "OCR decision", "2026-07-08", "plain", ""],
-    ["NZD", "RBNZ", "OCR decision", "2026-09-02", "full", "MPS"],
-    ["NZD", "RBNZ", "OCR decision", "2026-10-28", "plain", ""],
-    ["NZD", "RBNZ", "OCR decision", "2026-12-09", "full", "MPS"],
+    ["NZD", "RBNZ", "RBNZ", "2026-04-08", "plain", ""],
+    ["NZD", "RBNZ", "RBNZ", "2026-05-27", "full", "MPS"],
+    ["NZD", "RBNZ", "RBNZ", "2026-07-08", "plain", ""],
+    ["NZD", "RBNZ", "RBNZ", "2026-09-02", "full", "MPS"],
+    ["NZD", "RBNZ", "RBNZ", "2026-10-28", "plain", ""],
+    ["NZD", "RBNZ", "RBNZ", "2026-12-09", "full", "MPS"],
 ]
 
-DRIVERS = {
-    "USD": "NFP + average hourly earnings (1st Friday), CPI, core PCE (Fed's gauge), FOMC, ISM mfg/services PMI, retail sales, JOLTS + ADP.",
-    "EUR": "Flash HICP inflation, ECB decision, flash PMIs, German Ifo + ZEW sentiment, EZ GDP. Germany leads, so German prints move the whole bloc.",
-    "GBP": "UK CPI, the jobs + wage report, BoE decision, monthly GDP, flash PMIs. Wages are the BoE's obsession right now.",
-    "JPY": "BoJ decision, Tokyo CPI (early read on national CPI), national CPI, Tankan survey, wage/shunto data. Plus MoF intervention risk near extremes.",
-    "CHF": "SNB quarterly assessment, Swiss CPI, KOF leading indicator, weekly SNB sight deposits (intervention tell). CHF is a risk-off magnet too.",
-    "CAD": "BoC decision, CPI, the Labour Force Survey jobs print, monthly GDP, and oil. CAD trades the energy complex hard.",
-    "AUD": "RBA decision, quarterly CPI + the monthly indicator, jobs, and China data (PMIs, credit) + iron ore. AUD is the liquid China proxy.",
-    "NZD": "RBNZ decision, quarterly CPI + jobs, GlobalDairyTrade auctions (fortnightly), and China data. Thin liquidity = sharp moves.",
+# Long indicator label -> short chip text.
+_SHORT = {
+    "GDP Growth": "GDP",
+    "Manufacturing PMI": "Mfg PMI",
+    "Services PMI": "Svc PMI",
+    "Retail Sales": "Retail",
+    "Household Spending": "Household",
+    "Consumer Confidence": "Conf",
+    "CPI YoY": "CPI",
+    "PPI YoY": "PPI",
+    "PCE YoY": "PCE",
+    "Unemployment Rate": "Unemp",
+    "Jobless Claims": "Claims",
+    "Non-Farm Payrolls": "NFP",
+    "ADP Employment": "ADP",
+    "JOLTS Job Openings": "JOLTS",
 }
 
-SOURCES = [
-    ["Daily macro reads (spend time here)", "Build your view from people who trade the macro frame.",
-        [["Brent Donnelly &mdash; am/FX", "https://www.spectramarkets.com", "Ex-bank FX spot trader, daily note. Books: The Art of Currency Trading, Alpha Trader."],
-         ["Marc Chandler &mdash; Marc to Market", "https://www.marctomarket.com", "Free daily FX macro overview, every morning."],
-         ["Steno Research", "https://stenoresearch.com", "Andreas Steno, cross-asset macro + positioning."],
-         ["The Macro Compass", "https://themacrocompass.com", "Alfonso Peccatiello, rates/liquidity-driven macro."]]],
-    ["Fast FX news (on tap, not on loop)", "Check when something breaks. Don't refresh it all day.",
-        [["ForexLive", "https://www.forexlive.com", "Real-time FX headlines + central-bank speak."],
-         ["FXStreet", "https://www.fxstreet.com", "News, calendar, and rate-decision live coverage."]]],
-    ["Calendars + your tools", "The data backbone. Set alerts only for your 8 currencies' high-impact events.",
-        [["Forex Factory calendar", "https://www.forexfactory.com/calendar", "Cleanest free high-impact filter + alerts."],
-         ["Investing.com calendar", "https://www.investing.com/economic-calendar/", "Same sources Vector pulls from; good mobile alerts."],
-         ["TradingEconomics", "https://tradingeconomics.com/calendar", "Consensus vs actual, country dashboards."]]],
-    ["Podcasts", "Background listening for deeper macro context.",
-        [["Macro Voices", "https://www.macrovoices.com", "Deep institutional macro interviews."],
-         ["Forward Guidance (Blockworks)", "https://blockworks.co/podcast/forwardguidance", "Rates, liquidity, Fed plumbing."],
-         ["Odd Lots (Bloomberg)", "https://www.bloomberg.com/oddlots", "Wide-ranging, accessible market deep dives."],
-         ["The Macro Trading Floor", "https://stenoresearch.com", "Steno + Alf, a tradable theme each week."]]],
-    ["Central bank pages (primary source)", "When a banker speaks, that's the real news. Bookmark these.",
-        [["Federal Reserve", "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm", "FOMC calendar, statements, minutes, dot plot."],
-         ["ECB", "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html", "Governing Council calendar + press conferences."],
-         ["Bank of England", "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates", "MPC dates + Monetary Policy Reports."],
-         ["Bank of Japan", "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm", "Meeting schedule + Outlook Report."]]],
-    ["Positioning (you already use this)", "Know who's offside. Extreme positioning sets up the violent reversals.",
-        [["CFTC Commitments of Traders", "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm", "Weekly futures positioning, Friday 3:30pm ET. Feeds Vector's COT."]]],
-]
 
-ROUTINE = [
-    ["Each morning", "~15 min", "Skim one macro note (Donnelly or Chandler). Glance at Vector for any bias flips overnight. Check today's calendar for high-impact prints on your 8."],
-    ["Around releases", "as they hit", "Let calendar alerts (high-impact only) pull you in. Read actual vs consensus, not the headline. Otherwise stay off the feed."],
-    ["Weekend", "30-45 min", "One deeper read to set next week's bias. Update your own view per currency. Note which central banks meet that week."],
-    ["Each evening (optional)", "~5 min", "Scan ForexLive headlines once to make sure nothing structural broke. Then close the tab."],
-]
+def _short(label: str) -> str:
+    if not label:
+        return ""
+    if label in _SHORT:
+        return _SHORT[label]
+    # Fallback: strip common suffixes, cap length.
+    s = label.replace(" YoY", "").replace(" Rate", "").replace(" Change", "")
+    return s if len(s) <= 10 else s[:9] + "…"
 
 
-def _bias_payload(currency_rows) -> list[dict]:
-    """Pull the 8 currency biases from the heatmap currency rows."""
-    out = []
-    for r in (currency_rows or []):
-        if not r.get("is_currency"):
-            continue
-        out.append({
-            "ccy": r.get("symbol"),
-            "name": r.get("display_name", r.get("symbol")),
-            "bias": r.get("bias", "Neutral"),
-            "total": r.get("total", 0),
-        })
-    return out
+def _calendar_events(econ_data) -> list[dict]:
+    """Merge released prints + estimated upcoming + rate decisions into a flat
+    list of dated events for the client-side month grid."""
+    events: list[dict] = []
+    today_iso = date.today().strftime("%Y-%m-%d")
 
-
-def _prints_payload(econ_data) -> list[dict]:
-    """Flatten econ_data into a newest-first feed of latest prints."""
-    items = []
+    # 1. Released prints (actual, with values + impact). econ_data = {ccy: [rows]}.
+    #    Only the 8 fiat currencies: indices/metals (XAU, NDX, UKX, ...) reuse a
+    #    fiat's cells, so including them would duplicate every release.
     for ccy, rows in (econ_data or {}).items():
+        if ccy not in CCY_ORDER:
+            continue
         for r in rows:
             d = r.get("date")
-            if not d:
+            label = r.get("indicator")
+            if not d or not label:
                 continue
-            items.append({
+            if label == "Interest Rate":
+                continue  # rate decisions come from MEET (exact dates)
+            events.append({
                 "ccy": ccy,
-                "indicator": r.get("indicator"),
                 "date": d,
-                "surprise": r.get("surprise"),
+                "label": label,
+                "short": _short(label),
+                "kind": "actual",
                 "actual": r.get("actual"),
                 "forecast": r.get("forecast"),
                 "impact": r.get("currency_impact"),
             })
-    items.sort(key=lambda x: x["date"], reverse=True)
-    return items
+
+    # 2. Estimated upcoming releases (dashed chip). Future dates only; actuals
+    #    already cover what has printed.
+    seen = {(e["ccy"], e["date"], e["label"]) for e in events}
+    cal = load_calendar() or {}
+    for e in (cal.get("entries") or {}).values():
+        if e.get("indicator") == "rates":
+            continue
+        nxt = e.get("next_release")
+        ccy = e.get("currency")
+        label = e.get("label")
+        if not nxt or not ccy or nxt < today_iso:
+            continue
+        if (ccy, nxt, label) in seen:
+            continue
+        events.append({
+            "ccy": ccy,
+            "date": nxt,
+            "label": label,
+            "short": _short(label),
+            "kind": "estimated",
+        })
+
+    # 3. Rate decisions (star chip, exact dates).
+    for ccy, bank, short, d, typ, tag in MEET:
+        events.append({
+            "ccy": ccy,
+            "date": d,
+            "label": bank + " rate decision" + (" (" + tag + ")" if tag else ""),
+            "short": short,
+            "kind": "decision",
+            "heavy": typ == "full",
+        })
+
+    return events
 
 
 _HTML = """<!doctype html>
@@ -188,7 +201,7 @@ _HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vector | Macro Command Center</title>
+<title>Vector | Macro Calendar</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%233d77e8'/><stop offset='1' stop-color='%231e4fd1'/></linearGradient></defs><rect width='32' height='32' rx='7' fill='url(%23g)'/><text x='16' y='23' font-family='Arial' font-size='18' font-weight='bold' fill='white' text-anchor='middle'>V</text></svg>">
 <link rel="stylesheet" href="vector.css">
 <style>
@@ -197,95 +210,90 @@ _HTML = """<!doctype html>
     --usd:#3974e6; --eur:#5b8def; --gbp:#9a7bf0; --jpy:#dd5050;
     --chf:#e07a3f; --cad:#d6455f; --aud:#2fa86b; --nzd:#2f9aa8;
   }
-  body{line-height:1.5}
-  main{max-width:1080px;margin:0 auto;padding:22px 24px 60px}
-  h2{font-size:15px;font-weight:700;margin:30px 0 12px;letter-spacing:.2px;
-    display:flex;align-items:center;gap:9px}
-  h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-  h2 .live{font-size:10px;font-weight:700;color:#0d1430;background:var(--accent2);
-    padding:2px 7px;border-radius:10px;letter-spacing:.5px}
-  .lead{color:var(--muted);font-size:13px;margin:-4px 0 16px;max-width:760px}
+  main{max-width:1180px;margin:0 auto;padding:22px 24px 60px}
+  .lead{color:var(--muted);font-size:13px;margin:0 0 18px;max-width:820px}
 
-  .strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
-  .ev{flex:0 0 auto;min-width:158px;background:var(--panel);border:1px solid var(--border);
-    border-radius:9px;padding:12px 13px;position:relative}
-  .ev.soon{border-color:var(--accent);box-shadow:0 0 0 1px rgba(74,123,255,.35)}
-  .ev .when{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
-  .ev .cd{font-size:22px;font-weight:800;margin:2px 0 1px}
-  .ev .cd small{font-size:11px;font-weight:600;color:var(--muted)}
-  .ev .bank{font-size:13px;font-weight:700;margin-top:4px}
-  .ev .date{font-size:11px;color:var(--muted)}
-  .ev .star{position:absolute;top:10px;right:11px;font-size:11px;color:#ffcf5c}
-  .ccy-chip{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700;
-    color:#fff;margin-top:6px}
+  .calbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .mtitle{font-size:19px;font-weight:800;min-width:172px}
+  .navbtn{background:var(--panel);border:1px solid var(--border);color:var(--text);
+    border-radius:8px;width:34px;height:32px;font-size:16px;cursor:pointer;line-height:1}
+  .navbtn:hover{border-color:var(--accent)}
+  .today-btn{background:var(--panel);border:1px solid var(--border);color:var(--text);
+    border-radius:8px;height:32px;padding:0 12px;font-size:12px;font-weight:600;cursor:pointer}
+  .today-btn:hover{border-color:var(--accent)}
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:12px}
-  .biasgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:10px}
-  .bcard{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:12px 13px;
-    border-left:3px solid var(--neutral)}
-  .bcard.bull{border-left-color:var(--bullish)}
-  .bcard.bear{border-left-color:var(--bearish)}
-  .bcard .top{display:flex;align-items:center;justify-content:space-between}
-  .bcard .nm{color:var(--muted);font-size:11px;margin-top:5px}
-  .bcard .bl{font-size:14px;font-weight:700;margin-top:6px}
-  .bcard .bl.bull{color:var(--accent2)}
-  .bcard .bl.bear{color:#ff8a8a}
-  .bcard .bl.neut{color:var(--muted)}
-  .bcard .tot{font-size:11px;color:var(--muted);font-weight:600}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;align-items:center}
+  .filters .flabel{color:var(--muted);font-size:11px;margin-right:2px}
+  .fchip{cursor:pointer;user-select:none;padding:3px 10px;border-radius:20px;font-size:11px;
+    font-weight:700;color:#fff;border:1px solid transparent}
+  .fchip.off{opacity:.26}
 
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:14px}
-  .card .ch{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-  .card h3{margin:0;font-size:14px;font-weight:700}
-  .card .role{color:var(--muted);font-size:11px}
-  .mlist{list-style:none;margin:0;padding:0}
-  .mlist li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;
-    border-top:1px solid var(--border);font-size:12.5px}
-  .mlist li:first-child{border-top:none}
-  .mlist li.past{opacity:.38}
-  .mlist li .md{color:var(--text)}
-  .mlist li .mt{color:var(--muted);font-size:11px}
-  .mlist li.next .md{color:var(--accent2);font-weight:700}
-  .tag{font-size:10px;color:#ffcf5c;margin-left:5px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-bottom:12px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .lg-solid{width:20px;height:11px;border-radius:3px;background:var(--accent2)}
+  .lg-dash{width:20px;height:11px;border-radius:3px;border:1px dashed var(--accent2)}
+  .lg-star{color:#ffcf5c;font-size:12px}
 
-  table.feed{width:100%;border-collapse:collapse;font-size:12.5px}
-  table.feed th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;
-    padding:7px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.3px}
-  table.feed td{padding:8px 10px;border-bottom:1px solid var(--border)}
-  table.feed tr:nth-child(even) td{background:var(--rowAlt)}
-  table.feed td.r{text-align:right}
-  .chip{display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600;font-size:11px}
-  .chip.bull{background:rgba(57,116,230,.85);color:#fff}
-  .chip.bear{background:rgba(221,80,80,.85);color:#fff}
-  .chip.neut{background:rgba(120,120,140,.4);color:#cfd6f5}
-  .surp.pos{color:#aac4ff}
-  .surp.neg{color:#ffaab4}
-  .newdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent2);margin-left:6px}
+  .grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .dow{font-size:11px;font-weight:700;color:var(--muted);padding:2px 4px;
+    text-transform:uppercase;letter-spacing:.4px}
+  .cell{min-height:104px;background:var(--panel);border:1px solid var(--border);
+    border-radius:8px;padding:6px 6px 8px;display:flex;flex-direction:column;gap:4px}
+  .cell.blank{background:transparent;border:none}
+  .cell.wknd{background:transparent;border-style:dashed;opacity:.65}
+  .cell.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .cell.has{cursor:pointer}
+  .cell.has:hover{border-color:var(--accent2)}
+  .cell .dnum{font-size:12px;font-weight:700;color:var(--muted);display:flex;
+    justify-content:space-between;align-items:center}
+  .cell.today .dnum{color:var(--accent2)}
+  .cell .dnum .tdtag{font-size:9px;font-weight:800;color:var(--accent2);letter-spacing:.4px}
+  .chips{display:flex;flex-direction:column;gap:3px}
+  .chip2{font-size:10.5px;font-weight:700;color:#fff;border-radius:4px;padding:2px 5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;cursor:default}
+  .chip2 .cc{font-weight:800;opacity:.9;margin-right:4px}
+  .chip2.est{background:transparent!important;border:1px dashed currentColor}
+  .chip2.dec .st{color:#ffcf5c;margin-right:3px}
+  .chip2.more{background:transparent;color:var(--muted);font-weight:600;padding:1px 5px}
 
-  .dcard{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:13px 14px}
-  .dcard .ch{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-  .dcard p{margin:0;color:var(--text);font-size:12.5px}
+  /* Day detail popup */
+  .modal-back{position:fixed;inset:0;background:rgba(4,8,20,.62);display:none;
+    align-items:flex-start;justify-content:center;z-index:50;padding:56px 16px;overflow-y:auto}
+  .modal-back.open{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    max-width:480px;width:100%;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+  .modal .mh{display:flex;justify-content:space-between;align-items:center;
+    padding:15px 18px;border-bottom:1px solid var(--border)}
+  .modal .mh h3{margin:0;font-size:15px;font-weight:800}
+  .modal .mh .x{background:none;border:none;color:var(--muted);font-size:21px;
+    cursor:pointer;line-height:1}
+  .modal .mh .x:hover{color:var(--text)}
+  .modal .mb{padding:4px 18px 16px}
+  .ev-item{padding:12px 0;border-top:1px solid var(--border);display:flex;gap:10px}
+  .ev-item:first-child{border-top:none}
+  .ev-item .cc2{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;
+    font-weight:800;color:#fff;margin-top:1px}
+  .ev-item .body{flex:1}
+  .ev-item .t{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .ev-item .badge{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;
+    padding:1px 6px;border-radius:4px}
+  .badge.rel{background:rgba(57,116,230,.22);color:#8fb4ff}
+  .badge.est{background:transparent;border:1px dashed var(--muted);color:var(--muted)}
+  .badge.dec{background:rgba(255,207,92,.16);color:#ffcf5c}
+  .ev-item .vals{font-size:12px;color:var(--text);margin-top:3px}
+  .ev-item .desc{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
+  .modal .empty2{color:var(--muted);font-size:13px;padding:16px 0}
 
-  .src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
-  .src{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:14px}
-  .src h3{margin:0 0 4px;font-size:13.5px;font-weight:700}
-  .src .tier{color:var(--muted);font-size:11px;margin-bottom:9px}
-  .src ul{list-style:none;margin:0;padding:0}
-  .src li{padding:5px 0;border-top:1px solid var(--border);font-size:12.5px}
-  .src li:first-child{border-top:none}
-  .src li .nm{font-weight:600}
-  .src li .ds{color:var(--muted);font-size:11.5px}
-
-  .routine{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-  .rt{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:14px;
-    border-left:3px solid var(--accent)}
-  .rt h3{margin:0 0 6px;font-size:13px;font-weight:700}
-  .rt .clock{color:var(--accent2);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
-  .rt p{margin:6px 0 0;color:var(--muted);font-size:12.5px}
-  .note{background:rgba(74,123,255,.08);border:1px solid rgba(74,123,255,.3);border-radius:9px;
-    padding:12px 14px;color:var(--text);font-size:12.5px;margin-top:14px}
-  .empty{color:var(--muted);font-size:12.5px;padding:10px}
   footer{color:var(--muted);font-size:11px;text-align:center;margin-top:40px;
     border-top:1px solid var(--border);padding-top:16px}
+
+  @media (max-width:760px){
+    main{padding:16px 12px 48px}
+    .cell{min-height:78px;padding:4px 4px 6px}
+    .chip2{font-size:9.5px;padding:1px 4px}
+    .dow{font-size:9.5px}
+    .mtitle{font-size:16px;min-width:140px}
+  }
 </style>
 <script defer src="analytics.js"></script>
 </head>
@@ -295,7 +303,7 @@ _HTML = """<!doctype html>
     <div class="brand-mark">V</div>
     <div>
       <div class="brand-name">VECTOR</div>
-      <h1>Macro Command Center</h1>
+      <h1>Macro Calendar</h1>
     </div>
   </div>
   <div class="meta">Updated <b>__UPDATED_AT__</b></div>
@@ -320,179 +328,205 @@ _HTML = """<!doctype html>
 </nav>
 
 <main>
+  <p class="lead">Every economic release and rate decision for your eight currencies, on one month.
+    Solid chips are released prints, dashed chips are estimated upcoming releases, and a star marks a
+    central-bank rate decision. Tap a currency to filter.</p>
 
-  <h2><span class="dot"></span>Coming up</h2>
-  <p class="lead">Your next eight rate decisions, sorted by date. These are the events that actually move
-    your eight currencies on a swing horizon. Stars mark the heavier meetings (new projections,
-    forecasts, or a Monetary Policy Report) where surprise potential is biggest. Countdown recomputes
-    live from today's date.</p>
-  <div class="strip" id="strip"></div>
+  <div class="calbar">
+    <button class="navbtn" id="prev" aria-label="Previous month">&#8249;</button>
+    <div class="mtitle" id="mtitle"></div>
+    <button class="navbtn" id="next" aria-label="Next month">&#8250;</button>
+    <button class="today-btn" id="todayBtn">Today</button>
+  </div>
 
-  <h2><span class="dot"></span>Today's Vector bias <span class="live">LIVE</span></h2>
-  <p class="lead">Pulled straight from Vector's heatmap on this build. The currency-level read across all
-    indicators, sorted strongest bull to strongest bear. This is your starting view before you read
-    anyone else's.</p>
-  <div class="biasgrid" id="bias"></div>
+  <div class="filters" id="filters"><span class="flabel">Show:</span></div>
 
-  <h2><span class="dot"></span>Latest macro prints <span class="live">LIVE</span></h2>
-  <p class="lead">The most recent release per indicator across your 8 currencies, newest first, with the
-    surprise vs forecast and the currency impact Vector assigns. A dot marks prints from the last 10
-    days. This is the backward-looking half; the calendar above is the forward half.</p>
-  <table class="feed"><thead><tr>
-    <th>Date</th><th>Ccy</th><th>Indicator</th><th class="r">Actual</th><th class="r">Forecast</th>
-    <th class="r">Surprise</th><th>Impact</th>
-  </tr></thead><tbody id="prints"></tbody></table>
+  <div class="legend">
+    <span><span class="lg-solid"></span> Released</span>
+    <span><span class="lg-dash"></span> Estimated</span>
+    <span><span class="lg-star">&#9733;</span> Rate decision</span>
+  </div>
 
-  <h2><span class="dot"></span>2026 rate-decision calendar</h2>
-  <p class="lead">All decision dates for the year, per bank. Past meetings are dimmed, your next one in
-    each is highlighted. Watch the clusters: some days stack multiple banks (e.g. Dec 9 = Fed + BoC +
-    RBNZ, Dec 17 = ECB + BoE, Jun 18 = BoE + SNB) which can make cross-pairs jumpy.</p>
-  <div class="grid" id="bankGrid"></div>
-
-  <h2><span class="dot"></span>What moves each currency</h2>
-  <p class="lead">Between meetings, these are the high-impact releases that shift each currency's bias.
-    Most are already feeding Vector. The point isn't to react to every print, it's to know which
-    number is the one to wait for.</p>
-  <div class="grid" id="drivers"></div>
-
-  <h2><span class="dot"></span>Where to read</h2>
-  <p class="lead">Fewer, better inputs. Spend your time on the thinking layer (daily macro notes), keep
-    fast news on tap but don't live in it, and let your calendar + Vector handle the data.</p>
-  <div class="src-grid" id="sources"></div>
-
-  <h2><span class="dot"></span>A simple daily routine</h2>
-  <div class="routine" id="routine"></div>
-  <div class="note"><b>The one rule:</b> as a swing trader your enemy is overconsumption, not
-    under-information. If a headline makes you want to touch a position you already sized correctly,
-    that's the feed doing its job of generating noise. Read to build a view for the week, not to
-    justify a click today.</div>
+  <div class="grid7" id="dowRow"></div>
+  <div class="grid7" id="grid" style="margin-top:6px"></div>
 
   <footer>
-    Vector &middot; Macro Command Center &middot; calendar verified against official central-bank
-    sources (May 2026). Bias + prints regenerate every build; countdowns recompute from today's date.
+    Vector &middot; Macro Calendar &middot; released prints + estimated release dates regenerate every
+    build; rate-decision dates verified against official central-bank calendars (May 2026). Estimated
+    dates are cadence-based and can shift; confirm the exact time on your calendar of record.
   </footer>
 </main>
 
-<script>
-const MEET = __MEET_JSON__;
-const BIAS = __BIAS_JSON__;
-const PRINTS = __PRINTS_JSON__;
-const DRIVERS = __DRIVERS_JSON__;
-const SOURCES = __SOURCES_JSON__;
-const ROUTINE = __ROUTINE_JSON__;
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="mh"><h3 id="modalTitle"></h3><button class="x" id="modalX" aria-label="Close">&times;</button></div>
+    <div class="mb" id="modalBody"></div>
+  </div>
+</div>
 
+<script>
+const EVENTS = __EVENTS_JSON__;
 const CCY_ORDER = ["USD","EUR","GBP","JPY","CHF","CAD","AUD","NZD"];
 const CCY_COLOR = {USD:"var(--usd)",EUR:"var(--eur)",GBP:"var(--gbp)",JPY:"var(--jpy)",
   CHF:"var(--chf)",CAD:"var(--cad)",AUD:"var(--aud)",NZD:"var(--nzd)"};
+const MON=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DOW=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MAX_CHIPS=4;
 
-const today = new Date(); today.setHours(0,0,0,0);
-const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-function parse(d){const[y,m,dd]=d.split("-").map(Number);return new Date(y,m-1,dd);}
-function daysTo(d){return Math.round((parse(d)-today)/86400000);}
-function fmtDate(d){const x=parse(d);return DOW[x.getDay()]+" "+x.getDate()+" "+MON[x.getMonth()];}
+// One-line plain-English description per indicator (keyed by chip short code).
+const DESC={
+  "GDP":"Total economic output growth. The broadest read on the economy.",
+  "Mfg PMI":"Factory-sector survey; above 50 signals expansion. Fast and forward-looking.",
+  "Svc PMI":"Services-sector survey; above 50 signals expansion. Services lead most economies.",
+  "Retail":"Consumer spending at retailers. A direct read on demand.",
+  "Household":"Japanese household spending, a key BoJ demand gauge.",
+  "Conf":"Consumer confidence survey. Optimism today leads spending tomorrow.",
+  "CPI":"Headline consumer inflation. The central bank's primary target.",
+  "PPI":"Producer prices at the factory gate. An early pipeline signal for CPI.",
+  "PCE":"The Fed's preferred inflation gauge.",
+  "Unemp":"Unemployment rate. Lower means a tighter labour market.",
+  "Claims":"Weekly new jobless filings. A high-frequency labour pulse.",
+  "NFP":"US monthly jobs added. The single biggest scheduled USD data release.",
+  "ADP":"US private-payrolls estimate, released two days before NFP.",
+  "JOLTS":"US job openings. A gauge of labour demand."
+};
 
-function biasCls(b){
-  if(b==="Very Bullish"||b==="Bullish") return "bull";
-  if(b==="Very Bearish"||b==="Bearish") return "bear";
-  return "neut";
+// Index events by date string.
+const byDate={};
+EVENTS.forEach(e=>{(byDate[e.date]=byDate[e.date]||[]).push(e);});
+
+// State: which month is shown + which currencies are hidden.
+const now=new Date();
+let viewY=now.getFullYear(), viewM=now.getMonth();
+const hidden=new Set();
+
+function pad(n){return (n<10?"0":"")+n;}
+function iso(y,m,d){return y+"-"+pad(m+1)+"-"+pad(d);}
+function todayISO(){const t=new Date();return iso(t.getFullYear(),t.getMonth(),t.getDate());}
+
+// Weekday header (Mon-first).
+document.getElementById("dowRow").innerHTML = DOW.map(d=>'<div class="dow">'+d+'</div>').join("");
+
+// Currency filter chips.
+const filtersEl=document.getElementById("filters");
+CCY_ORDER.forEach(c=>{
+  const b=document.createElement("span");
+  b.className="fchip"; b.textContent=c;
+  b.style.background=CCY_COLOR[c];
+  b.onclick=()=>{ if(hidden.has(c)){hidden.delete(c);b.classList.remove("off");}
+    else{hidden.add(c);b.classList.add("off");} render(); };
+  filtersEl.appendChild(b);
+});
+
+function chipHTML(e){
+  const col=CCY_COLOR[e.ccy]||"var(--neutral)";
+  if(e.kind==="decision"){
+    let tip=e.ccy+" · "+e.label;
+    return '<div class="chip2 dec" style="background:'+col+'" title="'+tip+'">'+
+      '<span class="st">&#9733;</span><span class="cc">'+e.ccy+'</span>'+e.short+'</div>';
+  }
+  if(e.kind==="estimated"){
+    let tip=e.ccy+" · "+e.label+" · estimated";
+    return '<div class="chip2 est" style="color:'+col+'" title="'+tip+'">'+
+      '<span class="cc">'+e.ccy+'</span>'+e.short+'</div>';
+  }
+  // actual
+  const a=fmt(e.actual), f=fmt(e.forecast);
+  let tip=e.ccy+" · "+e.label+"  (actual "+a+" vs forecast "+f+")"+
+    (e.impact?"  → "+e.impact:"");
+  return '<div class="chip2" style="background:'+col+'" title="'+tip+'">'+
+    '<span class="cc">'+e.ccy+'</span>'+e.short+'</div>';
 }
-
-// Coming up strip: next 8 upcoming
-const upcoming = MEET.map(m=>({c:m[0],bank:m[1],date:m[3],type:m[4],tag:m[5],dd:daysTo(m[3])}))
-  .filter(m=>m.dd>=0).sort((a,b)=>a.dd-b.dd).slice(0,8);
-document.getElementById("strip").innerHTML = upcoming.map(m=>{
-  const soon = m.dd<=7;
-  return '<div class="ev '+(soon?'soon':'')+'">'+
-    (m.type==='full'?'<span class="star">&#9733;</span>':'')+
-    '<div class="when">'+(m.dd===0?'Today':(m.dd===1?'Tomorrow':'In '+m.dd+' days'))+'</div>'+
-    '<div class="cd">'+m.dd+'<small> d</small></div>'+
-    '<div class="bank">'+m.bank+'</div>'+
-    '<div class="date">'+fmtDate(m.date)+(m.tag?' &middot; '+m.tag:'')+'</div>'+
-    '<span class="ccy-chip" style="background:'+CCY_COLOR[m.c]+'">'+m.c+'</span></div>';
-}).join("");
-
-// Today's bias
-const biasEl = document.getElementById("bias");
-if(BIAS.length){
-  biasEl.className = "biasgrid";
-  biasEl.innerHTML = BIAS.map(b=>{
-    const cls = biasCls(b.bias);
-    const sign = b.total>0?'+':'';
-    return '<div class="bcard '+cls+'"><div class="top">'+
-      '<span class="ccy-chip" style="margin:0;background:'+(CCY_COLOR[b.ccy]||'var(--neutral)')+'">'+b.ccy+'</span>'+
-      '<span class="tot">'+sign+b.total+'</span></div>'+
-      '<div class="bl '+cls+'">'+b.bias+'</div>'+
-      '<div class="nm">'+b.name+'</div></div>';
-  }).join("");
-} else {
-  biasEl.className = "";
-  biasEl.innerHTML = '<div class="empty">No bias data in this build.</div>';
-}
-
-// Latest prints (newest first, recent flagged)
-const printsEl = document.getElementById("prints");
-const recent = PRINTS.filter(p=>daysTo(p.date) >= -45).slice(0,20);
-function fmtNum(v){ if(v===null||v===undefined) return '<span style="color:#666">n/a</span>';
+function fmt(v){ if(v===null||v===undefined) return "n/a";
   const n=Number(v),a=Math.abs(n);
-  if(a>=1e6) return parseFloat((n/1e6).toFixed(2))+'M';
-  if(a>=1e3) return parseFloat((n/1e3).toFixed(2))+'K';
+  if(a>=1e6) return parseFloat((n/1e6).toFixed(2))+"M";
+  if(a>=1e3) return parseFloat((n/1e3).toFixed(2))+"K";
   return parseFloat(n.toFixed(2)).toString(); }
-function impChip(l){ const c=l==='Bullish'?'bull':l==='Bearish'?'bear':'neut';
-  return '<span class="chip '+c+'">'+(l||'n/a')+'</span>'; }
-if(recent.length){
-  printsEl.innerHTML = recent.map(p=>{
-    const sc = p.surprise===null||p.surprise===undefined ? '' : (p.surprise>0?'pos':(p.surprise<0?'neg':''));
-    const st = p.surprise===null||p.surprise===undefined ? 'n/a' : (p.surprise>0?'+':'')+p.surprise.toFixed(2)+'%';
-    const isNew = daysTo(p.date) >= -10;
-    return '<tr><td>'+fmtDate(p.date)+(isNew?'<span class="newdot"></span>':'')+'</td>'+
-      '<td><span class="ccy-chip" style="margin:0;background:'+(CCY_COLOR[p.ccy]||'var(--neutral)')+'">'+p.ccy+'</span></td>'+
-      '<td>'+p.indicator+'</td>'+
-      '<td class="r">'+fmtNum(p.actual)+'</td>'+
-      '<td class="r">'+fmtNum(p.forecast)+'</td>'+
-      '<td class="r"><span class="surp '+sc+'">'+st+'</span></td>'+
-      '<td>'+impChip(p.impact)+'</td></tr>';
-  }).join("");
-} else {
-  printsEl.innerHTML = '<tr><td colspan="7" class="empty">No recent prints in this build.</td></tr>';
+
+function render(){
+  document.getElementById("mtitle").textContent = MON[viewM]+" "+viewY;
+  const first=new Date(viewY,viewM,1);
+  const lead=(first.getDay()+6)%7;              // Mon-first offset
+  const dim=new Date(viewY,viewM+1,0).getDate(); // days in month
+  const tISO=todayISO();
+  const order={decision:0,actual:1,estimated:2};
+  let cells="";
+  for(let i=0;i<lead;i++) cells+='<div class="cell blank"></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=iso(viewY,viewM,d);
+    const dow=new Date(viewY,viewM,d).getDay();
+    const wknd=(dow===0||dow===6);
+    let evs=(byDate[ds]||[]).filter(e=>!hidden.has(e.ccy));
+    evs.sort((a,b)=>(order[a.kind]-order[b.kind])||CCY_ORDER.indexOf(a.ccy)-CCY_ORDER.indexOf(b.ccy));
+    let chips="";
+    if(evs.length){
+      const show=evs.slice(0,MAX_CHIPS);
+      chips=show.map(chipHTML).join("");
+      if(evs.length>MAX_CHIPS){
+        const rest=evs.slice(MAX_CHIPS).map(e=>e.ccy+" "+e.short).join(", ");
+        chips+='<div class="chip2 more" title="'+rest+'">+'+(evs.length-MAX_CHIPS)+' more</div>';
+      }
+    }
+    const cls="cell"+(ds===tISO?" today":"")+(wknd?" wknd":"")+(evs.length?" has":"");
+    const tag=(ds===tISO?'<span class="tdtag">TODAY</span>':'');
+    cells+='<div class="'+cls+'" data-date="'+ds+'"><div class="dnum"><span>'+d+'</span>'+tag+'</div>'+
+      '<div class="chips">'+chips+'</div></div>';
+  }
+  document.getElementById("grid").innerHTML=cells;
 }
 
-// Per-bank reference
-const byCcy = {};
-MEET.forEach(m=>{(byCcy[m[0]]=byCcy[m[0]]||[]).push(m);});
-document.getElementById("bankGrid").innerHTML = CCY_ORDER.map(c=>{
-  const rows = byCcy[c]; if(!rows) return "";
-  const nextIdx = rows.findIndex(r=>daysTo(r[3])>=0);
-  const lis = rows.map((r,i)=>{
-    const dd = daysTo(r[3]);
-    const cls = dd<0 ? 'past' : (i===nextIdx ? 'next' : '');
-    return '<li class="'+cls+'"><span class="md">'+fmtDate(r[3])+(r[5]?'<span class="tag">&#9733; '+r[5]+'</span>':'')+'</span>'+
-      '<span class="mt">'+(dd<0?'done':(dd===0?'today':dd+'d'))+'</span></li>';
+// ---- Day detail popup -------------------------------------------------------
+const order2={decision:0,actual:1,estimated:2};
+function prettyDate(ds){const[y,m,d]=ds.split("-").map(Number);
+  const dt=new Date(y,m-1,d);return WD[dt.getDay()]+", "+d+" "+MON[m-1]+" "+y;}
+function evDesc(e){
+  if(e.kind==="decision")
+    return "Scheduled central-bank rate decision, the biggest driver for "+e.ccy+"."+
+      (e.heavy?" New forecasts/projections are published at this meeting.":"");
+  return DESC[e.short]||"";
+}
+function dayItems(ds){
+  let evs=(byDate[ds]||[]).filter(e=>!hidden.has(e.ccy));
+  if(!evs.length) return '<div class="empty2">No releases for your selected currencies on this day.</div>';
+  evs.sort((a,b)=>(order2[a.kind]-order2[b.kind])||CCY_ORDER.indexOf(a.ccy)-CCY_ORDER.indexOf(b.ccy));
+  return evs.map(e=>{
+    const col=CCY_COLOR[e.ccy]||"var(--neutral)";
+    const badge = e.kind==="decision"?'<span class="badge dec">Decision</span>'
+      : e.kind==="estimated"?'<span class="badge est">Estimated</span>'
+      : '<span class="badge rel">Released</span>';
+    let vals="";
+    if(e.kind==="actual")
+      vals='<div class="vals">Actual '+fmt(e.actual)+' vs forecast '+fmt(e.forecast)+
+        (e.impact?' &middot; '+e.impact+' for '+e.ccy:'')+'</div>';
+    else if(e.kind==="estimated")
+      vals='<div class="vals">Estimated date, not yet published.</div>';
+    const desc=evDesc(e);
+    return '<div class="ev-item"><span class="cc2" style="background:'+col+'">'+e.ccy+'</span>'+
+      '<div class="body"><div class="t">'+e.label+' '+badge+'</div>'+vals+
+      (desc?'<div class="desc">'+desc+'</div>':'')+'</div></div>';
   }).join("");
-  return '<div class="card"><div class="ch">'+
-    '<span class="ccy-chip" style="margin:0;background:'+CCY_COLOR[c]+'">'+c+'</span>'+
-    '<div><h3>'+rows[0][1]+'</h3><div class="role">'+rows[0][2]+'</div></div></div>'+
-    '<ul class="mlist">'+lis+'</ul></div>';
-}).join("");
+}
+const back=document.getElementById("modalBack");
+function openDay(ds){
+  document.getElementById("modalTitle").textContent=prettyDate(ds);
+  document.getElementById("modalBody").innerHTML=dayItems(ds);
+  back.classList.add("open");
+}
+function closeModal(){back.classList.remove("open");}
+document.getElementById("grid").addEventListener("click",ev=>{
+  const cell=ev.target.closest(".cell.has"); if(!cell) return;
+  openDay(cell.getAttribute("data-date"));
+});
+back.addEventListener("click",ev=>{ if(ev.target===back) closeModal(); });
+document.getElementById("modalX").onclick=closeModal;
+document.addEventListener("keydown",ev=>{ if(ev.key==="Escape") closeModal(); });
 
-// Drivers
-document.getElementById("drivers").innerHTML = CCY_ORDER.map(c=>{
-  return '<div class="dcard"><div class="ch">'+
-    '<span class="ccy-chip" style="margin:0;background:'+CCY_COLOR[c]+'">'+c+'</span></div>'+
-    '<p>'+(DRIVERS[c]||"")+'</p></div>';
-}).join("");
+document.getElementById("prev").onclick=()=>{ if(--viewM<0){viewM=11;viewY--;} closeModal(); render(); };
+document.getElementById("next").onclick=()=>{ if(++viewM>11){viewM=0;viewY++;} closeModal(); render(); };
+document.getElementById("todayBtn").onclick=()=>{ const t=new Date();viewY=t.getFullYear();viewM=t.getMonth(); closeModal(); render(); };
 
-// Sources
-document.getElementById("sources").innerHTML = SOURCES.map(s=>{
-  const items = s[2].map(it=>'<li><a class="nm" href="'+it[1]+'" target="_blank" rel="noopener">'+it[0]+'</a>'+
-    '<div class="ds">'+it[2]+'</div></li>').join("");
-  return '<div class="src"><h3>'+s[0]+'</h3><div class="tier">'+s[1]+'</div><ul>'+items+'</ul></div>';
-}).join("");
-
-// Routine
-document.getElementById("routine").innerHTML = ROUTINE.map(r=>{
-  return '<div class="rt"><div class="clock">'+r[1]+'</div><h3>'+r[0]+'</h3><p>'+r[2]+'</p></div>';
-}).join("");
+render();
 </script>
 </body>
 </html>
@@ -504,11 +538,6 @@ def render(currency_rows=None, econ_data=None, output_path: Path | None = None) 
     output_path = output_path or (OUTPUT_DIR / "macro.html")
     html = (_HTML
             .replace("__UPDATED_AT__", updated_at_str())
-            .replace("__MEET_JSON__", json.dumps(MEET))
-            .replace("__BIAS_JSON__", json.dumps(_bias_payload(currency_rows)))
-            .replace("__PRINTS_JSON__", json.dumps(_prints_payload(econ_data)))
-            .replace("__DRIVERS_JSON__", json.dumps(DRIVERS))
-            .replace("__SOURCES_JSON__", json.dumps(SOURCES))
-            .replace("__ROUTINE_JSON__", json.dumps(ROUTINE)))
+            .replace("__EVENTS_JSON__", json.dumps(_calendar_events(econ_data))))
     output_path.write_text(html, encoding="utf-8")
     return output_path

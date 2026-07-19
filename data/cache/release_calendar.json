@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-19T12:14:58Z",
+  "generated": "2026-07-19T14:31:28Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -20,
       "status": "due",
-      "last_checked": "2026-07-19T08:48:21Z"
+      "last_checked": "2026-07-19T14:31:28Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -18,
       "status": "due",
-      "last_checked": "2026-07-19T08:48:21Z"
+      "last_checked": "2026-07-19T14:31:28Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -433,7 +433,7 @@
       "next_basis": "estimated",
       "days_until": -2,
       "status": "due",
-      "last_checked": "2026-07-19T08:48:21Z"
+      "last_checked": "2026-07-19T14:31:28Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -5,
       "status": "due",
-      "last_checked": "2026-07-19T08:48:21Z"
+      "last_checked": "2026-07-19T14:31:28Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -585,7 +585,7 @@
       "period_basis": "derived",
       "next_release": "2026-08-17",
       "next_basis": "estimated",
-      "days_until": 29,
+      "days_until": 13,
       "status": "upcoming",
       "last_checked": null
     },
@@ -601,7 +601,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-07-19T12:14:58Z"
+      "last_checked": "2026-07-19T14:31:28Z"
     },
     "JPY|cpi": {
       "currency": "JPY",
@@ -615,7 +615,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-07-19T08:48:21Z"
+      "last_checked": "2026-07-19T14:31:28Z"
     },
     "CHF|cpi": {
       "currency": "CHF",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -4,
       "status": "due",
-      "last_checked": "2026-07-19T08:48:21Z"
+      "last_checked": "2026-07-19T14:31:28Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
@@ -921,7 +921,7 @@
       "period_basis": "default",
       "next_release": "2026-07-21",
       "next_basis": "exact",
-      "days_until": 2,
+      "days_until": 4,
       "status": "upcoming",
       "last_checked": null
     },
@@ -991,7 +991,7 @@
       "period_basis": "default",
       "next_release": "2026-07-29",
       "next_basis": "exact",
-      "days_until": 10,
+      "days_until": 45,
       "status": "upcoming",
       "last_checked": null
     },
