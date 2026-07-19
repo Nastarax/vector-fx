@@ -52,7 +52,7 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 18
+  "loc": 19
  },
  "EURJPY": {
   "setup": null,
@@ -72,7 +72,7 @@
  "XAUUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 8
+  "loc": 9
  },
  "NIKKEI": {
   "setup": null,
@@ -112,7 +112,7 @@
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 5
+  "loc": 2
  },
  "AUDJPY": {
   "setup": null,
