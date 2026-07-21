@@ -1,13 +1,13 @@
 {
  "NZDCAD": {
   "setup": "extended",
-  "bias": "Very Bullish",
-  "loc": 83
+  "bias": "Bullish",
+  "loc": 69
  },
  "GBPUSD": {
   "setup": "mid",
   "bias": "Bullish",
-  "loc": 60
+  "loc": 59
  },
  "NZDUSD": {
   "setup": "mid",
@@ -22,12 +22,17 @@
  "AUDCAD": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 66
+  "loc": 67
+ },
+ "GBPAUD": {
+  "setup": "extended",
+  "bias": "Bullish",
+  "loc": 86
  },
  "NZDCHF": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 90
+  "loc": 91
  },
  "UK100": {
   "setup": "extended",
@@ -37,7 +42,7 @@
  "EURUSD": {
   "setup": "watch",
   "bias": "Bullish",
-  "loc": 24
+  "loc": 22
  },
  "AUDUSD": {
   "setup": "mid",
@@ -47,7 +52,7 @@
  "EURCAD": {
   "setup": "watch",
   "bias": "Bullish",
-  "loc": 29
+  "loc": 28
  },
  "EURCHF": {
   "setup": "extended",
@@ -62,7 +67,7 @@
  "XAUUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 18
+  "loc": 20
  },
  "NIKKEI": {
   "setup": null,
@@ -72,17 +77,17 @@
  "AUDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 98
+  "loc": 99
  },
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 24
+  "loc": 26
  },
  "GBPJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 81
+  "loc": 86
  },
  "DAX": {
   "setup": null,
@@ -92,52 +97,47 @@
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 18
+  "loc": 19
  },
  "USDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 93
+  "loc": 94
  },
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 88
+  "loc": 93
  },
  "NZDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 92
- },
- "GBPAUD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 62
+  "loc": 94
  },
  "USDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 70
+  "loc": 71
  },
  "EURAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 21
+  "loc": 20
  },
  "NASDAQ": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 38
+  "loc": 37
  },
  "CADCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 92
+  "loc": 93
  },
  "AUDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 81
+  "loc": 84
  },
  "EURGBP": {
   "setup": null,
@@ -162,16 +162,16 @@
  "AUDNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 23
+  "loc": 24
  },
  "CHFJPY": {
-  "setup": "extended",
+  "setup": "mid",
   "bias": "Bearish",
-  "loc": 35
+  "loc": 38
  },
  "CADJPY": {
   "setup": "watch",
   "bias": "Bearish",
-  "loc": 85
+  "loc": 88
  }
 }
