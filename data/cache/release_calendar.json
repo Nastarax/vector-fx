@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-21T03:50:46Z",
+  "generated": "2026-07-21T12:31:39Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -22,
       "status": "due",
-      "last_checked": "2026-07-21T03:50:46Z"
+      "last_checked": "2026-07-21T12:31:39Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -20,
       "status": "due",
-      "last_checked": "2026-07-21T03:50:46Z"
+      "last_checked": "2026-07-21T12:31:39Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -433,7 +433,7 @@
       "next_basis": "estimated",
       "days_until": -4,
       "status": "due",
-      "last_checked": "2026-07-21T03:50:46Z"
+      "last_checked": "2026-07-21T12:31:39Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -7,
       "status": "due",
-      "last_checked": "2026-07-21T03:50:46Z"
+      "last_checked": "2026-07-21T12:31:39Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -601,7 +601,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-07-21T03:50:46Z"
+      "last_checked": "2026-07-21T12:31:39Z"
     },
     "JPY|cpi": {
       "currency": "JPY",
@@ -615,7 +615,7 @@
       "next_basis": "estimated",
       "days_until": -2,
       "status": "due",
-      "last_checked": "2026-07-21T03:50:46Z"
+      "last_checked": "2026-07-21T12:31:39Z"
     },
     "CHF|cpi": {
       "currency": "CHF",
@@ -655,7 +655,7 @@
       "period_basis": "derived",
       "next_release": "2026-08-20",
       "next_basis": "estimated",
-      "days_until": 30,
+      "days_until": 2,
       "status": "upcoming",
       "last_checked": null
     },
@@ -669,9 +669,9 @@
       "period_basis": "derived",
       "next_release": "2026-10-20",
       "next_basis": "estimated",
-      "days_until": 91,
-      "status": "upcoming",
-      "last_checked": "2026-07-21T00:11:32Z"
+      "days_until": 0,
+      "status": "due",
+      "last_checked": "2026-07-21T12:31:39Z"
     },
     "USD|ppi": {
       "currency": "USD",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -6,
       "status": "due",
-      "last_checked": "2026-07-21T03:50:46Z"
+      "last_checked": "2026-07-21T12:31:39Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
@@ -921,8 +921,8 @@
       "period_basis": "default",
       "next_release": "2026-07-23",
       "next_basis": "exact",
-      "days_until": 2,
-      "status": "upcoming",
+      "days_until": 0,
+      "status": "due",
       "last_checked": null
     },
     "GBP|rates": {
