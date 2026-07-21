@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-21T12:31:39Z",
+  "generated": "2026-07-21T12:31:56Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -22,
       "status": "due",
-      "last_checked": "2026-07-21T12:31:39Z"
+      "last_checked": "2026-07-21T12:31:56Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -20,
       "status": "due",
-      "last_checked": "2026-07-21T12:31:39Z"
+      "last_checked": "2026-07-21T12:31:56Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -433,7 +433,7 @@
       "next_basis": "estimated",
       "days_until": -4,
       "status": "due",
-      "last_checked": "2026-07-21T12:31:39Z"
+      "last_checked": "2026-07-21T12:31:56Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -7,
       "status": "due",
-      "last_checked": "2026-07-21T12:31:39Z"
+      "last_checked": "2026-07-21T12:31:56Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -601,7 +601,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-07-21T12:31:39Z"
+      "last_checked": "2026-07-21T12:31:56Z"
     },
     "JPY|cpi": {
       "currency": "JPY",
@@ -615,7 +615,7 @@
       "next_basis": "estimated",
       "days_until": -2,
       "status": "due",
-      "last_checked": "2026-07-21T12:31:39Z"
+      "last_checked": "2026-07-21T12:31:56Z"
     },
     "CHF|cpi": {
       "currency": "CHF",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -6,
       "status": "due",
-      "last_checked": "2026-07-21T12:31:39Z"
+      "last_checked": "2026-07-21T12:31:56Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
@@ -818,13 +818,13 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-06-18",
-      "period_days": 30,
+      "last_release": "2026-07-21",
+      "period_days": 32,
       "period_basis": "derived",
-      "next_release": "2026-07-18",
+      "next_release": "2026-08-22",
       "next_basis": "estimated",
-      "days_until": -3,
-      "status": "due",
+      "days_until": 32,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|unemployment_rate": {
