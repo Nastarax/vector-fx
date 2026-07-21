@@ -70,6 +70,10 @@ def main():
         rt = {sym: retail.RetailReading(sym, 50.0, 50.0) for sym in pair_symbols}
     else:
         rt = retail.fetch_retail(pair_symbols)
+        # Persist today's crowd reading so the retail half of sentiment_cot
+        # becomes backtestable. Live runs only: --date uses a neutral fallback,
+        # which would poison the archive with fake 50/50s.
+        retail.archive_readings(rt)
 
     print("[4/5] Fetching ForexFactory + Trading Economics surprise data...")
     if args.date:

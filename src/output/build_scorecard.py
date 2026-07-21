@@ -168,6 +168,13 @@ def _build_currency(
         "sub_scores": {
             "technical": technical_score,
             "sentiment_cot": sentiment_cot_score,
+            # Recorded separately as well as blended: sentiment_cot mixes an
+            # institutional momentum read (cot) with a contrarian retail one
+            # (crowd), so the blend cannot be attributed in the IC harness.
+            # Measured 2026-07-21: COT alone has ~0 IC over 60 weeks, so the
+            # blend's negative IC has to be isolated to one half or the other.
+            "cot": cot_s or 0,
+            "crowd": crowd_avg or 0,
             "fundamentals": fundamentals_score,
             "growth": growth_score,
             "inflation": inflation_score,

@@ -62,6 +62,9 @@ def save_snapshot(scorecards: dict, date_str: str | None = None):
                 k: sub[k] for k in (
                     "technical", "sentiment_cot", "fundamentals",
                     "growth", "inflation", "jobs",
+                    # cot/crowd are the two halves of sentiment_cot, recorded
+                    # from 2026-07-21 so the harness can attribute the blend.
+                    "cot", "crowd",
                 ) if k in sub
             }
         history[symbol].append(entry)

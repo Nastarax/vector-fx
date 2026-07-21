@@ -221,7 +221,10 @@ def _report_buckets(H: int, pool: dict[str, list[float]]) -> None:
 
 
 SUB_COMPONENTS = ["technical", "sentiment_cot", "fundamentals",
-                  "growth", "inflation", "jobs"]
+                  "growth", "inflation", "jobs",
+                  # Halves of sentiment_cot, recorded from 2026-07-21. They
+                  # print "accumulating" until enough snapshots carry them.
+                  "cot", "crowd"]
 
 
 def _load_subscores() -> dict[str, dict[str, dict[str, int]]]:

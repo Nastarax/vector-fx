@@ -162,6 +162,58 @@ def fetch_retail(pairs: list[str]) -> dict[str, RetailReading]:
     return out
 
 
+ARCHIVE_FILE = CACHE_DIR / "retail_history.json"
+
+
+def archive_readings(readings: dict[str, RetailReading], date_str: str | None = None) -> None:
+    """
+    Append today's retail long% to a persistent per-symbol archive.
+
+    Shape: {symbol: {"YYYY-MM-DD": long_pct}}. Merges every run and never drops
+    old points, same pattern as the CPI archives. One value per symbol per day;
+    a later run on the same day overwrites it (last read of the day wins).
+
+    Why this exists: the crowd score is contrarian on retail long%, but the feed
+    is overwritten each run, so crowd could not be backtested the way COT can
+    (COT has a public weekly history). Without an archive the sentiment_cot IC
+    is unattributable between its institutional and retail halves. Forward-only
+    by nature: there is no historical retail feed to backfill from.
+
+    Symbols sitting at the neutral 50/50 fallback are skipped so a source
+    outage does not write fake mid readings into the record.
+    """
+    covered: set[str] = set()
+    for fn in ("myfxbook_outlook.json", "forexbenchmark_outlook.json"):
+        try:
+            with open(CACHE_DIR / fn) as f:
+                covered |= set(json.load(f))
+        except Exception:
+            pass
+
+    day = date_str or time.strftime("%Y-%m-%d", time.gmtime())
+    try:
+        with open(ARCHIVE_FILE) as f:
+            arch = json.load(f)
+    except Exception:
+        arch = {}
+
+    written = 0
+    for sym, r in readings.items():
+        if sym not in covered:
+            continue
+        arch.setdefault(sym, {})[day] = round(float(r.long_pct), 2)
+        written += 1
+
+    try:
+        ARCHIVE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(ARCHIVE_FILE, "w") as f:
+            json.dump(arch, f, indent=2, sort_keys=True)
+        print(f"[retail] archived {written} symbols for {day} "
+              f"({len(arch)} tracked, {sum(len(v) for v in arch.values())} points)")
+    except Exception as e:
+        print(f"[retail] archive write failed: {e}")
+
+
 def _parse_html(html: str) -> dict[str, dict] | None:
     out: dict[str, dict] = {}
     rx = re.compile(

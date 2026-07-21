@@ -335,6 +335,23 @@ curl_cffi (Cloudflare); plain requests get blocked.
   accumulates (~30+ snapshots for a meaningful t-stat). Weekend snapshots self-drop (zero
   forward-return variance). Next steps: filter to trading days; per-sub-score IC
   (trend/COT/fundamentals/sentiment) to attribute edge; then weight/threshold calibration.
+- **First IC read (2026-07-21, n=52 snapshots)**: total-score IC rises with horizon
+  (+0.082 H1 -> +0.114 H3 -> +0.136 H5, t=2.24/2.79 at H3/H5), i.e. the edge is a
+  swing-horizon effect, not intraday. Buckets monotonic except the `<= -5` extreme
+  (n=33, wrong sign; recheck next month). Sub-scores: technical +0.12/+0.14 and jobs
+  +0.11/+0.19 carry it; `sentiment_cot` is consistently NEGATIVE (-0.15 to -0.18).
+  Investigated: **not a sign bug.** `cot_score` (momentum) and `retail_score`
+  (contrarian) are both correct and `_agg_pair_scores` flips quote-side signs right.
+  COT measured standalone over 60 weeks of CFTC history (weekly rebalance, entry at
+  report_date+6d so there's no lookahead on the Friday publication) has ~zero IC:
+  -0.007/+0.042/+0.019 at 5/10/20d, no t-stat above 1. So COT is inert, not inverted,
+  and the negative blend is either the crowd half or two-month noise. To settle it,
+  `sub_scores` now records `cot` and `crowd` SEPARATELY as well as blended, and
+  `data/cache/retail_history.json` archives per-pair retail long% daily
+  (`retail.archive_readings`, called from main.py live branch only; skips 50/50
+  fallback symbols so a source outage writes nothing). Both forward-only from
+  2026-07-21; no backfill exists for retail. Caveat on the t-stats: H3/H5 windows
+  overlap across consecutive dates, which inflates them.
 - From the original handover, still open: "Delta vs yesterday" column on the main
   heatmap (partially superseded by the WATCH Telegram alerts). The Australia
   Monthly CPI Indicator item is DONE (2026-07-16): AUD CPI now scores from TE's

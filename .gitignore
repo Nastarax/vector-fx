@@ -64,6 +64,9 @@ data/cache/*.pkl
 !data/cache/investing_core.json
 # Daily score history for scorecard "Score over time" chart.
 !data/cache/score_history.json
+# Retail long% archive. The broker feed is overwritten each run, so this is the
+# only record of past crowd positioning; needed to backtest the crowd score.
+!data/cache/retail_history.json
 scripts/.last_refresh
 # Local refresh log: written every run, so tracking it would dirty the working
 # tree and break the scheduler's rebase. Keep it local-only.
