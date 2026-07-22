@@ -6,10 +6,10 @@
     "previous": 0.1
   },
   "GBP": {
-    "date": "2026-06-17",
-    "actual": 4.0,
-    "forecast": 4.0,
-    "previous": 4.1
+    "date": "2026-07-22",
+    "actual": 3.5,
+    "forecast": null,
+    "previous": 3.7
   },
   "JPY": {
     "date": "2026-07-09",
