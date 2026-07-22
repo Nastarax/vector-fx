@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-22T07:20:48Z",
+  "generated": "2026-07-22T16:07:35Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -23,
       "status": "due",
-      "last_checked": "2026-07-22T07:20:48Z"
+      "last_checked": "2026-07-22T16:07:35Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -21,
       "status": "due",
-      "last_checked": "2026-07-22T07:20:48Z"
+      "last_checked": "2026-07-22T16:07:35Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -433,7 +433,7 @@
       "next_basis": "estimated",
       "days_until": -5,
       "status": "due",
-      "last_checked": "2026-07-22T07:20:48Z"
+      "last_checked": "2026-07-22T16:07:35Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -8,
       "status": "due",
-      "last_checked": "2026-07-22T07:20:48Z"
+      "last_checked": "2026-07-22T16:07:35Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -599,9 +599,9 @@
       "period_basis": "derived",
       "next_release": "2026-08-22",
       "next_basis": "estimated",
-      "days_until": 31,
-      "status": "upcoming",
-      "last_checked": "2026-07-22T07:20:48Z"
+      "days_until": -4,
+      "status": "due",
+      "last_checked": "2026-07-22T16:07:35Z"
     },
     "JPY|cpi": {
       "currency": "JPY",
@@ -615,7 +615,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-07-22T07:20:48Z"
+      "last_checked": "2026-07-22T16:07:35Z"
     },
     "CHF|cpi": {
       "currency": "CHF",
@@ -711,9 +711,9 @@
       "period_basis": "derived",
       "next_release": "2026-08-19",
       "next_basis": "estimated",
-      "days_until": 28,
-      "status": "upcoming",
-      "last_checked": "2026-07-22T07:20:48Z"
+      "days_until": -7,
+      "status": "due",
+      "last_checked": "2026-07-22T16:07:35Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
