@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-23T01:17:44Z",
+  "generated": "2026-07-23T10:05:16Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -24,
       "status": "due",
-      "last_checked": "2026-07-23T01:17:44Z"
+      "last_checked": "2026-07-23T10:05:16Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -22,
       "status": "due",
-      "last_checked": "2026-07-23T01:17:44Z"
+      "last_checked": "2026-07-23T10:05:16Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -433,7 +433,7 @@
       "next_basis": "estimated",
       "days_until": -6,
       "status": "due",
-      "last_checked": "2026-07-23T01:17:44Z"
+      "last_checked": "2026-07-23T10:05:16Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -9,
       "status": "due",
-      "last_checked": "2026-07-23T01:17:44Z"
+      "last_checked": "2026-07-23T10:05:16Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -615,7 +615,7 @@
       "next_basis": "estimated",
       "days_until": -4,
       "status": "due",
-      "last_checked": "2026-07-23T01:17:44Z"
+      "last_checked": "2026-07-23T10:05:16Z"
     },
     "CHF|cpi": {
       "currency": "CHF",
@@ -860,12 +860,12 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-06-25",
-      "period_days": 35,
+      "last_release": "2026-07-23",
+      "period_days": 32,
       "period_basis": "derived",
-      "next_release": "2026-07-30",
+      "next_release": "2026-08-24",
       "next_basis": "estimated",
-      "days_until": 7,
+      "days_until": 32,
       "status": "upcoming",
       "last_checked": null
     },
@@ -919,10 +919,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-07-23",
+      "next_release": "2026-09-10",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 49,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|rates": {
@@ -1021,7 +1021,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-07-23T01:17:44Z"
+      "last_checked": "2026-07-23T10:05:16Z"
     },
     "USD|nfp": {
       "currency": "USD",
