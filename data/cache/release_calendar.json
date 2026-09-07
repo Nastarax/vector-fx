@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-07T17:06:25Z",
+  "generated": "2026-09-07T18:06:25Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -20,13 +20,13 @@
       "indicator": "gdp",
       "label": "GDP",
       "source": "te",
-      "last_release": "2026-08-14",
-      "period_days": 23,
+      "last_release": "2026-09-07",
+      "period_days": 24,
       "period_basis": "derived",
-      "next_release": "2026-09-06",
+      "next_release": "2026-10-01",
       "next_basis": "estimated",
-      "days_until": -1,
-      "status": "due",
+      "days_until": 24,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|gdp": {
@@ -846,13 +846,13 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-08-06",
-      "period_days": 30,
+      "last_release": "2026-09-07",
+      "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-09-05",
+      "next_release": "2026-10-08",
       "next_basis": "estimated",
-      "days_until": -2,
-      "status": "due",
+      "days_until": 31,
+      "status": "upcoming",
       "last_checked": null
     },
     "AUD|unemployment_rate": {
