@@ -2,12 +2,12 @@
  "AUDCHF": {
   "setup": "extended",
   "bias": "Very Bullish",
-  "loc": 97
+  "loc": 96
  },
  "CADCHF": {
   "setup": "extended",
   "bias": "Very Bullish",
-  "loc": 95
+  "loc": 94
  },
  "AUDNZD": {
   "setup": "extended",
@@ -42,7 +42,7 @@
  "GBPCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 98
+  "loc": 99
  },
  "EURCHF": {
   "setup": null,
@@ -52,7 +52,7 @@
  "XAUUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 57
+  "loc": 63
  },
  "EURGBP": {
   "setup": null,
@@ -67,7 +67,7 @@
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 59
+  "loc": 63
  },
  "NZDUSD": {
   "setup": null,
@@ -77,7 +77,7 @@
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 45
+  "loc": 46
  },
  "UK100": {
   "setup": null,
@@ -87,7 +87,7 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 62
+  "loc": 64
  },
  "EURUSD": {
   "setup": "watch",
