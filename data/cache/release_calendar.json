@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-15T15:08:31Z",
+  "generated": "2026-09-15T16:08:35Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -818,12 +818,12 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-08-18",
-      "period_days": 30,
+      "last_release": "2026-09-15",
+      "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-09-17",
+      "next_release": "2026-10-14",
       "next_basis": "estimated",
-      "days_until": 2,
+      "days_until": 29,
       "status": "upcoming",
       "last_checked": null
     },
