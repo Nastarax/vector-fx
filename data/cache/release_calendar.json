@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-16T01:08:37Z",
+  "generated": "2026-09-16T02:08:37Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -552,13 +552,13 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-06-16",
+      "last_release": "2026-09-15",
       "period_days": 91,
       "period_basis": "derived",
-      "next_release": "2026-09-15",
+      "next_release": "2026-12-15",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 91,
+      "status": "upcoming",
       "last_checked": null
     },
     "USD|cpi": {
@@ -905,10 +905,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-16",
+      "next_release": "",
       "next_basis": "exact",
-      "days_until": 1,
-      "status": "upcoming",
+      "days_until": null,
+      "status": "unknown",
       "last_checked": null
     },
     "EUR|rates": {
@@ -989,9 +989,9 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-16",
+      "next_release": "2026-10-19",
       "next_basis": "exact",
-      "days_until": 1,
+      "days_until": 34,
       "status": "upcoming",
       "last_checked": null
     },
