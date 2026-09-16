@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-16T17:10:44Z",
+  "generated": "2026-09-16T18:05:32Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -321,7 +321,7 @@
       "next_basis": "estimated",
       "days_until": -11,
       "status": "due",
-      "last_checked": "2026-09-14T15:08:35Z"
+      "last_checked": "2026-09-16T18:05:32Z"
     },
     "NZD|spmi": {
       "currency": "NZD",
@@ -706,14 +706,14 @@
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "investing",
-      "last_release": "2026-08-19",
+      "last_release": "2026-09-16",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-09-16",
+      "next_release": "2026-10-14",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": "2026-08-19T22:02:58Z"
+      "days_until": 28,
+      "status": "upcoming",
+      "last_checked": "2026-09-16T18:05:32Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
