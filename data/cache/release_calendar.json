@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-16T15:10:45Z",
+  "generated": "2026-09-16T16:10:45Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -342,13 +342,13 @@
       "indicator": "retail_sales",
       "label": "Retail Sales",
       "source": "te",
-      "last_release": "2026-08-14",
+      "last_release": "2026-09-16",
       "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-09-12",
+      "next_release": "2026-10-15",
       "next_basis": "estimated",
-      "days_until": -4,
-      "status": "due",
+      "days_until": 29,
+      "status": "upcoming",
       "last_checked": null
     },
     "EUR|retail_sales": {
