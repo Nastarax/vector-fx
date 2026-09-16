@@ -1,8 +1,8 @@
 {
   "USD": {
-    "date": "2026-09-16",
+    "date": "",
     "current": 3.75,
-    "forecast": 4.0
+    "forecast": 3.75
   },
   "EUR": {
     "date": "2026-09-30",
@@ -30,7 +30,7 @@
     "forecast": 4.35
   },
   "CAD": {
-    "date": "2026-09-16",
+    "date": "2026-10-19",
     "current": 2.25,
     "forecast": 2.25
   },
