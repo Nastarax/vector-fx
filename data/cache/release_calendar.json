@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-17T18:18:56Z",
+  "generated": "2026-09-17T20:16:52Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -762,12 +762,12 @@
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "te",
-      "last_release": "2026-08-20",
-      "period_days": 29,
+      "last_release": "2026-09-17",
+      "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-09-18",
+      "next_release": "2026-10-15",
       "next_basis": "estimated",
-      "days_until": 1,
+      "days_until": 28,
       "status": "upcoming",
       "last_checked": null
     },
@@ -1070,13 +1070,13 @@
       "indicator": "jobless_claims",
       "label": "Unemployment Claims",
       "source": "te",
-      "last_release": "2026-09-10",
+      "last_release": "2026-09-17",
       "period_days": 7,
       "period_basis": "derived",
-      "next_release": "2026-09-17",
+      "next_release": "2026-09-24",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 7,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|household_spending": {
