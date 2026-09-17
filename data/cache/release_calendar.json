@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-17T00:08:31Z",
+  "generated": "2026-09-17T01:08:30Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -104,13 +104,13 @@
       "indicator": "gdp",
       "label": "GDP",
       "source": "te",
-      "last_release": "2026-06-17",
+      "last_release": "2026-09-16",
       "period_days": 91,
       "period_basis": "derived",
-      "next_release": "2026-09-16",
+      "next_release": "2026-12-16",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 91,
+      "status": "upcoming",
       "last_checked": null
     },
     "USD|mpmi": {
