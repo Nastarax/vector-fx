@@ -1,14 +1,14 @@
 {
   "core_cpi": {
-    "date": "2026-08-12",
-    "actual": 2.5,
-    "forecast": 2.5,
-    "previous": 2.6
+    "date": "2026-09-11",
+    "actual": 2.4,
+    "forecast": 2.4,
+    "previous": 2.5
   },
   "core_ppi": {
-    "date": "2026-08-13",
-    "actual": 4.2,
-    "forecast": 4.2,
-    "previous": 4.7
+    "date": "2026-09-10",
+    "actual": 4.6,
+    "forecast": 4.6,
+    "previous": 4.3
   }
 }
