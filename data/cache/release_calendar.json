@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-18T12:20:32Z",
+  "generated": "2026-09-18T14:18:27Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -18,
       "status": "due",
-      "last_checked": "2026-09-18T04:19:09Z"
+      "last_checked": "2026-09-18T14:18:27Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -321,7 +321,7 @@
       "next_basis": "estimated",
       "days_until": -13,
       "status": "due",
-      "last_checked": "2026-09-16T18:05:32Z"
+      "last_checked": "2026-09-18T14:18:27Z"
     },
     "NZD|spmi": {
       "currency": "NZD",
@@ -580,12 +580,12 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-09-01",
+      "last_release": "2026-09-17",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-10-02",
+      "next_release": "2026-10-18",
       "next_basis": "estimated",
-      "days_until": 14,
+      "days_until": 30,
       "status": "upcoming",
       "last_checked": null
     },
@@ -594,12 +594,12 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-08-19",
+      "last_release": "2026-09-16",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-09-19",
+      "next_release": "2026-10-17",
       "next_basis": "estimated",
-      "days_until": 1,
+      "days_until": 29,
       "status": "upcoming",
       "last_checked": "2026-08-23T14:12:10Z"
     },
@@ -650,14 +650,14 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-08-17",
+      "last_release": "2026-09-14",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-09-17",
+      "next_release": "2026-10-15",
       "next_basis": "estimated",
-      "days_until": -1,
-      "status": "due",
-      "last_checked": "2026-08-21T03:10:41Z"
+      "days_until": 27,
+      "status": "upcoming",
+      "last_checked": "2026-09-18T14:18:27Z"
     },
     "NZD|cpi": {
       "currency": "NZD",
