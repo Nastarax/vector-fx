@@ -69,6 +69,11 @@
   "bias": "Neutral",
   "loc": 38
  },
+ "UK100": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 57
+ },
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
@@ -83,11 +88,6 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 5
- },
- "UK100": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 18
  },
  "EURAUD": {
   "setup": null,
