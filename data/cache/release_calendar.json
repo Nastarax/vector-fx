@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-19T02:12:52Z",
+  "generated": "2026-09-19T03:04:37Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -293,7 +293,7 @@
       "next_basis": "estimated",
       "days_until": -18,
       "status": "due",
-      "last_checked": "2026-09-18T14:18:27Z"
+      "last_checked": "2026-09-19T03:04:37Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -321,7 +321,7 @@
       "next_basis": "estimated",
       "days_until": -13,
       "status": "due",
-      "last_checked": "2026-09-18T14:18:27Z"
+      "last_checked": "2026-09-19T03:04:37Z"
     },
     "NZD|spmi": {
       "currency": "NZD",
@@ -433,7 +433,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-09-18T04:19:09Z"
+      "last_checked": "2026-09-19T03:04:37Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -10,
       "status": "due",
-      "last_checked": "2026-09-18T04:19:09Z"
+      "last_checked": "2026-09-19T03:04:37Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
