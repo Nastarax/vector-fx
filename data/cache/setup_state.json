@@ -69,15 +69,15 @@
   "bias": "Neutral",
   "loc": 38
  },
+ "SILVER": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 71
+ },
  "GBPAUD": {
   "setup": null,
   "bias": "Neutral",
   "loc": 16
- },
- "SILVER": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 67
  },
  "EURCHF": {
   "setup": null,
@@ -112,7 +112,7 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 65
+  "loc": 66
  },
  "USDJPY": {
   "setup": "mid",
