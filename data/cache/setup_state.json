@@ -1,13 +1,13 @@
 {
- "NIKKEI": {
-  "setup": "mid",
-  "bias": "Bullish",
-  "loc": 50
- },
  "GBPNZD": {
   "setup": "extended",
   "bias": "Bullish",
   "loc": 88
+ },
+ "NIKKEI": {
+  "setup": "mid",
+  "bias": "Bullish",
+  "loc": 50
  },
  "GBPCHF": {
   "setup": null,
