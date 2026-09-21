@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-20T23:17:20Z",
+  "generated": "2026-09-21T01:16:42Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -608,14 +608,14 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-08-20",
+      "last_release": "2026-09-17",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-09-20",
+      "next_release": "2026-10-18",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": "2026-08-23T14:12:10Z"
+      "days_until": 28,
+      "status": "upcoming",
+      "last_checked": "2026-09-21T01:16:42Z"
     },
     "CHF|cpi": {
       "currency": "CHF",
