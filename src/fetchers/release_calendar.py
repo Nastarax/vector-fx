@@ -45,6 +45,21 @@ QUARTERLY_CELLS = {("gdp", c) for c in CCYS} | {
     ("ppi", "AUD"), ("ppi", "NZD"),   # AU/NZ PPI are quarterly
 }
 
+# Cells whose cache is dated by REFERENCE MONTH (YYYY-MM-01) instead of release
+# date - the TradingEconomics services-PMI pages (see SPMI_TE_URLS). Their
+# last_release sits ~a month behind the actual print, so last + period always
+# lands in the past and the cell reads "due" every single run, forever. That is
+# not harmless: refresh_investing maps any due spmi cell to the whole sPMI
+# sweep, so three permanently-due cells had the hourly task re-fetching all the
+# Investing sPMI pages every hour, which is what got the laptop's IP rate-limited
+# (HTTP 429) and starved the currencies at the end of the loop. Adding the
+# reference-to-publication lag makes next_release track the real print.
+REFERENCE_MONTH_LAG_DAYS = {
+    ("spmi", "CHF"): 33,   # Aug reference published ~Sep 3
+    ("spmi", "CAD"): 33,   # Aug reference published ~Sep 4
+    ("spmi", "NZD"): 45,   # BusinessNZ PSI feeds TE mid-month
+}
+
 
 def _load(path: Path):
     try:
@@ -74,10 +89,8 @@ def resolve_source(ind: str, ccy: str) -> str:
     if ind == "mpmi":
         return "investing"
     if ind == "spmi":
-        if ccy == "CHF":
+        if ccy in ("CHF", "CAD", "NZD"):
             return "te"
-        if ccy == "NZD":
-            return "businessnz"
         return "investing"
     if ind == "ppi":
         if ccy in ("CHF", "AUD"):
@@ -216,9 +229,10 @@ def build_calendar(today: date | None = None, prior: dict | None = None) -> dict
             last = _latest_date(src, ind, ccy, source)
             nxt = None
             if last:
+                lag = REFERENCE_MONTH_LAG_DAYS.get((ind, ccy), 0)
                 try:
                     nxt = (datetime.strptime(last, DATE_FMT).date()
-                           + timedelta(days=period)).strftime(DATE_FMT)
+                           + timedelta(days=period + lag)).strftime(DATE_FMT)
                 except ValueError:
                     nxt = None
 

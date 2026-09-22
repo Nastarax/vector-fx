@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-22T17:10:31Z",
+  "generated": "2026-09-22T17:41:49Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -289,10 +289,10 @@
       "last_release": "2026-08-01",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-08-31",
+      "next_release": "2026-10-03",
       "next_basis": "estimated",
-      "days_until": -22,
-      "status": "due",
+      "days_until": 11,
+      "status": "upcoming",
       "last_checked": "2026-09-22T17:10:31Z"
     },
     "AUD|spmi": {
@@ -313,28 +313,28 @@
       "currency": "CAD",
       "indicator": "spmi",
       "label": "Services PMI",
-      "source": "investing",
-      "last_release": "2026-08-06",
+      "source": "te",
+      "last_release": "2026-08-01",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-05",
+      "next_release": "2026-10-03",
       "next_basis": "estimated",
-      "days_until": -17,
-      "status": "due",
+      "days_until": 11,
+      "status": "upcoming",
       "last_checked": "2026-09-19T03:04:37Z"
     },
     "NZD|spmi": {
       "currency": "NZD",
       "indicator": "spmi",
       "label": "Services PMI",
-      "source": "businessnz",
-      "last_release": "2026-08-17",
+      "source": "te",
+      "last_release": "2026-08-01",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-16",
+      "next_release": "2026-10-15",
       "next_basis": "estimated",
-      "days_until": -6,
-      "status": "due",
+      "days_until": 23,
+      "status": "upcoming",
       "last_checked": "2026-08-18T00:10:40Z"
     },
     "USD|retail_sales": {
@@ -468,13 +468,13 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-08-28",
-      "period_days": 7,
+      "last_release": "2026-09-22",
+      "period_days": 14,
       "period_basis": "derived",
-      "next_release": "2026-09-04",
+      "next_release": "2026-10-06",
       "next_basis": "estimated",
-      "days_until": -18,
-      "status": "due",
+      "days_until": 14,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|consumer_conf": {

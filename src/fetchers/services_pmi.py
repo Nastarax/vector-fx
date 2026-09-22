@@ -3,21 +3,27 @@ Services PMI (sPMI) fetcher.
 
 Data sources by currency:
   - USD: Investing.com ISM Non-Manufacturing PMI (id 176)  (Actual vs Forecast scoring)
-  - EUR, GBP, AUD, JPY, CAD: Investing.com               (momentum scoring: Actual vs Previous)
-  - CHF: Investing.com procure.ch PMI page               (Actual vs Forecast scoring)
-  - NZD: BusinessNZ official PSI page                    (Actual vs Previous scoring, no forecast)
+  - EUR, GBP, AUD, JPY: Investing.com                      (Actual vs Forecast, fallback Previous)
+  - CHF, CAD, NZD: TradingEconomics services-pmi pages     (Actual vs Previous, no forecast)
 
 USD uses the ISM Non-Manufacturing (Services) PMI scored Actual vs Forecast
-(the headline US services release, what EdgeFinder tracks). CHF uses Actual vs
-Forecast too. NZD falls back to Actual vs Previous because BusinessNZ doesn't
-publish a consensus forecast. The scoring branch in score_pair.py handles the
-fallback (forecast -> previous). The other 5 (EUR/GBP/AUD/JPY/CAD) keep the
-standard Investing.com momentum methodology used for mPMI.
+(the headline US services release, what EdgeFinder tracks). The TE-sourced three
+fall back to Actual vs Previous because TE's meta description carries no
+consensus. The scoring branch in score_pair.py handles the fallback
+(forecast -> previous). The other 4 (EUR/GBP/AUD/JPY) keep the standard
+Investing.com methodology used for mPMI.
+
+CAD and NZD moved to TE on 2026-09-22 after both of their previous sources went
+dark; see the notes on SPMI_INVESTING_URLS and SPMI_BUSINESSNZ_URLS below.
+
+TE readings are dated by REFERENCE MONTH (YYYY-MM-01), not release date, which
+two downstream places must agree on: the staleness window
+(_SPMI_REFERENCE_MONTH_CCYS in score_pair.py) and the next-release estimate
+(REFERENCE_MONTH_LAG_DAYS in release_calendar.py).
 
 The cache lives at data/cache/spmi.json (separate from mPMI's investing_pmi.json).
 Refresh runs locally via scripts/refresh_investing.py because Investing.com
-blocks GitHub Actions IPs (Cloudflare). BusinessNZ is open and could be moved
-to GH Actions, but staying local for now to keep one refresh path.
+blocks GitHub Actions IPs (Cloudflare).
 """
 from __future__ import annotations
 
@@ -53,7 +59,12 @@ SPMI_INVESTING_URLS: dict[str, str] = {
     "GBP": "https://www.investing.com/economic-calendar/united-kingdom-services-purchasing-managers-index-(pmi)-274",
     "AUD": "https://www.investing.com/economic-calendar/services-pmi-1839",       # S&P Global Australia Services PMI
     "JPY": "https://www.investing.com/economic-calendar/services-pmi-1912",       # S&P Global Japan Services PMI
-    "CAD": "https://www.investing.com/economic-calendar/services-pmi-2265",       # Canada Services PMI
+    # NOTE: CAD is intentionally NOT here. Investing's Canada Services PMI event
+    # (services-pmi-2265) stopped publishing after the Jul reading (released
+    # 2026-08-06): no September row ever appeared, its "next release" field
+    # points backwards, and its blurb mislabels the currency as GBP. The print
+    # itself is fine (S&P Global released Aug at 46.8 on 2026-09-04), Investing
+    # just stopped carrying it, so CAD is sourced from TradingEconomics below.
     # NOTE: CHF is intentionally NOT here. procure.ch-pmi-278 is the Swiss
     # MANUFACTURING PMI (already used as CHF mPMI in investing.MPMI_URLS).
     # Pointing CHF services at the same page double-counted the manufacturing
@@ -64,19 +75,32 @@ SPMI_INVESTING_URLS: dict[str, str] = {
 # BusinessNZ PSI landing page. We scrape the landing page, find the latest
 # release article, then parse the headline value, previous month value, and
 # reported month from the article body. No forecast is published.
-SPMI_BUSINESSNZ_URLS: dict[str, str] = {
-    "NZD": "https://businessnz.org.nz/psi",
-}
+#
+# Kept EMPTY since 2026-09-22: businessnz.org.nz turned on a full Cloudflare
+# managed JS challenge around 2026-08-31 (every request returns 403 with
+# `cf-mitigated: challenge`), which curl_cffi impersonation cannot solve, so
+# every run since has silently fallen back to cache. NZD sPMI now comes from
+# TradingEconomics below. The fetch/parse code stays wired up: re-add the URL
+# here if BusinessNZ drops the challenge, or to run it through the unblocker.
+SPMI_BUSINESSNZ_URLS: dict[str, str] = {}
+BUSINESSNZ_PSI_URL = "https://businessnz.org.nz/psi"
 
 # Myfxbook calendar pages. Kept empty (NZD moved to BusinessNZ direct).
 # Hook left in place in case we want to add a Myfxbook-sourced sPMI again.
 SPMI_MYFXBOOK_URLS: dict[str, str] = {}
 
-# TradingEconomics pages. CHF Swiss Services PMI lives here because Investing's
-# only Swiss procure.ch event (278) is the manufacturing PMI; TE carries the
-# distinct services series. Parsed from the page meta description.
+# TradingEconomics pages. Parsed from the page meta description, which is dated
+# by REFERENCE MONTH (YYYY-MM-01), not by release date - see
+# _SPMI_REFERENCE_MONTH_CCYS in score_pair.py and REFERENCE_MONTH_LAG_DAYS in
+# release_calendar.py, both of which must list every currency in this dict.
+#   CHF: Investing's only Swiss procure.ch event (278) is the MANUFACTURING PMI;
+#        TE carries the distinct services series.
+#   CAD: Investing's event 2265 went dark after 2026-08-06 (see note above).
+#   NZD: businessnz.org.nz is behind a Cloudflare JS challenge (see note above).
 SPMI_TE_URLS: dict[str, str] = {
     "CHF": "https://tradingeconomics.com/switzerland/services-pmi",
+    "CAD": "https://tradingeconomics.com/canada/services-pmi",
+    "NZD": "https://tradingeconomics.com/new-zealand/services-pmi",
 }
 
 

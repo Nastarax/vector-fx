@@ -1505,14 +1505,17 @@ _MAX_AGE_DAYS = {
 _QUARTERLY_CPI_CCYS = {"AUD", "NZD"}
 _MAX_AGE_CPI_QUARTERLY = 110
 
-# CHF sPMI comes from TE Swiss Services PMI, which is dated by REFERENCE MONTH,
-# not release date like the Investing/BusinessNZ sources. The Swiss reading
-# publishes ~35 days after the reference month starts, so a current CHF value
-# reads ~35 days "older" than its release-dated peers and trips the 40-day sPMI
-# window even when fresh. Widen it for CHF only: 40 (intended since-release) + 35
-# (reference-to-release lag). A genuinely missed release (90+ days) still flags.
-_SPMI_REFERENCE_MONTH_CCYS = {"CHF"}
+# CHF/CAD/NZD sPMI come from TradingEconomics, which dates its readings by
+# REFERENCE MONTH, not release date like the Investing sources. Those prints
+# publish ~35 days after the reference month starts, so a current value reads
+# ~35 days "older" than its release-dated peers and trips the 40-day sPMI window
+# even when fresh. Widen it for those three: 40 (intended since-release) + the
+# reference-to-release lag. A genuinely missed release still flags.
+# NZD gets a wider window because the BusinessNZ PSI that feeds TE publishes
+# mid-month, ~45 days after the reference month starts, not ~35.
 _MAX_AGE_SPMI_REFMONTH = 75
+_SPMI_REFERENCE_MONTH_MAX_AGE = {"CHF": 75, "CAD": 75, "NZD": 90}
+_SPMI_REFERENCE_MONTH_CCYS = set(_SPMI_REFERENCE_MONTH_MAX_AGE)
 
 
 def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
@@ -1577,10 +1580,11 @@ def _compute_data_staleness(cot_data, investing_cpi, investing_ppi,
     for ccy, reading in (investing_mpmi or {}).items():
         _check("mPMI", ccy, (reading or {}).get("date"), _MAX_AGE_DAYS["mPMI"])
 
-    # sPMI: monthly for all 8. CHF is reference-month-dated (see constants above)
-    # and gets a wider window so a current reading isn't false-flagged.
+    # sPMI: monthly for all 8. CHF/CAD/NZD are reference-month-dated (see the
+    # constants above) and get a wider window so a current reading isn't
+    # false-flagged.
     for ccy, reading in (investing_spmi or {}).items():
-        max_age = _MAX_AGE_SPMI_REFMONTH if ccy in _SPMI_REFERENCE_MONTH_CCYS else _MAX_AGE_DAYS["sPMI"]
+        max_age = _SPMI_REFERENCE_MONTH_MAX_AGE.get(ccy, _MAX_AGE_DAYS["sPMI"])
         _check("sPMI", ccy, (reading or {}).get("date"), max_age)
 
     # Consumer Confidence (Investing): USD only, monthly.

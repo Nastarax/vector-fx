@@ -30,16 +30,15 @@
     "previous": 51.2
   },
   "CAD": {
-    "date": "2026-08-06",
-    "actual": 49.1,
-    "forecast": null,
-    "previous": 47.1
+    "date": "2026-08-01",
+    "actual": 46.8,
+    "previous": 49.1,
+    "forecast": null
   },
   "NZD": {
-    "date": "2026-08-17",
-    "reference_month": "2026-07-01",
-    "actual": 50.6,
-    "previous": null,
+    "date": "2026-08-01",
+    "actual": 51.2,
+    "previous": 50.6,
     "forecast": null
   },
   "CHF": {

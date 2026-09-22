@@ -791,11 +791,11 @@ def _cell_target(ind: str, ccy: str, source: str) -> str | None:
     if the cell is fed by a source main.py/GitHub Actions refreshes (TE/ABS).
 
     This script fetches the Cloudflare-blocked sources: all Investing + Myfxbook
-    cells, plus the whole sPMI sweep (refresh_spmi also pulls TE-Swiss + BusinessNZ)."""
+    cells, plus the whole sPMI sweep (refresh_spmi also pulls the TE sPMI pages)."""
     if ind == "mpmi":
         return "mpmi"
     if ind == "spmi":
-        return "spmi"          # refresh_spmi covers Investing + CHF(TE) + NZD(BusinessNZ)
+        return "spmi"          # refresh_spmi covers Investing + CHF/CAD/NZD (TE)
     if ind == "gdp" and source == "investing":   # JPY GDP via Investing id 119
         return "gdp"
     if ind == "household_spending":               # JPY Household Spending id 361

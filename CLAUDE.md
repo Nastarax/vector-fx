@@ -97,9 +97,14 @@ GDP:                  JPY = Investing Japan GDP QoQ (id 119, Actual vs Forecast)
                       other 7 = TE (Actual vs Consensus, fallback TEForecast)
 mPMI:                 Investing per-currency, Actual vs Forecast (fallback Previous)
 sPMI:                 USD = Investing ISM Non-Manufacturing PMI (id 176, Actual vs Forecast);
-                      EUR/GBP/AUD/JPY/CAD = Investing Actual vs Forecast (fallback Previous);
-                      CHF = TE Swiss Services PMI; NZD = BusinessNZ PSI direct (no
-                      forecast published, so falls back to Previous in practice)
+                      EUR/GBP/AUD/JPY = Investing Actual vs Forecast (fallback Previous);
+                      CHF/CAD/NZD = TE services-pmi pages (no forecast in TE's meta
+                      description, so these fall back to Previous in practice).
+                      CAD moved off Investing 2026-09-22 (event 2265 went dark after
+                      2026-08-06); NZD moved off BusinessNZ the same day (Cloudflare
+                      JS challenge since ~2026-08-31). TE dates by REFERENCE MONTH,
+                      so all three need entries in _SPMI_REFERENCE_MONTH_MAX_AGE
+                      (score_pair.py) and REFERENCE_MONTH_LAG_DAYS (release_calendar.py)
 Retail Sales:         CAD = Investing Retail Sales MoM (id 260, Actual vs Forecast);
                       AUD = ABS MHSI; other 6 = TE (Actual vs Consensus)
 Consumer Conf:        USD = Investing CB Consumer Confidence (Actual vs Forecast);
