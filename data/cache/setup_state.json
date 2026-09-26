@@ -137,7 +137,7 @@
  "EURGBP": {
   "setup": "watch",
   "bias": "Bearish",
-  "loc": 87
+  "loc": 80
  },
  "CADCHF": {
   "setup": "watch",
@@ -162,7 +162,7 @@
  "EURUSD": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 9
+  "loc": 11
  },
  "EURJPY": {
   "setup": "extended",
