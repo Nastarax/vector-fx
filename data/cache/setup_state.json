@@ -1,8 +1,8 @@
 {
  "NIKKEI": {
-  "setup": "mid",
-  "bias": "Bullish",
-  "loc": 55
+  "setup": "extended",
+  "bias": "Very Bullish",
+  "loc": 65
  },
  "USDCAD": {
   "setup": "extended",
@@ -97,7 +97,7 @@
  "UK100": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 23
+  "loc": 27
  },
  "AUDUSD": {
   "setup": null,
@@ -157,7 +157,7 @@
  "DAX": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 7
+  "loc": 17
  },
  "EURUSD": {
   "setup": "extended",
