@@ -1,13 +1,13 @@
 {
  "NIKKEI": {
   "setup": "extended",
-  "bias": "Very Bullish",
+  "bias": "Bullish",
   "loc": 65
  },
  "USDCAD": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 96
+  "loc": 97
  },
  "GBPNZD": {
   "setup": "extended",
