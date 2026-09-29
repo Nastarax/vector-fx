@@ -27,7 +27,8 @@ Metrics:
 
 Usage:
   python scripts/backtest_ic.py            # default horizons 1,3,5
-  python scripts/backtest_ic.py 1 5 10     # custom forward horizons (snapshots)
+  python scripts/backtest_ic.py 1 5 10     # custom forward horizons (trading days)
+  python scripts/backtest_ic.py --no-refresh   # skip the yfinance refresh, use pkls as-is
 
 NOTE: horizons are measured in TRADING DAYS. Snapshots are recorded every
 calendar day, but weekend/holiday snapshots are dropped before any IC is
@@ -172,7 +173,25 @@ def _ic_for_map(score_map, pairs, dates, H, bucket_pool=None):
     return ics, spreads
 
 
+def _refresh_prices() -> None:
+    """Bring every px_*.pkl up to date before measuring. Only some of the daily
+    caches are tracked in git (data/cache/*.pkl is gitignored; a subset was
+    force-added), so the non-USD, non-JPY crosses on disk are only as fresh as
+    the last LOCAL main.py run, and absent entirely in a fresh checkout such
+    as the monthly cloud routine. Without this the tail of the sample silently
+    drops out for thin coverage. fetch_prices skips caches <1h old and falls
+    back to the stale cache on a yfinance failure, so this is safe to call."""
+    sys.path.insert(0, ROOT)
+    try:
+        from src.fetchers.prices import fetch_prices
+        fetch_prices()
+    except Exception as e:  # never block the report on a price refresh
+        print(f"[backtest] price refresh failed, using caches on disk: {e}")
+
+
 def run(horizons: list[int]) -> None:
+    if "--no-refresh" not in sys.argv:
+        _refresh_prices()
     scores = _load_scores()
     pairs = _load_pair_closes()
 
@@ -324,5 +343,5 @@ def _report_subscores(pairs, horizons: list[int], tdays: set[str]) -> None:
 
 
 if __name__ == "__main__":
-    hs = [int(a) for a in sys.argv[1:]] or [1, 3, 5]
+    hs = [int(a) for a in sys.argv[1:] if not a.startswith("--")] or [1, 3, 5]
     run(hs)
