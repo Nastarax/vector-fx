@@ -80,3 +80,6 @@ scripts/daily_refresh.log
 # Release calendar: next-release date per cell. Drives Phase 2 due-gating and
 # self-advances as each source is fetched; committed so it persists between runs.
 !data/cache/release_calendar.json
+
+# isolated-signal study caches (large, regenerable)
+data/cache/study/
