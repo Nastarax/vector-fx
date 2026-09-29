@@ -29,11 +29,19 @@ Usage:
   python scripts/backtest_ic.py            # default horizons 1,3,5
   python scripts/backtest_ic.py 1 5 10     # custom forward horizons (snapshots)
 
-NOTE: horizons are measured in SCORE SNAPSHOTS (roughly trading days), not
-calendar days, because that is the grid the score history lives on.
+NOTE: horizons are measured in TRADING DAYS. Snapshots are recorded every
+calendar day, but weekend/holiday snapshots are dropped before any IC is
+computed: the trading calendar is taken from the price caches themselves
+(which carry Mon-Fri bars only). This matters a lot. A Saturday snapshot
+repeats Friday's score while `_close_asof` repeats Friday's close, so it is a
+near-duplicate observation on a shifted forward window; leaving those rows in
+inflates n with correlated junk. Measured 2026-08-27, weekend rows carried the
+entire apparent edge (full-sample H1 IC +0.060 vs +0.003 on weekday starts).
 """
 from __future__ import annotations
 
+import collections
+import datetime
 import glob
 import json
 import math
@@ -79,6 +87,21 @@ def _load_pair_closes() -> dict[tuple[str, str], pd.Series]:
         s = s[~s.index.duplicated(keep="last")]
         pairs[(base, quote)] = s
     return pairs
+
+
+def _trading_days(pairs) -> set[str]:
+    """Dates on which the FX market actually traded, read off the price caches
+    themselves rather than assumed. yfinance daily FX bars are Mon-Fri and skip
+    holidays, so the cache index IS the trading calendar. A date counts if at
+    least half the pair caches carry a bar for it, so one cross missing a day
+    does not drop the date for everyone."""
+    counts: collections.Counter = collections.Counter()
+    for s in pairs.values():
+        counts.update(set(s.index))
+    if not counts:
+        return set()
+    need = max(1, len(pairs) // 2)
+    return {d for d, n in counts.items() if n >= need}
 
 
 def _close_asof(series: pd.Series, date: str) -> float | None:
@@ -156,8 +179,29 @@ def run(horizons: list[int]) -> None:
     # common ordered snapshot dates (present for all 8 ccys)
     date_sets = [set(scores[c].keys()) for c in FIAT]
     dates = sorted(set.intersection(*date_sets))
+    raw_n = len(dates)
+
+    # Drop weekend/holiday snapshots BEFORE any IC is computed, so H is a count
+    # of trading days and every observation is a distinct market day.
+    tdays = _trading_days(pairs)
+    dropped = [d for d in dates if d not in tdays]
+    dates = [d for d in dates if d in tdays]
+
+    # Two very different reasons a snapshot gets dropped, so name them apart.
+    # A weekday with no price coverage means the px_*.pkl caches are STALE, not
+    # that the market was shut: yfinance rate-limits mid-sweep and prices.py
+    # silently falls back to the last good cache. Worth seeing, not hiding.
+    closed = [d for d in dropped
+              if datetime.date.fromisoformat(d).weekday() >= 5]
+    nocover = [d for d in dropped if d not in set(closed)]
+
     print(f"Fiat currencies: {', '.join(FIAT)}")
-    print(f"Snapshot dates : {len(dates)}  ({dates[0]} .. {dates[-1]})")
+    print(f"Snapshot dates : {len(dates)} trading days  ({dates[0]} .. {dates[-1]})")
+    print(f"                 {len(closed)} weekend snapshots dropped (of {raw_n} recorded)")
+    if nocover:
+        print(f"                 {len(nocover)} WEEKDAY snapshots dropped for thin price "
+              f"coverage ({nocover[0]} .. {nocover[-1]})")
+        print(f"                 -> stale px_*.pkl caches, not holidays. Check prices.py.")
     print(f"Pair caches    : {len(pairs)} fiat crosses")
     print("=" * 64)
     print("TOTAL SCORE")
@@ -168,7 +212,7 @@ def run(horizons: list[int]) -> None:
         _report_horizon(H, ics, spreads)
 
     _report_buckets(horizons[0], bucket_pool)
-    _report_subscores(pairs, horizons)
+    _report_subscores(pairs, horizons, tdays)
 
 
 def _bucket(score: int) -> str:
@@ -184,7 +228,7 @@ def _bucket(score: int) -> str:
 
 
 def _report_horizon(H: int, ics: list[float], spreads: list[float]) -> None:
-    print(f"\nHorizon H={H} snapshot(s) forward")
+    print(f"\nHorizon H={H} trading day(s) forward")
     if not ics:
         print("  not enough data")
         return
@@ -193,10 +237,16 @@ def _report_horizon(H: int, ics: list[float], spreads: list[float]) -> None:
     var = sum((x - mean) ** 2 for x in ics) / (n - 1) if n > 1 else 0.0
     sd = math.sqrt(var)
     t = mean / (sd / math.sqrt(n)) if sd > 0 else float("nan")
+    # Consecutive daily snapshots share H-1 days of their forward return, so the
+    # per-date ICs are not independent and the naive t-stat is inflated by about
+    # sqrt(H). Judge significance on the adjusted figure. H=1 needs no haircut.
+    t_adj = mean / (sd / math.sqrt(n / H)) if sd > 0 else float("nan")
     hit = sum(1 for x in ics if x > 0) / n
     print(f"  IC mean      : {mean:+.3f}   (n={n} dates)")
     print(f"  IC std       : {sd:.3f}")
-    print(f"  IC t-stat    : {t:+.2f}   {'<-- significant' if abs(t) > 2 else ''}")
+    print(f"  IC t-stat    : {t:+.2f}   (naive, overlapping windows)")
+    print(f"  t overlap-adj: {t_adj:+.2f}   (n_eff={n/H:.0f})"
+          f"   {'<-- significant' if abs(t_adj) > 2 else ''}")
     print(f"  IC hit rate  : {hit*100:.0f}% of dates IC>0")
     if spreads:
         sm = sum(spreads) / len(spreads)
@@ -244,7 +294,7 @@ def _load_subscores() -> dict[str, dict[str, dict[str, int]]]:
     return out
 
 
-def _report_subscores(pairs, horizons: list[int]) -> None:
+def _report_subscores(pairs, horizons: list[int], tdays: set[str]) -> None:
     """Per-component mean IC, to attribute where the edge lives. Components with
     too little recorded history print as 'accumulating' rather than a number."""
     subs = _load_subscores()
@@ -257,7 +307,7 @@ def _report_subscores(pairs, horizons: list[int]) -> None:
     for comp in SUB_COMPONENTS:
         smap = subs[comp]
         if all(smap[c] for c in FIAT):
-            cdates = sorted(set.intersection(*[set(smap[c]) for c in FIAT]))
+            cdates = sorted(set.intersection(*[set(smap[c]) for c in FIAT]) & tdays)
         else:
             cdates = []
         if len(cdates) <= need:
