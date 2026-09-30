@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-30T09:14:50Z",
+  "generated": "2026-09-30T11:08:55Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-09-30T00:00:33Z"
+      "last_checked": "2026-09-30T11:08:55Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -132,12 +132,12 @@
       "indicator": "mpmi",
       "label": "Manufacturing PMI",
       "source": "investing",
-      "last_release": "2026-09-01",
+      "last_release": "2026-09-23",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-10-01",
+      "next_release": "2026-10-23",
       "next_basis": "estimated",
-      "days_until": 1,
+      "days_until": 23,
       "status": "upcoming",
       "last_checked": "2026-09-04T14:24:49Z"
     },
@@ -146,12 +146,12 @@
       "indicator": "mpmi",
       "label": "Manufacturing PMI",
       "source": "investing",
-      "last_release": "2026-09-01",
+      "last_release": "2026-09-23",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-10-01",
+      "next_release": "2026-10-23",
       "next_basis": "estimated",
-      "days_until": 1,
+      "days_until": 23,
       "status": "upcoming",
       "last_checked": "2026-09-04T14:24:49Z"
     },
@@ -160,12 +160,12 @@
       "indicator": "mpmi",
       "label": "Manufacturing PMI",
       "source": "investing",
-      "last_release": "2026-09-01",
+      "last_release": "2026-09-24",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-10-01",
+      "next_release": "2026-10-24",
       "next_basis": "estimated",
-      "days_until": 1,
+      "days_until": 24,
       "status": "upcoming",
       "last_checked": "2026-09-04T14:24:49Z"
     },
@@ -188,14 +188,14 @@
       "indicator": "mpmi",
       "label": "Manufacturing PMI",
       "source": "investing",
-      "last_release": "2026-08-31",
+      "last_release": "2026-09-22",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-30",
+      "next_release": "2026-10-22",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": "2026-09-01T14:16:32Z"
+      "days_until": 22,
+      "status": "upcoming",
+      "last_checked": "2026-09-30T11:08:55Z"
     },
     "CAD|mpmi": {
       "currency": "CAD",
@@ -1021,7 +1021,7 @@
       "next_basis": "estimated",
       "days_until": -7,
       "status": "due",
-      "last_checked": "2026-09-30T00:00:33Z"
+      "last_checked": "2026-09-30T11:08:55Z"
     },
     "USD|nfp": {
       "currency": "USD",
@@ -1049,7 +1049,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-09-03T04:17:42Z"
+      "last_checked": "2026-09-30T11:08:55Z"
     },
     "USD|jolts": {
       "currency": "USD",
