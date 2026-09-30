@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-30T04:10:53Z",
+  "generated": "2026-09-30T05:11:04Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -384,13 +384,13 @@
       "indicator": "retail_sales",
       "label": "Retail Sales",
       "source": "te",
-      "last_release": "2026-08-30",
-      "period_days": 31,
+      "last_release": "2026-09-29",
+      "period_days": 30,
       "period_basis": "derived",
-      "next_release": "2026-09-30",
+      "next_release": "2026-10-29",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 29,
+      "status": "upcoming",
       "last_checked": null
     },
     "CHF|retail_sales": {
@@ -919,10 +919,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-30",
+      "next_release": "2026-10-01",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 1,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|rates": {
@@ -933,10 +933,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-30",
+      "next_release": "2026-11-05",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 36,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|rates": {
@@ -947,10 +947,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-30",
+      "next_release": "2026-10-30",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 30,
+      "status": "upcoming",
       "last_checked": null
     },
     "CHF|rates": {
@@ -961,10 +961,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-09-30",
+      "next_release": "2026-10-22",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 22,
+      "status": "upcoming",
       "last_checked": null
     },
     "AUD|rates": {
