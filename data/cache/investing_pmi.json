@@ -6,16 +6,16 @@
     "previous": 54.3
   },
   "AUD": {
-    "date": "2026-09-22",
-    "actual": 49.3,
-    "forecast": null,
+    "date": "2026-09-30",
+    "actual": 49.6,
+    "forecast": 49.3,
     "previous": 52.0
   },
   "CHF": {
-    "date": "2026-09-01",
-    "actual": 57.1,
-    "forecast": 54.1,
-    "previous": 53.2
+    "date": "2026-10-01",
+    "actual": 55.3,
+    "forecast": 56.3,
+    "previous": 57.1
   },
   "USD": {
     "date": "2026-09-01",
