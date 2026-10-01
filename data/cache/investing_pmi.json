@@ -30,21 +30,21 @@
     "previous": 51.7
   },
   "EUR": {
-    "date": "2026-09-23",
-    "actual": 52.7,
-    "forecast": 52.6,
+    "date": "2026-10-01",
+    "actual": 52.9,
+    "forecast": 52.7,
     "previous": 52.7
   },
   "CAD": {
-    "date": "2026-09-01",
-    "actual": 53.0,
+    "date": "2026-10-01",
+    "actual": 51.5,
     "forecast": null,
-    "previous": 53.5
+    "previous": 53.0
   },
   "JPY": {
-    "date": "2026-09-24",
+    "date": "2026-10-01",
     "actual": 54.1,
-    "forecast": 55.0,
+    "forecast": 54.1,
     "previous": 54.9
   }
 }
