@@ -124,78 +124,44 @@ def range_position(df_daily: pd.DataFrame, lookback: int = 40) -> int | None:
     return int(round(max(0.0, min(100.0, pct))))
 
 
-def _sign_bucket(avg: float) -> int:
-    """
-    EdgeFinder uses a tight neutral band: avg between -0.01% and +0.01% = 0.
-    Anything else gets +1 (bullish) or -1 (bearish) based on sign.
-    """
-    if avg > 0.0001:
-        return 1
-    if avg < -0.0001:
-        return -1
-    return 0
-
-
 def seasonality_score(df: pd.DataFrame, as_of_date: str | None = None,
-                      commodity: bool = False) -> int:
+                      years: int = 10) -> int:
     """
-    Seasonality scoring.
+    Seasonality: the asset's average return in the current calendar month over
+    the previous `years` COMPLETED instances of that month (rolling 10-year).
 
-    FX pairs: combines monthly + weekly tendencies across 1y/5y/10y windows,
-    averaged and scaled to -2..+2.
+        average > 0 -> +1,  average < 0 -> -1,  exactly 0 / too little data -> 0
 
-    Commodities/indices (commodity=True): 10-year monthly average only.
-    Positive -> +2, negative -> -2. Stronger weighting because seasonal
-    tendencies are more pronounced in commodities.
+    Same rule for every asset class. The month in progress is excluded: a
+    month-end resample keeps a bucket for the unfinished month, and counting
+    its month-to-date move as "history" turned part of the score into plain
+    short-term momentum. Needs at least 5 past instances of the month.
     """
-    if df is None or df.empty or len(df) < 252 * 2:
+    if df is None or df.empty:
+        return 0
+    closes = df["Close"].dropna()
+    if closes.empty:
         return 0
 
     if as_of_date:
-        ref_date = pd.Timestamp(as_of_date)
+        ref = pd.Timestamp(as_of_date)
     else:
-        ref_date = pd.Timestamp.now(tz=df.index.tz) if df.index.tz is not None else pd.Timestamp.now()
+        ref = pd.Timestamp.now(tz=closes.index.tz)
+    if ref.tzinfo is None and closes.index.tz is not None:
+        ref = ref.tz_localize(closes.index.tz)
+    month_start = ref.normalize().replace(day=1)
 
-    monthly = df["Close"].resample("ME").last().dropna()
-    monthly_rets = monthly.pct_change().dropna()
-    same_month = monthly_rets[monthly_rets.index.month == ref_date.month]
-
-    if commodity:
-        if len(same_month) < 5:
-            return 0
-        avg_10y = float(same_month.tail(10).mean())
-        return 2 if avg_10y > 0 else -2
-
-    # FX: full 6-component scoring
-    weekly = df["Close"].resample("W").last().dropna()
-    weekly_rets = weekly.pct_change().dropna()
-    current_week = ref_date.isocalendar().week if hasattr(ref_date, "isocalendar") else ref_date.week
-    weekly_isoweek = weekly_rets.index.isocalendar().week
-    same_week = weekly_rets[weekly_isoweek == current_week]
-
-    sub_scores: list[int] = []
-
-    if len(same_month) >= 1:
-        sub_scores.append(_sign_bucket(float(same_month.tail(1).mean())))
-    if len(same_month) >= 3:
-        sub_scores.append(_sign_bucket(float(same_month.tail(5).mean())))
-    if len(same_month) >= 5:
-        sub_scores.append(_sign_bucket(float(same_month.tail(10).mean())))
-
-    if len(same_week) >= 1:
-        sub_scores.append(_sign_bucket(float(same_week.tail(1).mean())))
-    if len(same_week) >= 3:
-        sub_scores.append(_sign_bucket(float(same_week.tail(5).mean())))
-    if len(same_week) >= 5:
-        sub_scores.append(_sign_bucket(float(same_week.tail(10).mean())))
-
-    if not sub_scores:
+    monthly = closes.resample("ME").last().dropna()
+    rets = monthly.pct_change().dropna()
+    # completed months only: anything ending on/after this month's 1st is the
+    # month in progress (or later, in a backtest whose df was not trimmed)
+    rets = rets[rets.index < month_start]
+    same = rets[rets.index.month == ref.month].tail(years)
+    if len(same) < 5:
         return 0
-
-    avg = sum(sub_scores) / len(sub_scores)
-    scaled = avg * 2
-    if scaled > 0:
-        return min(2, int(scaled + 0.5))
-    if scaled < 0:
-        return max(-2, int(scaled - 0.5))
+    avg = float(same.mean())
+    if avg > 0:
+        return 1
+    if avg < 0:
+        return -1
     return 0

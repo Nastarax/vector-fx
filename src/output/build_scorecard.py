@@ -192,7 +192,7 @@ def _build_currency(
             "trend": trend_avg,
             "seasonality": seas_avg,
             "trend_label": _sub_bias(trend_avg, 2) if trend_avg is not None else "n/a",
-            "seasonality_label": _sub_bias(seas_avg, 2) if seas_avg is not None else "n/a",
+            "seasonality_label": _sub_bias(seas_avg, 1) if seas_avg is not None else "n/a",
         },
         "sentiment_cot": {
             "cot": cot_s,

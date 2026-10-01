@@ -1310,8 +1310,7 @@ def build_pair_rows(
         # Pair-level indicators
         df_4h = (prices_4h or {}).get(sym)
         scores["trend"] = trend_score(df, df_4h, equity_index=base in INDEX_CCYS)
-        scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date,
-                                                   commodity=base == "XAU")
+        scores["seasonality"] = seasonality_score(df, as_of_date=as_of_date)
         if base in ("XPT", "XAG") and cot_data:
             # Platinum/Silver: +-1 contrarian from COT non-reportable, matching
             # EdgeFinder's metal crowd scale (Gold/Nikkei keep the +-2 commodity

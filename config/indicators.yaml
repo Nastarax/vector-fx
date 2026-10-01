@@ -21,7 +21,7 @@ categories:
       method: trend_score          # custom: price vs SMA20/50/200 on Daily + 4H
     - id: seasonality
       label: Seasonality
-      method: seasonality_score    # custom: same-month historical avg
+      method: seasonality_score    # custom: 10y avg of current calendar month, +-1
 
   Sentiment:
     - id: cot
