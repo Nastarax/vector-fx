@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-02T14:01:35Z",
+  "generated": "2026-10-02T15:04:41Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -790,13 +790,13 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-09-04",
+      "last_release": "2026-10-02",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-10-02",
+      "next_release": "2026-10-30",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 28,
+      "status": "upcoming",
       "last_checked": null
     },
     "EUR|unemployment_rate": {
@@ -1028,13 +1028,13 @@
       "indicator": "nfp",
       "label": "NFP",
       "source": "te",
-      "last_release": "2026-09-04",
+      "last_release": "2026-10-02",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-10-02",
+      "next_release": "2026-10-30",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 28,
+      "status": "upcoming",
       "last_checked": null
     },
     "USD|adp": {
