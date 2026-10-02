@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-02T02:09:33Z",
+  "generated": "2026-10-02T03:09:33Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -832,13 +832,13 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-08-27",
+      "last_release": "2026-10-01",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-09-27",
+      "next_release": "2026-11-01",
       "next_basis": "estimated",
-      "days_until": -4,
-      "status": "due",
+      "days_until": 31,
+      "status": "upcoming",
       "last_checked": null
     },
     "CHF|unemployment_rate": {
