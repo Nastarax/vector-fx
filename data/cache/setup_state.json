@@ -92,7 +92,7 @@
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 11
+  "loc": 6
  },
  "AUDJPY": {
   "setup": null,
@@ -157,7 +157,7 @@
  "UK100": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 13
+  "loc": 7
  },
  "EURUSD": {
   "setup": null,
