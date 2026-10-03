@@ -2,7 +2,7 @@
  "NIKKEI": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 91
+  "loc": 81
  },
  "GBPAUD": {
   "setup": "extended",
@@ -12,7 +12,7 @@
  "GBPCAD": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 85
+  "loc": 86
  },
  "USDCAD": {
   "setup": "extended",
@@ -23,11 +23,6 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 78
- },
- "EURCAD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 27
  },
  "USDJPY": {
   "setup": null,
@@ -49,11 +44,6 @@
   "bias": "Neutral",
   "loc": 48
  },
- "EURNZD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 77
- },
  "NASDAQ": {
   "setup": null,
   "bias": "Neutral",
@@ -64,10 +54,15 @@
   "bias": "Neutral",
   "loc": 21
  },
+ "EURCAD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 25
+ },
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 20
+  "loc": 14
  },
  "NZDJPY": {
   "setup": null,
@@ -77,32 +72,32 @@
  "AUDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 51
+  "loc": 52
  },
  "NZDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 17
+  "loc": 19
  },
  "XAUUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 5
+  "loc": 3
  },
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
   "loc": 6
  },
- "AUDJPY": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 17
- },
  "CHFJPY": {
   "setup": null,
   "bias": "Neutral",
   "loc": 25
+ },
+ "EURNZD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 76
  },
  "EURCHF": {
   "setup": null,
@@ -112,12 +107,12 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 12
+  "loc": 3
  },
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 6
+  "loc": 0
  },
  "GBPUSD": {
   "setup": null,
@@ -129,10 +124,10 @@
   "bias": "Neutral",
   "loc": 9
  },
- "CADJPY": {
+ "AUDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 11
+  "loc": 17
  },
  "AUDNZD": {
   "setup": null,
@@ -152,12 +147,17 @@
  "DAX": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 6
+  "loc": 22
+ },
+ "CADJPY": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 11
  },
  "UK100": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 7
+  "loc": 13
  },
  "EURUSD": {
   "setup": null,
