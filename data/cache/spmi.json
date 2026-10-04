@@ -18,16 +18,16 @@
     "previous": 52.5
   },
   "AUD": {
-    "date": "2026-09-02",
-    "actual": 53.2,
-    "forecast": 52.9,
-    "previous": 53.6
+    "date": "2026-09-22",
+    "actual": 51.4,
+    "forecast": null,
+    "previous": 53.2
   },
   "JPY": {
-    "date": "2026-09-03",
-    "actual": 52.5,
-    "forecast": 52.3,
-    "previous": 51.2
+    "date": "2026-09-24",
+    "actual": 51.6,
+    "forecast": null,
+    "previous": 52.5
   },
   "CAD": {
     "date": "2026-08-01",
