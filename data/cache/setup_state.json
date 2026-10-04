@@ -107,12 +107,12 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 3
+  "loc": 10
  },
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 0
+  "loc": 4
  },
  "GBPUSD": {
   "setup": null,
