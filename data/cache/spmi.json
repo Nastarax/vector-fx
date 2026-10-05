@@ -1,38 +1,38 @@
 {
   "USD": {
-    "date": "2026-09-03",
-    "actual": 55.4,
-    "forecast": 54.1,
-    "previous": 54.1
+    "date": "2026-10-05",
+    "actual": 54.9,
+    "forecast": 55.1,
+    "previous": 55.4
   },
   "EUR": {
-    "date": "2026-09-23",
+    "date": "2026-10-05",
     "actual": 53.0,
-    "forecast": 51.4,
+    "forecast": 53.0,
     "previous": 51.6
   },
   "GBP": {
-    "date": "2026-09-23",
-    "actual": 51.7,
-    "forecast": 52.0,
+    "date": "2026-10-05",
+    "actual": 52.1,
+    "forecast": 51.7,
     "previous": 52.5
   },
   "AUD": {
-    "date": "2026-09-22",
-    "actual": 51.4,
-    "forecast": null,
+    "date": "2026-10-04",
+    "actual": 51.9,
+    "forecast": 51.4,
     "previous": 53.2
   },
   "JPY": {
-    "date": "2026-09-24",
-    "actual": 51.6,
-    "forecast": null,
+    "date": "2026-10-05",
+    "actual": 51.3,
+    "forecast": 51.6,
     "previous": 52.5
   },
   "CAD": {
-    "date": "2026-08-01",
-    "actual": 46.8,
-    "previous": 49.1,
+    "date": "2026-09-01",
+    "actual": 48.3,
+    "previous": 46.8,
     "forecast": null
   },
   "NZD": {
@@ -42,9 +42,9 @@
     "forecast": null
   },
   "CHF": {
-    "date": "2026-08-01",
-    "actual": 58.3,
-    "previous": 63.9,
+    "date": "2026-09-01",
+    "actual": 59.8,
+    "previous": 58.3,
     "forecast": null
   }
 }
