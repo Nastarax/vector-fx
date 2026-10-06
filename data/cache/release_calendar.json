@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-06T06:02:06Z",
+  "generated": "2026-10-06T07:02:04Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -524,12 +524,12 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-09-08",
+      "last_release": "2026-10-05",
       "period_days": 35,
       "period_basis": "derived",
-      "next_release": "2026-10-13",
+      "next_release": "2026-11-09",
       "next_basis": "estimated",
-      "days_until": 7,
+      "days_until": 34,
       "status": "upcoming",
       "last_checked": null
     },
