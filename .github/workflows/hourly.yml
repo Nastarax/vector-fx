@@ -66,6 +66,9 @@ jobs:
       - name: Run EdgeFinder pipeline
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          # EIA Weekly Petroleum Status Report (USOIL row). Unset = EIA cells
+          # score from the committed data/cache/eia_weekly.json.
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
           # WATCH-flip alert channels (optional; unset secrets = console only)
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
