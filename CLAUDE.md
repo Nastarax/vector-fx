@@ -197,6 +197,15 @@ never blocks the FX page).
   curve "-" (e.g. 2025-03-15).
 - **Trend**: existing `trend_score` on CL=F daily (SMA3/14, same as metals).
   Location chip = `range_position` on CL=F.
+- **Rig count** (`src/fetchers/baker_hughes.py`, phase 2): Baker Hughes NA
+  workbook from rigcount.bakerhughes.com (link scraped by text, /static-files
+  uuid changes; curl_cffi needed, plain Windows curl dies on TLS renegotiation;
+  parsed with openpyxl). "NAM Weekly" sheet aggregated to US oil/gas/total by
+  `US_PublishDate` (= release date, so no lookahead). Cache
+  `data/cache/rig_count.json` (committed, 2013-01-04 onward, seeded from the
+  frozen 2013-Aug 2025 file). Downloads only when the cached print is >=7 days
+  old (6h retry guard). Score: 4w (+-1.5%) + 13w (+-4%) change, falling =
+  bullish (supply read; `direction` flips it).
 
 ## Recent changes (committed)
 

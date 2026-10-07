@@ -89,3 +89,5 @@ data/cache/study/
 # source exists, so live runs build it forward for backtests).
 !data/cache/eia_weekly.json
 !data/cache/oil_curve_history.json
+# Baker Hughes US weekly rig count (keyed by publish date, merged, never dropped).
+!data/cache/rig_count.json

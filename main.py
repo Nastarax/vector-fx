@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.fetchers import abs_au, cot, eia, oil_curve, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_gdp, investing_household, investing_jolts, investing_pce, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
+from src.fetchers import abs_au, baker_hughes, cot, eia, oil_curve, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_gdp, investing_household, investing_jolts, investing_pce, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
 from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_macro, build_retail, build_scorecard, build_seasonality, notify
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 from src.scoring import score_history, score_oil
@@ -48,6 +48,8 @@ def build_oil_row(as_of_date: str | None) -> dict | None:
         cfg = score_oil.load_cfg()
         inst = cfg["instrument"]
         eia.refresh(score_oil.eia_series_ids(cfg))
+        if any(s["type"] == "rig_count" for s in cfg["signals"]):
+            baker_hughes.refresh()
         df = prices.fetch_instrument(inst["symbol"], inst["yf_ticker"], as_of_date=as_of_date)
         cot_reading = cot.fetch_disaggregated(
             inst["symbol"], cfg["cot"]["contract_code"], as_of_date=as_of_date,

@@ -16,7 +16,7 @@ from pathlib import Path
 
 import yaml
 
-from src.fetchers import eia
+from src.fetchers import baker_hughes, eia
 from src.fetchers.cot import cot_release_date
 from src.scoring.score_pair import _setup_state
 from src.scoring.score_sentiment import cot_score
@@ -134,6 +134,26 @@ def _score_trend(sig: dict, ctx: dict):
     return trend_score(df, None, equity_index=False), reading, closes.index[-1].date().isoformat()
 
 
+def _score_rig_count(sig: dict, ctx: dict):
+    field = sig.get("field", "oil")
+    pts = baker_hughes.load_series(field, ctx["as_of_date"])
+    sw, lw = sig["short_weeks"], sig["long_weeks"]
+    if len(pts) <= lw:
+        return None, "no rig count data", None
+    d, now = pts[-1]
+    short_chg = (now / pts[-1 - sw][1] - 1) * 100
+    long_chg = (now / pts[-1 - lw][1] - 1) * 100
+    sign = -1 if sig.get("direction", "down_is_bullish") == "down_is_bullish" else 1
+    s = 0
+    if abs(short_chg) >= sig["short_pct"]:
+        s += sign * (1 if short_chg > 0 else -1)
+    if abs(long_chg) >= sig["long_pct"]:
+        s += sign * (1 if long_chg > 0 else -1)
+    reading = (f"{now} US {field} rigs · {sw}w {now - pts[-1 - sw][1]:+d} ({short_chg:+.1f}%) · "
+               f"{lw}w {now - pts[-1 - lw][1]:+d} ({long_chg:+.1f}%)")
+    return s, reading, f"rel {d}"
+
+
 def _display_eia(sig: dict, ctx: dict):
     c = _eia_context(sig["series"], ctx["as_of_date"], ctx["cfg"])
     if c is None:
@@ -149,6 +169,7 @@ SCORERS = {
     "curve": _score_curve,
     "cot": _score_cot,
     "trend": _score_trend,
+    "rig_count": _score_rig_count,
     "eia_display": _display_eia,
 }
 

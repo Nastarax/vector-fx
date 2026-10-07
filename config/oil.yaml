@@ -15,9 +15,9 @@
 #                  scored exactly like the FX COT cell (score_sentiment.cot_score)
 #   trend        - existing trend_score on the daily chart (SMA3/14, same as metals)
 #   eia_display  - display-only EIA series (latest value + 4w context)
+#   rig_count    - Baker Hughes US oil rigs, 4w + 13w % change (falling = bullish)
 #
 # Later phases slot in as new entries + a scorer for their type, e.g.:
-#   - {id: rigs, label: Baker Hughes Rigs, role: signal, type: rig_count, weight: 1.0}
 #   - {id: opec_spare, label: OPEC Spare Capacity, role: regime, type: steo, series: COPS_OPEC}
 #   - {id: china_mpmi, label: China mPMI, role: regime, type: investing_pmi}
 #   - {id: opec_flag, label: OPEC+ Decision, role: regime, type: manual_flag}
@@ -90,6 +90,24 @@ signals:
     role: signal
     type: trend
     weight: 1.0
+
+  # Baker Hughes US oil rotary rigs. Released Friday 1pm ET (earlier before
+  # holidays); the cache is keyed by publish date, so backtests see a print
+  # only once released. Supply read: fewer rigs -> less future output ->
+  # bullish. NB rigs lag price by ~3-4 months, so this often fights the trend
+  # row; flip `direction` to up_is_bullish to read it as a demand/momentum
+  # confirmation instead. Thresholds ~ interquartile range of 2023-2026 moves.
+  - id: rigs
+    label: Oil Rigs (Baker Hughes)
+    role: signal
+    type: rig_count
+    field: oil                        # oil | gas | total (US)
+    direction: down_is_bullish
+    weight: 1.0
+    short_weeks: 4
+    short_pct: 1.5                    # |4w % change| beyond this -> +-1
+    long_weeks: 13
+    long_pct: 4.0                     # |13w % change| beyond this -> +-1
 
   - id: production
     label: US Production
