@@ -104,12 +104,21 @@ def _fetch_market(market: str, as_of_date: str | None = None, limit: int = 4) ->
     params = {
         "$where": where,
         "$order": "report_date_as_yyyy_mm_dd DESC",
-        "$limit": str(limit),
+        # Backtests: one spare row, since the newest report on/before as_of may
+        # not have been RELEASED yet and gets dropped below.
+        "$limit": str(limit + 1 if as_of_date else limit),
     }
     url = f"{CFTC_API}?{urllib.parse.urlencode(params)}"
     r = requests.get(url, timeout=20)
     r.raise_for_status()
-    return r.json()
+    rows = r.json()
+    if as_of_date:
+        # report_date is the Tuesday positions date; CFTC publishes it Friday
+        # (Monday after a holiday week). Filtering on report_date let backtests
+        # see positioning ~3 days before publication. Keep only released ones.
+        rows = [x for x in rows
+                if cot_release_date((x.get("report_date_as_yyyy_mm_dd") or "")[:10]) <= as_of_date]
+    return rows[:limit]
 
 
 def _to_int(v) -> int:

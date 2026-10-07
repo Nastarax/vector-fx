@@ -199,7 +199,8 @@
   <span><span class="sw" style="background:rgba(126,137,184,.18)"></span>0</span>
   <span><span class="sw" style="background:var(--neg1)"></span>−1</span>
   <span><span class="sw" style="background:var(--neg2)"></span>−2</span>
-  <span class="note">Pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>
+  <span class="note">FX pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>{% if oil %}
+  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; info rows are not counted.</span>{% endif %}
   <span class="note">Location = last close within the 40-session high-low range. WATCH = directional bias with price pulled back to the zone side (bull ≤35%, bear ≥65%); EXT = biased but at the far end.</span>
 </div>
 
