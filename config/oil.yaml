@@ -1,0 +1,104 @@
+# USOIL (WTI crude) scoring. Standalone instrument: NOT base-minus-quote.
+# Score = weighted mean of the `signal` rows' scores, rounded half away from
+# zero, clamped to -2..+2. A signal with no data (e.g. the curve on an old
+# backtest date) is left OUT of the mean and shown as "-", not counted as 0.
+#
+# Roles:
+#   signal   - scored -2..+2 and summed into the composite (weight applies)
+#   display  - shown with its reading, never scored or summed
+#   regime   - (later phases) shown, not summed until its effect is defined
+#
+# Signal types (each maps to a scorer in src/scoring/score_oil.py):
+#   eia_stocks   - level vs 5y same-week avg + 4w change (inventory; low/drawing = bullish)
+#   curve        - (M1 - M12) / M1 in %; backwardation = bullish
+#   cot          - CFTC disaggregated managed-money Long% week-over-week change,
+#                  scored exactly like the FX COT cell (score_sentiment.cot_score)
+#   trend        - existing trend_score on the daily chart (SMA3/14, same as metals)
+#   eia_display  - display-only EIA series (latest value + 4w context)
+#
+# Later phases slot in as new entries + a scorer for their type, e.g.:
+#   - {id: rigs, label: Baker Hughes Rigs, role: signal, type: rig_count, weight: 1.0}
+#   - {id: opec_spare, label: OPEC Spare Capacity, role: regime, type: steo, series: COPS_OPEC}
+#   - {id: china_mpmi, label: China mPMI, role: regime, type: investing_pmi}
+#   - {id: opec_flag, label: OPEC+ Decision, role: regime, type: manual_flag}
+
+instrument:
+  symbol: USOIL           # broker CFD label shown on the heatmap
+  yf_ticker: "CL=F"       # all price data (trend, location, curve front fallback)
+  display_name: USOIL
+
+# Composite score (-2..+2) -> bias label.
+bias_labels:
+  "2": Very Bullish
+  "1": Bullish
+  "0": Neutral
+  "-1": Bearish
+  "-2": Very Bearish
+
+# EIA Weekly Petroleum Status Report: data is for the week ending Friday,
+# released the following Wednesday 10:30 ET (Thursday when a US federal
+# holiday falls Mon-Wed of release week). Backtests only see a print once
+# as_of >= its release date.
+eia:
+  release_lag_days: 5
+  seasonal_years: 5       # 5-year same-week average
+
+# CFTC COT: positions as of Tuesday, released Friday 3:30 ET (Monday after a
+# holiday week). Backtests only see a report once as_of >= its release date.
+cot:
+  contract_code: "067651" # NYMEX WTI Light Sweet ("WTI-PHYSICAL"), disaggregated report
+  release_lag_days: 3
+
+signals:
+  - id: crude_stocks
+    label: Crude Stocks
+    role: signal
+    type: eia_stocks
+    series: WCESTUS1                  # U.S. ending stocks excl. SPR, kbbl
+    weight: 1.0
+    level_pct: 3.0                    # |level vs 5y same-week avg| beyond this % -> +-1
+    change_pct: 0.75                  # |4w change vs 5y avg 4w change| beyond this % of 5y level -> +-1
+    change_vs_seasonal: true          # false = raw 4w change (reads seasonal draws as signal)
+
+  - id: cushing_stocks
+    label: Cushing Stocks
+    role: signal
+    type: eia_stocks
+    series: W_EPC0_SAX_YCUOK_MBBL     # Cushing, OK ending stocks excl. SPR, kbbl
+    weight: 1.0
+    level_pct: 10.0
+    change_pct: 4.0
+    change_vs_seasonal: true
+
+  - id: curve
+    label: Curve M1-M12
+    role: signal
+    type: curve
+    weight: 1.0
+    weak_pct: 2.0                     # |spread| beyond this % -> +-1
+    strong_pct: 6.0                   # |spread| beyond this % -> +-2
+
+  - id: cot
+    label: COT (Managed Money)
+    role: signal
+    type: cot
+    weight: 1.0
+    neutral_threshold: 0.0            # pp of Long%; 0 = strict sign, same as FX
+
+  - id: trend
+    label: Trend
+    role: signal
+    type: trend
+    weight: 1.0
+
+  - id: production
+    label: US Production
+    role: display
+    type: eia_display
+    series: WCRFPUS2                  # U.S. field production of crude, kb/d
+
+  - id: product_supplied
+    label: Product Supplied
+    role: display
+    type: eia_display
+    series: WRPUPUS2                  # U.S. product supplied, total petroleum products, kb/d

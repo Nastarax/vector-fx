@@ -1,0 +1,207 @@
+"""
+USOIL (WTI crude) scoring. Standalone instrument, NOT base-minus-quote:
+composite = weighted mean of the `signal` rows' -2..+2 scores, rounded half
+away from zero, clamped to -2..+2. Signals with no data are left out of the
+mean (shown as n/a) instead of scoring 0. Config: config/oil.yaml.
+
+Each signal type maps to a scorer in SCORERS; later phases (rig count, STEO,
+China mPMI, OPEC+ flag) slot in as a new yaml entry + a scorer here.
+"""
+from __future__ import annotations
+
+import bisect
+import math
+from datetime import date, timedelta
+from pathlib import Path
+
+import yaml
+
+from src.fetchers import eia
+from src.fetchers.cot import cot_release_date
+from src.scoring.score_pair import _setup_state
+from src.scoring.score_sentiment import cot_score
+from src.scoring.score_technical import range_position, trend_score
+
+CONFIG = Path(__file__).resolve().parents[2] / "config" / "oil.yaml"
+
+
+def load_cfg() -> dict:
+    with open(CONFIG, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def _round_half_away(x: float) -> int:
+    return int(math.copysign(math.floor(abs(x) + 0.5), x))
+
+
+def _fmt_mbbl(kbbl: float, signed: bool = False) -> str:
+    return f"{kbbl / 1000:{'+' if signed else ''},.1f}M"
+
+
+# ---------- EIA helpers ----------
+
+def _seasonal_indices(periods: list[date], idx: int, years: int) -> list[int]:
+    """Indices of the observation nearest the same calendar week in each of
+    the previous `years` years (within +-3 days)."""
+    out = []
+    for y in range(1, years + 1):
+        target = periods[idx] - timedelta(days=round(365.2425 * y))
+        j = bisect.bisect_left(periods, target)
+        best = min((k for k in (j - 1, j) if 0 <= k < len(periods)),
+                   key=lambda k: abs((periods[k] - target).days), default=None)
+        if best is not None and abs((periods[best] - target).days) <= 3:
+            out.append(best)
+    return out
+
+
+def _eia_context(series: str, as_of_date: str | None, cfg: dict) -> dict | None:
+    lag = cfg["eia"]["release_lag_days"]
+    years = cfg["eia"]["seasonal_years"]
+    pts = eia.load_series(series, as_of_date, lag)
+    if len(pts) < 5:
+        return None
+    periods = [date.fromisoformat(p) for p, _ in pts]
+    vals = [v for _, v in pts]
+    i = len(pts) - 1
+    seas = [k for k in _seasonal_indices(periods, i, years) if k >= 4]
+    if len(seas) < years:
+        return None
+    return {
+        "period": pts[i][0],
+        "released": eia.release_date(pts[i][0], lag),
+        "value": vals[i],
+        "chg4": vals[i] - vals[i - 4],
+        "avg4": sum(vals[i - 3:i + 1]) / 4,
+        "seas_level": sum(vals[k] for k in seas) / len(seas),
+        "seas_chg4": sum(vals[k] - vals[k - 4] for k in seas) / len(seas),
+        "seas_avg4": sum(sum(vals[k - 3:k + 1]) / 4 for k in seas) / len(seas),
+    }
+
+
+# ---------- scorers: (sig_cfg, ctx) -> (score | None, reading, date) ----------
+
+def _score_eia_stocks(sig: dict, ctx: dict):
+    c = _eia_context(sig["series"], ctx["as_of_date"], ctx["cfg"])
+    if c is None:
+        return None, "no EIA data", None
+    lvl_dev = (c["value"] - c["seas_level"]) / c["seas_level"] * 100
+    chg = c["chg4"] - (c["seas_chg4"] if sig.get("change_vs_seasonal", True) else 0.0)
+    chg_dev = chg / c["seas_level"] * 100
+    # Inventory is inverse to price: below average / drawing = bullish.
+    lvl_s = 1 if lvl_dev <= -sig["level_pct"] else (-1 if lvl_dev >= sig["level_pct"] else 0)
+    chg_s = 1 if chg_dev <= -sig["change_pct"] else (-1 if chg_dev >= sig["change_pct"] else 0)
+    seas_txt = f" (5y {_fmt_mbbl(c['seas_chg4'], True)})" if sig.get("change_vs_seasonal", True) else ""
+    reading = (f"{_fmt_mbbl(c['value'])} bbl · {lvl_dev:+.1f}% vs 5y avg · "
+               f"4w {_fmt_mbbl(c['chg4'], True)}{seas_txt}")
+    return lvl_s + chg_s, reading, f"wk {c['period']} · rel {c['released']}"
+
+
+def _score_curve(sig: dict, ctx: dict):
+    cv = ctx["curve"]
+    if cv is None:
+        return None, "no curve data for this date", None
+    sp = cv["spread_pct"]
+    a = abs(sp)
+    mag = 2 if a >= sig["strong_pct"] else (1 if a >= sig["weak_pct"] else 0)
+    score = mag if sp > 0 else -mag
+    shape = "backwardation" if sp > 0 else ("contango" if sp < 0 else "flat")
+    reading = (f"{cv['front']} {cv['front_px']:.2f} vs {cv['m12']} {cv['m12_px']:.2f} · "
+               f"{sp:+.1f}% {shape}")
+    src = " (archive)" if cv.get("source") == "archive" else ""
+    return score, reading, f"{cv['date']}{src}"
+
+
+def _score_cot(sig: dict, ctx: dict):
+    r = ctx["cot"]
+    if r is None:
+        return None, "no COT data", None
+    score = cot_score(r, neutral_threshold=sig.get("neutral_threshold", 0.0))
+    reading = (f"MM long {r.long_pct:.1f}% ({r.long_pct_change:+.2f}pp w/w) · "
+               f"net {r.net_position:+,}")
+    rel = cot_release_date(r.report_date, ctx["cfg"]["cot"]["release_lag_days"])
+    stale = " · STALE" if r.is_stale else ""
+    return score, reading, f"pos {r.report_date} · rel {rel}{stale}"
+
+
+def _score_trend(sig: dict, ctx: dict):
+    df = ctx["df"]
+    if df is None or df.empty or len(df["Close"].dropna()) < 15:
+        return None, "no price data", None
+    closes = df["Close"].dropna()
+    sma3 = closes.rolling(3).mean().iloc[-1]
+    sma14 = closes.rolling(14).mean().iloc[-1]
+    reading = f"CL=F {closes.iloc[-1]:.2f} · SMA3 {sma3:.2f} vs SMA14 {sma14:.2f}"
+    return trend_score(df, None, equity_index=False), reading, closes.index[-1].date().isoformat()
+
+
+def _display_eia(sig: dict, ctx: dict):
+    c = _eia_context(sig["series"], ctx["as_of_date"], ctx["cfg"])
+    if c is None:
+        return None, "no EIA data", None
+    dev = (c["avg4"] - c["seas_avg4"]) / c["seas_avg4"] * 100
+    reading = (f"{c['value']:,.0f} kb/d · 4w avg {c['avg4']:,.0f} ({dev:+.1f}% vs 5y) · "
+               f"4w chg {c['chg4']:+,.0f}")
+    return None, reading, f"wk {c['period']} · rel {c['released']}"
+
+
+SCORERS = {
+    "eia_stocks": _score_eia_stocks,
+    "curve": _score_curve,
+    "cot": _score_cot,
+    "trend": _score_trend,
+    "eia_display": _display_eia,
+}
+
+
+def eia_series_ids(cfg: dict) -> list[str]:
+    return [s["series"] for s in cfg["signals"] if s["type"].startswith("eia")]
+
+
+def build_oil(df, cot_reading, curve, as_of_date: str | None = None, cfg: dict | None = None) -> dict:
+    cfg = cfg or load_cfg()
+    ctx = {"cfg": cfg, "as_of_date": as_of_date, "df": df, "cot": cot_reading, "curve": curve}
+    rows = []
+    wsum = wtot = 0.0
+    for sig in cfg["signals"]:
+        scorer = SCORERS.get(sig["type"])
+        if scorer is None:
+            score, reading, dt = None, f"no scorer for type '{sig['type']}'", None
+        else:
+            try:
+                score, reading, dt = scorer(sig, ctx)
+            except Exception as e:
+                print(f"[oil] {sig['id']} scoring failed: {e}")
+                score, reading, dt = None, "error", None
+        role = sig.get("role", "signal")
+        if role == "signal" and score is not None:
+            score = max(-2, min(2, int(score)))
+            w = float(sig.get("weight", 1.0))
+            wsum += w * score
+            wtot += w
+        rows.append({
+            "id": sig["id"], "label": sig["label"], "role": role,
+            "score": score if role == "signal" else None,
+            "weight": sig.get("weight") if role == "signal" else None,
+            "reading": reading, "date": dt,
+        })
+
+    inst = cfg["instrument"]
+    if wtot > 0:
+        score = max(-2, min(2, _round_half_away(wsum / wtot)))
+        bias = cfg["bias_labels"][str(score)]
+        mean = wsum / wtot
+    else:
+        score, bias, mean = None, "Neutral", None
+    loc_pct = range_position(df) if df is not None else None
+    return {
+        "symbol": inst["symbol"],
+        "display_name": inst.get("display_name", inst["symbol"]),
+        "score": score,
+        "mean": mean,
+        "bias": bias,
+        "loc_pct": loc_pct,
+        "setup": _setup_state(bias, loc_pct),
+        "rows": rows,
+        "n_signals": sum(1 for r in rows if r["role"] == "signal"),
+        "n_scored": sum(1 for r in rows if r["role"] == "signal" and r["score"] is not None),
+    }

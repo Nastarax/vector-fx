@@ -132,6 +132,67 @@
   </table>
 </div>
 
+{% if oil %}
+<div class="wrap oil-wrap">
+  <table id="oil-table">
+    <thead>
+      <tr class="group-row">
+        <th class="sticky-col">&nbsp;</th>
+        <th colspan="3">Output</th>
+        <th colspan="4" class="gstart">Commodities · standalone (weighted mean of signal rows, not base − quote)</th>
+      </tr>
+      <tr class="col-row">
+        <th class="sticky-col">Symbol</th>
+        <th>Bias</th>
+        <th>Score</th>
+        <th>Location</th>
+        <th class="gstart">Signal</th>
+        <th>Reading</th>
+        <th>Weight</th>
+        <th>Data date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="oil-head">
+        <td class="symbol">{{ oil.display_name }}</td>
+        <td class="bias"><span class="pill {{ oil.bias_class }}">{% if oil.score is none %}n/a{% else %}{{ oil.bias }}{% endif %}</span></td>
+        <td class="score mono"><span class="score-chip {{ oil.total_class }}">{% if oil.score is none %}—{% else %}{{ oil.score }}{% endif %}</span></td>
+        {% if oil.loc_pct is none %}
+        <td class="location na mono">—</td>
+        {% elif oil.setup == 'watch' %}
+        <td class="location"><span class="loc-chip loc-watch">WATCH · {{ oil.loc_pct }}%</span></td>
+        {% elif oil.setup == 'extended' %}
+        <td class="location"><span class="loc-chip loc-ext">EXT · {{ oil.loc_pct }}%</span></td>
+        {% elif oil.setup == 'mid' %}
+        <td class="location"><span class="loc-chip loc-mid">MID · {{ oil.loc_pct }}%</span></td>
+        {% else %}
+        <td class="location"><span class="loc-chip loc-none">{{ oil.loc_pct }}%</span></td>
+        {% endif %}
+        <td class="gstart oil-summary" colspan="4">CL=F prices · {{ oil.n_scored }}/{{ oil.n_signals }} signals with data{% if oil.mean is not none %} · mean {{ '%+.2f'|format(oil.mean) }}{% endif %}</td>
+      </tr>
+      {% for s in oil.rows %}
+      <tr class="oil-sub{% if s.role != 'signal' %} oil-info{% endif %}">
+        <td class="symbol sub">{{ s.label }}</td>
+        <td class="bias">{% if s.role != 'signal' %}<span class="oil-tag">{{ s.role }}</span>{% endif %}</td>
+        {% if s.role != 'signal' %}
+        <td class="cell na mono">·</td>
+        {% elif s.score is none %}
+        <td class="cell na mono">—</td>
+        {% else %}
+        <td class="cell mono {{ cell_class(s.score) }}"><span class="cell-inner">{{ s.score }}</span></td>
+        {% endif %}
+        <td></td>
+        <td class="gstart oil-label">{{ s.id }}</td>
+        <td class="oil-reading mono">{{ s.reading }}</td>
+        <td class="mono">{% if s.weight is not none %}{{ s.weight }}{% else %}—{% endif %}</td>
+        <td class="oil-date mono">{{ s.date or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
 <div class="legend">
   <span><span class="sw" style="background:var(--pos2)"></span>+2</span>
   <span><span class="sw" style="background:var(--pos1)"></span>+1</span>
@@ -154,7 +215,7 @@ function applyBiasFilter(){
   var showCcys  = document.getElementById('show-currencies');
   var pairsOn = showPairs ? showPairs.checked : true;
   var ccysOn  = showCcys  ? showCcys.checked  : false;
-  var rows = document.querySelectorAll('tbody tr');
+  var rows = document.querySelectorAll('#heatmap tbody tr');
   var shown = 0;
   rows.forEach(function(tr){
     var bias = tr.getAttribute('data-bias') || '';

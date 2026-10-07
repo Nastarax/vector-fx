@@ -167,6 +167,37 @@ Unemployment Rate:    TE all 8 (down_is_bullish)
   Growth/Inflation + Unemployment only). Displayed as "UK100" on the heatmap (not in
   score_pair `DISPLAY_NAMES`, so the symbol shows as-is).
 
+## USOIL (WTI crude) standalone row
+
+Own table under the FX heatmap ("Commodities"), NOT in `pairs.yaml` and NOT
+base-minus-quote. Score = weighted mean of the `signal` rows, rounded half away
+from zero, clamped -2..+2; a signal with no data is left out of the mean (shown
+"-"), not scored 0. Everything tunable lives in `config/oil.yaml` (weights,
+thresholds, release lags, bias labels, roles signal/display/regime). Scorers:
+`src/scoring/score_oil.py` (`SCORERS` registry: new signal type = yaml entry +
+one scorer). Orchestration: `build_oil_row` in `main.py` (both modes; failure
+never blocks the FX page).
+
+- **EIA weekly** (`src/fetchers/eia.py`, key `EIA_API_KEY` env / repo secret):
+  crude stocks `WCESTUS1`, Cushing `W_EPC0_SAX_YCUOK_MBBL` (signals: level vs
+  5y same-week avg + 4w change vs 5y avg 4w change); production `WCRFPUS2` and
+  product supplied `WRPUPUS2` are display-only. Full history cached in
+  `data/cache/eia_weekly.json` (committed). Backtests filter by RELEASE date
+  (week-ending Fri + 5d = Wed, +1d if a federal holiday falls Mon-Wed).
+- **COT**: `cot.fetch_disaggregated` (dataset `72hh-3qpy`, code `067651`,
+  queried by code since CFTC renamed it "WTI-PHYSICAL"), managed money, scored
+  with the FX `cot_score` (+-1). Release-date filtered (Tue + 3d, Mon after a
+  holiday week). NB: the FX `fetch_cot` still filters on report_date, a ~3-day
+  lookahead in FX backtests (left untouched on purpose).
+- **Curve** (`src/fetchers/oil_curve.py`): (M1-M12)/M1 from yfinance contract
+  tickers (`CLX26.NYM`...), front derived from CME's CL expiry rule. Expired
+  contracts 404 on yfinance and no free historical curve exists (EIA RCLC1-4
+  ended 2024-04-05; Stooq/Nasdaq CHRIS bot-walled), so live runs append to
+  `data/cache/oil_curve_history.json` (committed) and old backtest dates show
+  curve "-" (e.g. 2025-03-15).
+- **Trend**: existing `trend_score` on CL=F daily (SMA3/14, same as metals).
+  Location chip = `range_position` on CL=F.
+
 ## Recent changes (committed)
 
 00. **Pair-level history + WATCH-flip alerts.**

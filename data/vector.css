@@ -137,6 +137,30 @@ table#heatmap{border-collapse:separate;border-spacing:0;min-width:100%;backgroun
 #heatmap tr.currency-row td.symbol{color:#aebbf2;font-weight:800;border-left:3px solid var(--accent)}
 #heatmap td.colhi,#heatmap th.colhi{background:rgba(79,140,255,.10)!important}
 
+/* ---- Commodities table (USOIL): reuses the heatmap look ---- */
+.oil-wrap{margin-top:14px}
+#oil-table{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px}
+#oil-table thead th{background:var(--panel-2);padding:7px 8px;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;
+                    color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}
+#oil-table thead th.gstart,#oil-table tbody td.gstart{border-left:2px solid var(--border-soft)}
+#oil-table tbody td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--border-soft);white-space:nowrap}
+#oil-table tbody tr:nth-child(odd){background:var(--row)}
+#oil-table tbody tr:nth-child(even){background:var(--rowAlt)}
+#oil-table th.sticky-col,#oil-table td.symbol{position:sticky;left:0;z-index:4;background:var(--panel-2)}
+#oil-table td.symbol{font-weight:700;text-align:left;min-width:96px;border-right:1px solid var(--border)}
+#oil-table tr.oil-head td.symbol{color:#aebbf2;font-weight:800;border-left:3px solid var(--accent)}
+#oil-table td.symbol.sub{font-weight:500;color:var(--muted);padding-left:22px}
+#oil-table td.bias{text-align:left;min-width:118px}
+#oil-table td.score{font-weight:700;font-size:13px}
+#oil-table td.location{text-align:left;min-width:106px}
+#oil-table td.na{color:#4a527e}
+#oil-table td.oil-summary,#oil-table td.oil-reading{text-align:left;color:var(--text)}
+#oil-table td.oil-reading{white-space:normal;min-width:280px}
+#oil-table td.oil-label,#oil-table td.oil-date{color:var(--muted);text-align:left;font-size:11.5px}
+#oil-table tr.oil-info td{opacity:.72}
+.oil-tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.4px;
+         text-transform:uppercase;color:var(--muted);border:1px dashed var(--border)}
+
 /* ---- Legend / footer / banner ---- */
 .legend{display:flex;gap:16px;align-items:center;color:var(--muted);font-size:11.5px;padding:10px 24px 20px}
 .legend .sw{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:middle}

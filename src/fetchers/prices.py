@@ -106,6 +106,33 @@ def fetch_prices(as_of_date: str | None = None) -> dict[str, pd.DataFrame]:
     return out
 
 
+def fetch_instrument(symbol: str, ticker: str, as_of_date: str | None = None,
+                     period: str = "25y") -> pd.DataFrame:
+    """
+    Daily OHLC for one instrument outside pairs.yaml (e.g. USOIL from CL=F, or
+    an individual futures contract for the oil curve). Same cache + retry +
+    stale-cache fallback as fetch_prices; cached as px_<symbol>.pkl.
+    """
+    cache = _cache_path(symbol)
+    df: pd.DataFrame | None = None
+    if _is_fresh(cache):
+        df = pd.read_pickle(cache)
+    else:
+        df = _yf_history_with_retries(ticker, period=period, interval="1d")
+        if df is not None:
+            df = df[["Open", "High", "Low", "Close"]].copy()
+            df.to_pickle(cache)
+        elif cache.exists():
+            stale_age_hours = (time.time() - cache.stat().st_mtime) / 3600
+            print(f"[prices] {symbol} using stale cache ({stale_age_hours:.1f}h old)")
+            df = pd.read_pickle(cache)
+        else:
+            df = pd.DataFrame()
+    if as_of_date and not df.empty:
+        df = df.loc[df.index <= pd.Timestamp(as_of_date, tz=df.index.tz)]
+    return df
+
+
 def fetch_prices_4h(as_of_date: str | None = None) -> dict[str, pd.DataFrame]:
     """
     Returns dict[symbol] -> DataFrame of 4H bars.

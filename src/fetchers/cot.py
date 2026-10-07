@@ -278,6 +278,91 @@ def fetch_cot_history(weeks: int = 52, as_of_date: str | None = None) -> dict[st
     return out
 
 
+# Disaggregated Futures Only report (commodities: Managed Money category).
+CFTC_DISAGG_API = "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"
+
+
+def cot_release_date(report_date: str, lag_days: int = 3) -> str:
+    """Tuesday positions -> Friday release. In a week with a US federal
+    holiday between Wednesday and Friday, CFTC publishes the following Monday."""
+    from datetime import timedelta
+    from src.fetchers.eia import _holidays
+    rd = datetime.strptime(report_date, "%Y-%m-%d").date()
+    rel = rd + timedelta(days=lag_days)
+    if any((rd + timedelta(days=k)) in _holidays() for k in range(1, lag_days + 1)):
+        rel = rd + timedelta(days=lag_days + 3)
+    return rel.isoformat()
+
+
+def fetch_disaggregated(symbol: str, contract_code: str, as_of_date: str | None = None,
+                        release_lag_days: int = 3) -> CotReading | None:
+    """
+    Latest Managed Money reading for one contract from the Disaggregated report,
+    as a CotReading (long/short = managed money) so the FX COT scorer applies
+    unchanged. Queried by contract code, not market name (CFTC renames markets:
+    067651 is now "WTI-PHYSICAL", formerly "CRUDE OIL, LIGHT SWEET").
+
+    Backtest-safe: only reports whose RELEASE date (Friday after the Tuesday
+    report date) is on/before as_of_date are used. Live result is cached to
+    data/cache/cot_disagg_<code>.json as a fallback for API outages.
+    """
+    cache = CACHE_DIR / f"cot_disagg_{contract_code}.json"
+    where = [f"cftc_contract_market_code = '{contract_code}'"]
+    if as_of_date:
+        where.append(f"report_date_as_yyyy_mm_dd <= '{as_of_date}T23:59:59.999'")
+    params = {
+        "$where": " AND ".join(where),
+        "$order": "report_date_as_yyyy_mm_dd DESC",
+        "$limit": "6",
+    }
+    try:
+        r = requests.get(f"{CFTC_DISAGG_API}?{urllib.parse.urlencode(params)}", timeout=20)
+        r.raise_for_status()
+        rows = r.json()
+        if not as_of_date and rows:
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            cache.write_text(json.dumps(rows, indent=1), encoding="utf-8")
+    except Exception as e:
+        print(f"[cot-disagg] {symbol} ({contract_code}) fetch failed: {e}")
+        if as_of_date or not cache.exists():
+            return None
+        rows = json.loads(cache.read_text(encoding="utf-8"))
+
+    ref = as_of_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    rows = [x for x in rows
+            if cot_release_date((x.get("report_date_as_yyyy_mm_dd") or "")[:10], release_lag_days) <= ref]
+    if not rows:
+        return None
+    latest, prev = rows[0], (rows[1] if len(rows) > 1 else None)
+
+    def _long_pct(x):
+        L = _to_int(x.get("m_money_positions_long_all"))
+        S = _to_int(x.get("m_money_positions_short_all"))
+        return L, S, (100 * L / (L + S) if L + S else 50.0)
+
+    L, S, long_pct = _long_pct(latest)
+    prev_long_pct = _long_pct(prev)[2] if prev else long_pct
+    report_date = (latest.get("report_date_as_yyyy_mm_dd") or "")[:10]
+    days_old = (datetime.strptime(ref, "%Y-%m-%d") - datetime.strptime(report_date, "%Y-%m-%d")).days
+    return CotReading(
+        currency=symbol,
+        report_date=report_date,
+        long_contracts=L,
+        short_contracts=S,
+        long_change=_to_int(latest.get("change_in_m_money_long_all")),
+        short_change=_to_int(latest.get("change_in_m_money_short_all")),
+        net_position=L - S,
+        long_pct=long_pct,
+        short_pct=100 - long_pct,
+        weekly_change_pct=0.0,
+        long_pct_change=long_pct - prev_long_pct,
+        open_interest=_to_int(latest.get("open_interest_all")),
+        open_interest_change=_to_int(latest.get("change_in_open_interest_all")),
+        is_stale=days_old > MAX_STALE_DAYS,
+        days_old=days_old,
+    )
+
+
 if __name__ == "__main__":
     cot = fetch_cot()
     for ccy, r in cot.items():

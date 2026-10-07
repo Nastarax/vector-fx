@@ -83,3 +83,9 @@ scripts/daily_refresh.log
 
 # isolated-signal study caches (large, regenerable)
 data/cache/study/
+
+# USOIL: EIA weekly petroleum history (full series, release-date filtered at
+# read time) and the daily WTI M1-M12 curve archive (no free historical curve
+# source exists, so live runs build it forward for backtests).
+!data/cache/eia_weekly.json
+!data/cache/oil_curve_history.json

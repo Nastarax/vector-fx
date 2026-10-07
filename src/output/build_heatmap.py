@@ -48,6 +48,18 @@ def _total_class(total: int) -> str:
     return ""
 
 
+def _oil_for_render(oil: dict | None) -> dict | None:
+    """USOIL composite is -2..+2, so its chip colours like a single cell."""
+    if not oil:
+        return None
+    sc = oil.get("score")
+    return {
+        **oil,
+        "bias_class": _bias_class(oil["bias"]) if sc is not None else "b-neut",
+        "total_class": {2: "total-c2", 1: "total-c1", -1: "total-cn1", -2: "total-cn2"}.get(sc, "total-c0"),
+    }
+
+
 def render(heatmap: dict, output_path: Path | None = None) -> Path:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     as_of = heatmap.get("as_of_date")
@@ -102,6 +114,7 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
         cot_status=cot_status,
         stale_cots=stale_cots,
         stale_groups=stale_groups,
+        oil=_oil_for_render(heatmap.get("oil")),
     )
     output_path.write_text(html, encoding="utf-8")
     return output_path
