@@ -338,8 +338,17 @@ def fetch_disaggregated(symbol: str, contract_code: str, as_of_date: str | None 
         rows = json.loads(cache.read_text(encoding="utf-8"))
 
     ref = as_of_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    rows = [x for x in rows
-            if cot_release_date((x.get("report_date_as_yyyy_mm_dd") or "")[:10], release_lag_days) <= ref]
+    return disagg_reading(symbol, rows, ref, release_lag_days)
+
+
+def disagg_reading(symbol: str, rows: list[dict], ref: str,
+                   release_lag_days: int = 3) -> CotReading | None:
+    """Managed-money CotReading as of `ref` from disaggregated rows (any order,
+    any span): keeps only reports released on/before ref, uses the latest two.
+    Shared by the live fetch and the long-history study (scripts/study_oil.py)."""
+    rows = sorted((x for x in rows
+                   if cot_release_date((x.get("report_date_as_yyyy_mm_dd") or "")[:10], release_lag_days) <= ref),
+                  key=lambda x: x["report_date_as_yyyy_mm_dd"], reverse=True)
     if not rows:
         return None
     latest, prev = rows[0], (rows[1] if len(rows) > 1 else None)
