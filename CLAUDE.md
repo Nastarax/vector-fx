@@ -169,6 +169,15 @@ Unemployment Rate:    TE all 8 (down_is_bullish)
 
 ## USOIL (WTI crude) standalone row
 
+**Status: context display, not a trading signal (decided 2026-10-07).**
+`scripts/study_oil.py` (840 Fridays 2010-2026, live scorer, rolled-contract
+returns from Databento, entry next close) found no edge in the composite or
+any signal (|t_adj| < 1.4 at 1/2/4/8w; lookahead control IC +0.87). Rigs and
+Cushing were negative in both halves, the curve ~0 to negative; the
+"backwardation + falling price = dip-buy" idea underperformed. The page labels
+the row "context only". Don't reweight without a pre-stated variant that tests
+positive in that harness.
+
 Own table under the FX heatmap ("Commodities"), NOT in `pairs.yaml` and NOT
 base-minus-quote. Score = weighted mean of the `signal` rows, rounded half away
 from zero, clamped -2..+2; a signal with no data is left out of the mean (shown

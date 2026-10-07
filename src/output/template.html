@@ -139,7 +139,7 @@
       <tr class="group-row">
         <th class="sticky-col">&nbsp;</th>
         <th colspan="3">Output</th>
-        <th colspan="4" class="gstart">Commodities · standalone (weighted mean of signal rows, not base − quote)</th>
+        <th colspan="4" class="gstart" title="scripts/study_oil.py: 840 weekly scores 2010-2026, no signal or composite predicted 1-8 week returns">Commodities · context only, not a trading signal (no forward-return edge 2010-2026)</th>
       </tr>
       <tr class="col-row">
         <th class="sticky-col">Symbol</th>
@@ -200,7 +200,7 @@
   <span><span class="sw" style="background:var(--neg1)"></span>−1</span>
   <span><span class="sw" style="background:var(--neg2)"></span>−2</span>
   <span class="note">FX pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>{% if oil %}
-  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; info rows are not counted.</span>{% endif %}
+  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; info rows are not counted. Context only: in a 2010-2026 weekly test neither the score nor any signal predicted 1-8 week returns.</span>{% endif %}
   <span class="note">Location = last close within the 40-session high-low range. WATCH = directional bias with price pulled back to the zone side (bull ≤35%, bear ≥65%); EXT = biased but at the far end.</span>
 </div>
 
