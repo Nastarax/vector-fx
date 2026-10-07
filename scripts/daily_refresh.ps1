@@ -45,7 +45,9 @@ if ($LASTEXITCODE -ne 0) { Log "ERROR: refresh exited $LASTEXITCODE"; exit 1 }
 # Commit any changed caches (release_calendar.json included).
 if (git status --porcelain data/cache/) {
     Git-Run add data/cache/ | Out-Null
-    Git-Run commit -m "Investing refresh (due)" | Out-Null
+    # Pathspec commit: only data/cache/ goes in, even if other files happen to
+    # be staged (e.g. code mid-edit), so unreviewed work is never pushed.
+    Git-Run commit -m "Investing refresh (due)" -- data/cache/ | Out-Null
 }
 
 # Resilient push: GitHub Actions commits hourly, so a plain push is usually
@@ -59,6 +61,11 @@ if (-not $ahead) { $ahead = 0 }
 if ([int]$ahead -gt 0) {
     $pushed = $false
     for ($i = 1; $i -le 3; $i++) {
+        # Drop locally regenerated pages before rebasing. main.py rewrites every
+        # data/*.html on each run (here and in CI), so nothing is lost, and it
+        # stops the autostash pop from conflicting on them and leaving merge
+        # markers in the worktree that a later `git add -A` would commit.
+        Git-Run checkout -- 'data/*.html' | Out-Null
         $rc = Git-Run rebase --autostash -X theirs origin/main
         if ($rc -ne 0) {
             Git-Run rebase --abort | Out-Null
