@@ -1,0 +1,11 @@
+{
+ "2026-10-06": {
+  "date": "2026-10-06",
+  "front": "CLX26.NYM",
+  "m12": "CLV27.NYM",
+  "front_px": 90.16,
+  "m12_px": 77.83,
+  "spread_pct": 13.676,
+  "source": "yfinance"
+ }
+}
