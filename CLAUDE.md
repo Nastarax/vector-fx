@@ -193,8 +193,14 @@ never blocks the FX page).
   tickers (`CLX26.NYM`...), front derived from CME's CL expiry rule. Expired
   contracts 404 on yfinance and no free historical curve exists (EIA RCLC1-4
   ended 2024-04-05; Stooq/Nasdaq CHRIS bot-walled), so live runs append to
-  `data/cache/oil_curve_history.json` (committed) and old backtest dates show
-  curve "-" (e.g. 2025-03-15).
+  `data/cache/oil_curve_history.json` (committed). That archive was
+  backfilled 2010-06-07 onward from Databento (GLBX.MDP3 ohlcv-1d outrights,
+  $1.08 one-off) by `scripts/backfill_oil_curve.py` (local-only,
+  DATABENTO_API_KEY in .env, raw download kept in gitignored data/cache/study/
+  so re-runs don't re-bill). Databento closes are last trade of the UTC day vs
+  Yahoo's settlement: mean gap 0.5pp, 32/35 same score bucket (2025-11..2026-10).
+  % spread explodes near zero front prices (2020-04-21: -247%); the cell just
+  clamps to -2. 2020-04-20 (negative front) is skipped.
 - **Trend**: existing `trend_score` on CL=F daily (SMA3/14, same as metals).
   Location chip = `range_position` on CL=F.
 - **Rig count** (`src/fetchers/baker_hughes.py`, phase 2): Baker Hughes NA
