@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-08T14:00:35Z",
+  "generated": "2026-10-08T23:00:33Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -9,
       "status": "due",
-      "last_checked": "2026-10-08T14:00:35Z"
+      "last_checked": "2026-10-08T23:00:33Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -1070,13 +1070,13 @@
       "indicator": "jobless_claims",
       "label": "Unemployment Claims",
       "source": "te",
-      "last_release": "2026-10-01",
+      "last_release": "2026-10-08",
       "period_days": 7,
       "period_basis": "derived",
-      "next_release": "2026-10-08",
+      "next_release": "2026-10-15",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 7,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|household_spending": {
@@ -1091,7 +1091,7 @@
       "next_basis": "estimated",
       "days_until": -5,
       "status": "due",
-      "last_checked": "2026-10-08T14:00:35Z"
+      "last_checked": "2026-10-08T23:00:33Z"
     }
   }
 }
