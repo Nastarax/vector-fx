@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.fetchers import abs_au, baker_hughes, cot, eia, oil_curve, forexfactory, fred, investing, investing_adp, investing_consumer_conf, investing_core, investing_cpi, investing_gdp, investing_household, investing_jolts, investing_pce, investing_ppi, investing_retail_sales, myfxbook_ppi, prices, retail, services_pmi, tradingeconomics
-from src.output import build_cot, build_economic_heatmap, build_heatmap, build_inflation, build_macro, build_retail, build_scorecard, build_seasonality, notify
+from src.output import build_cot, build_economic_heatmap, build_heatmap, changes, build_inflation, build_macro, build_retail, build_scorecard, build_seasonality, notify
 from src.scoring.score_pair import build_heatmap as build_matrix, load_pairs_cfg
 from src.scoring import score_history, score_oil
 
@@ -349,7 +349,6 @@ def main():
     print("[5/5] Scoring + rendering...")
     heatmap = build_matrix(macro, cot_data, rt, px, prices_4h=px_4h, as_of_date=args.date, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi_data, investing_ppi=investing_ppi_data, investing_gdp=investing_gdp_data, myfxbook_ppi=myfxbook_ppi_data, investing_cc=investing_cc_data, investing_jolts=investing_jolts_data, investing_adp=investing_adp_data, investing_pce=investing_pce_data, investing_retail_sales=investing_retail_sales_data, rates_outlook=rates_outlook, investing_core=investing_core_data, treasury_2y=treasury_2y)
     heatmap["oil"] = build_oil_row(args.date)
-    out_path = build_heatmap.render(heatmap)
 
     # COT dashboard: fetch 52w of weekly history (separate from the 4w used
     # by the scoring path) and render both interactive tools.
@@ -394,6 +393,21 @@ def main():
         econ_path = build_economic_heatmap.render(econ_data)
     except Exception as e:
         print(f"[econ-heatmap] render failed: {e}")
+
+    # "What changed": this week's releases + score/cell changes vs N days ago.
+    # Rendered after the econ build because the release list comes from it.
+    window = build_heatmap.change_window_days()
+    try:
+        heatmap["releases"] = changes.recent_releases(econ_data, args.date, window)
+        changes.annotate(heatmap, window)
+    except Exception as e:
+        print(f"[changes] failed: {e}")
+    out_path = build_heatmap.render(heatmap)
+    if not args.date:
+        try:
+            changes.save(heatmap["rows"], heatmap.get("oil"))
+        except Exception as e:
+            print(f"[changes] cell history save failed: {e}")
 
     # Pair-level history (score + range location + setup state), recorded
     # independently of the scorecard so a scorecard failure can't drop it.

@@ -91,3 +91,6 @@ data/cache/study/
 !data/cache/oil_curve_history.json
 # Baker Hughes US weekly rig count (keyed by publish date, merged, never dropped).
 !data/cache/rig_count.json
+# Daily per-cell heatmap scores (what-changed markers + delta column). Written by
+# live runs, committed so the 7-day comparison survives between CI runs.
+!data/cache/cell_history.json

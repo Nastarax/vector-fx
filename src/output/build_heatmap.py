@@ -48,6 +48,28 @@ def _total_class(total: int) -> str:
     return ""
 
 
+def change_window_days() -> int:
+    """`changes.window_days` in indicators.yaml (default 7): the lookback for
+    the release list, the delta column and the changed-cell markers."""
+    import yaml
+    cfg_path = Path(__file__).resolve().parents[2] / "config" / "indicators.yaml"
+    with open(cfg_path, encoding="utf-8") as f:
+        return int((yaml.safe_load(f).get("changes") or {}).get("window_days", 7))
+
+
+def _fmt_num(v) -> str:
+    """Release values: >=1M -> 6.87M, >=1k -> 209K, else as-is (same rule as
+    the Economic Heatmap's abbrevNum)."""
+    if v is None:
+        return "—"
+    a = abs(v)
+    if a >= 1e6:
+        return f"{v / 1e6:.2f}M"
+    if a >= 1e3:
+        return f"{v / 1e3:.0f}K"
+    return f"{v:g}"
+
+
 def _oil_for_render(oil: dict | None) -> dict | None:
     """USOIL composite is -2..+2, so its chip colours like a single cell."""
     if not oil:
@@ -74,6 +96,7 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
         autoescape=select_autoescape(["html"]),
     )
     env.globals["cell_class"] = _cell_class
+    env.filters["num"] = _fmt_num
 
     rows_for_render = []
     for r in heatmap["rows"]:
@@ -115,6 +138,8 @@ def render(heatmap: dict, output_path: Path | None = None) -> Path:
         stale_cots=stale_cots,
         stale_groups=stale_groups,
         oil=_oil_for_render(heatmap.get("oil")),
+        releases=heatmap.get("releases", []),
+        window_days=change_window_days(),
     )
     output_path.write_text(html, encoding="utf-8")
     return output_path

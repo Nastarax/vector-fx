@@ -161,6 +161,23 @@ table#heatmap{border-collapse:separate;border-spacing:0;min-width:100%;backgroun
 .oil-tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.4px;
          text-transform:uppercase;color:var(--muted);border:1px dashed var(--border)}
 
+/* ---- What changed: delta column, changed cells, release list ---- */
+#heatmap td.delta,#oil-table td.delta{font-weight:700;font-size:12px;min-width:58px}
+td.delta.up{color:#8fb4ff} td.delta.down{color:#ff9aa6} td.delta.flat,td.delta.na{color:var(--muted)}
+.cell.chg .cell-inner{box-shadow:0 0 0 2px #eef2ff}
+.releases-wrap{margin-bottom:14px}
+.releases-head{font-weight:700;font-size:13px;padding:2px 2px 8px;color:var(--text)}
+.releases-sub{font-weight:400;color:var(--muted);font-size:11.5px;margin-left:8px}
+.releases-scroll{max-height:272px;overflow:auto;border:1px solid var(--border);border-radius:9px}
+#releases{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px}
+#releases thead th{position:sticky;top:0;background:var(--panel-2);padding:7px 10px;font-size:10.5px;text-transform:uppercase;
+                   letter-spacing:.6px;color:var(--muted);font-weight:700;text-align:left;border-bottom:1px solid var(--border)}
+#releases tbody td{padding:6px 10px;border-bottom:1px solid var(--border-soft);white-space:nowrap}
+#releases tbody tr:nth-child(odd){background:var(--row)}
+#releases tbody tr:nth-child(even){background:var(--rowAlt)}
+#releases td.rel-ccy{font-weight:800;color:#aebbf2}
+#releases td.up{color:#8fb4ff;font-weight:700} #releases td.down{color:#ff9aa6;font-weight:700} #releases td.na{color:var(--muted)}
+
 /* ---- Legend / footer / banner ---- */
 .legend{display:flex;gap:16px;align-items:center;color:var(--muted);font-size:11.5px;padding:10px 24px 20px}
 .legend .sw{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:middle}

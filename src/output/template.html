@@ -71,12 +71,44 @@
 </div>
 {% endif %}
 
+{% macro delta_td(d, since) -%}
+{% if d is not defined or d is none %}<td class="delta na mono" title="No comparison yet: needs a snapshot from {{ window_days }}+ days ago">—</td>
+{%- elif d > 0 %}<td class="delta up mono" title="Score change since {{ since }}">▲ +{{ d }}</td>
+{%- elif d < 0 %}<td class="delta down mono" title="Score change since {{ since }}">▼ {{ d }}</td>
+{%- else %}<td class="delta flat mono" title="Unchanged since {{ since }}">0</td>{% endif %}
+{%- endmacro %}
+
+{% if releases %}
+<div class="wrap releases-wrap">
+  <div class="releases-head">This week's releases <span class="releases-sub">last {{ window_days }} days · actual vs forecast · newest first · {{ releases|length }} prints</span></div>
+  <div class="releases-scroll">
+  <table id="releases">
+    <thead><tr><th>Date</th><th>Ccy</th><th>Release</th><th>Actual</th><th>Forecast</th><th>Previous</th><th>Vs forecast</th><th>For the currency</th></tr></thead>
+    <tbody>
+      {% for r in releases %}
+      <tr>
+        <td class="mono">{{ r.date[5:] }}</td>
+        <td class="rel-ccy">{{ r.ccy }}</td>
+        <td class="rel-ind">{{ r.indicator }}</td>
+        <td class="mono">{{ r.actual|num }}</td>
+        <td class="mono">{{ r.forecast|num }}</td>
+        <td class="mono">{{ r.previous|num }}</td>
+        <td class="mono {% if r.forecast is none %}na{% elif r.currency_impact == 'Bullish' %}up{% elif r.currency_impact == 'Bearish' %}down{% endif %}">{% if r.forecast is none %}no forecast{% elif r.actual > r.forecast %}above{% elif r.actual < r.forecast %}below{% else %}in line{% endif %}</td>
+        <td><span class="pill {% if r.currency_impact == 'Bullish' %}b-bull{% elif r.currency_impact == 'Bearish' %}b-bear{% else %}b-neut{% endif %}">{{ r.currency_impact }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+
 <div class="wrap">
   <table id="heatmap">
     <thead>
       <tr class="group-row">
         <th class="sticky-col" colspan="1">&nbsp;</th>
-        <th colspan="3">Output</th>
+        <th colspan="4">Output</th>
         {% for cat, ids in categories.items() %}
           <th colspan="{{ ids|length }}" class="gstart">{{ cat }}</th>
         {% endfor %}
@@ -85,6 +117,7 @@
         <th class="sticky-col">Symbol</th>
         <th>Bias</th>
         <th>Score</th>
+        <th title="Score change over the last {{ window_days }} days">Δ {{ window_days }}d</th>
         <th title="Last close's position in the 40-session high-low range (0% = range low, 100% = range high). WATCH = directional bias with price pulled back to the zone-hunting side; EXTENDED = biased but at the far end of the range.">Location</th>
         {% set ns = namespace(prev='') %}
         {% for ind in indicators %}
@@ -103,6 +136,7 @@
         {% endif %}
         <td class="bias"><span class="pill {{ r.bias_class }}">{{ r.bias }}</span></td>
         <td class="score mono"><span class="score-chip {{ r.total_class }}">{{ r.total }}</span></td>
+        {{ delta_td(r.delta, r.delta_date) }}
         {% if r.loc_pct is none %}
         <td class="location na mono">—</td>
         {% elif r.setup == 'watch' %}
@@ -122,7 +156,8 @@
             <td class="cell na mono{{ gs }}">—</td>
           {% else %}
             {% set extra = ' stale' if (ind.id == 'cot' and r.cot_stale) else '' %}
-            <td class="cell mono {{ cell_class(v) }}{{ gs }}{{ extra }}"{% if ind.id == 'cot' and r.cot_stale %} title="COT stale for {{ r.base }}{% if r.quote %} or {{ r.quote }}{% endif %}"{% endif %}><span class="cell-inner">{{ v }}</span></td>
+            {% set was = (r.changed or {}).get(ind.id) %}
+            <td class="cell mono {{ cell_class(v) }}{{ gs }}{{ extra }}{% if was is not none %} chg{% endif %}"{% if ind.id == 'cot' and r.cot_stale %} title="COT stale for {{ r.base }}{% if r.quote %} or {{ r.quote }}{% endif %}"{% elif was is not none %} title="Changed: was {{ was }} on {{ r.delta_date }}"{% endif %}><span class="cell-inner">{{ v }}</span></td>
           {% endif %}
           {% set ns.prev = ind.category %}
         {% endfor %}
@@ -138,13 +173,14 @@
     <thead>
       <tr class="group-row">
         <th class="sticky-col">&nbsp;</th>
-        <th colspan="3">Output</th>
+        <th colspan="4">Output</th>
         <th colspan="4" class="gstart" title="scripts/study_oil.py: 840 weekly scores 2010-2026, no signal or composite predicted 1-8 week returns">Commodities · context only, not a trading signal (no forward-return edge 2010-2026)</th>
       </tr>
       <tr class="col-row">
         <th class="sticky-col">Symbol</th>
         <th>Bias</th>
         <th>Score</th>
+        <th title="Score change over the last {{ window_days }} days">Δ {{ window_days }}d</th>
         <th>Location</th>
         <th class="gstart">Signal</th>
         <th>Reading</th>
@@ -157,6 +193,7 @@
         <td class="symbol">{{ oil.display_name }}</td>
         <td class="bias"><span class="pill {{ oil.bias_class }}">{% if oil.score is none %}n/a{% else %}{{ oil.bias }}{% endif %}</span></td>
         <td class="score mono"><span class="score-chip {{ oil.total_class }}">{% if oil.score is none %}—{% else %}{{ oil.score }}{% endif %}</span></td>
+        {{ delta_td(oil.delta, oil.delta_date) }}
         {% if oil.loc_pct is none %}
         <td class="location na mono">—</td>
         {% elif oil.setup == 'watch' %}
@@ -179,8 +216,9 @@
         {% elif s.score is none %}
         <td class="cell na mono">—</td>
         {% else %}
-        <td class="cell mono {{ cell_class(s.score) }}"><span class="cell-inner">{{ s.score }}</span></td>
+        <td class="cell mono {{ cell_class(s.score) }}{% if s.was is defined %} chg{% endif %}"{% if s.was is defined %} title="Changed: was {{ s.was }} on {{ oil.delta_date }}"{% endif %}><span class="cell-inner">{{ s.score }}</span></td>
         {% endif %}
+        <td></td>
         <td></td>
         <td class="gstart oil-label">{{ s.id }}</td>
         <td class="oil-reading mono">{{ s.reading }}</td>
@@ -201,6 +239,7 @@
   <span><span class="sw" style="background:var(--neg2)"></span>−2</span>
   <span class="note">FX pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>{% if oil %}
   <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; info rows are not counted. Context only: in a 2010-2026 weekly test neither the score nor any signal predicted 1-8 week returns.</span>{% endif %}
+  <span class="note">Δ = score change over the last {{ window_days }} days; a white ring marks a cell that changed (hover for the old value).</span>
   <span class="note">Location = last close within the 40-session high-low range. WATCH = directional bias with price pulled back to the zone side (bull ≤35%, bear ≥65%); EXT = biased but at the far end.</span>
 </div>
 
@@ -258,7 +297,7 @@ document.addEventListener('click', function(e){
     var td = e.target.closest('td,th');
     if(!td || !td.parentElement) return;
     var idx = Array.prototype.indexOf.call(td.parentElement.children, td);
-    if(idx < 4) return;
+    if(idx < 5) return;
     colCells(idx).forEach(function(c){ c.classList.add('colhi'); });
   });
   table.addEventListener('mouseout', function(){

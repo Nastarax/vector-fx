@@ -337,6 +337,19 @@ curl_cffi (Cloudflare); plain requests get blocked.
 
 - Main heatmap (`data/index.html` via `build_heatmap`): the -2..+2 matrix, 28 pairs +
   8 currency rows.
+  - **"What changed" layer** (`src/output/changes.py`, window = `changes.window_days`
+    in indicators.yaml, default 7): a "This week's releases" panel above the heatmap
+    (every print in the window from econ_data, actual vs forecast, above/below +
+    impact; rate rows dated by NEXT meeting are skipped; CHF/CAD/NZD sPMI are
+    reference-month dated so they rarely land in the window); a Δ column (score
+    change vs the window start) on FX and USOIL rows; and a white ring on cells that
+    changed (tooltip "was X"). Cell scores are saved daily to
+    `data/cache/cell_history.json` (committed, live runs only, latest run of a day
+    wins, 90 days). Pair Δ falls back to score_history.json pair totals until
+    cell_history has a week of data; currency rows do NOT fall back (that history's
+    currency score is the Asset Scorecard total, a different number). Backtests show
+    no Δ/markers, and the release panel is empty there (release caches are current
+    snapshots). Heatmap render now runs AFTER the econ build in main.py.
 - COT dashboard (`build_cot`), Seasonality (`build_seasonality`).
 - Economic Heatmap (`data/*.html` via `build_economic_heatmap`): per-currency macro
   release tables (Actual/Forecast/Previous/Surprise + impact chips).
@@ -412,8 +425,8 @@ curl_cffi (Cloudflare); plain requests get blocked.
   fallback symbols so a source outage writes nothing). Both forward-only from
   2026-07-21; no backfill exists for retail. Caveat on the t-stats: H3/H5 windows
   overlap across consecutive dates, which inflates them.
-- From the original handover, still open: "Delta vs yesterday" column on the main
-  heatmap (partially superseded by the WATCH Telegram alerts). The Australia
+- "Delta vs yesterday" column: DONE 2026-10-07 as the "what changed" layer (see
+  Pages > Main heatmap). The Australia
   Monthly CPI Indicator item is DONE (2026-07-16): AUD CPI now scores from TE's
   monthly series, Actual vs Consensus.
 - Threshold calibration DONE (structural, 2026-06-10): currency rows use

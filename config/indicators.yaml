@@ -101,6 +101,11 @@ bias_thresholds:
   bearish: -5
   very_bearish: -9
 
+# "What changed" layer on the main heatmap (src/output/changes.py): window for
+# the release list, the score-change column and the changed-cell markers.
+changes:
+  window_days: 7
+
 # Currency-row bias thresholds. Currency rows sum fewer cells than pairs
 # (no trend/seasonality/crowd), and non-USD fiat rows also carry hard zeros
 # in the 5 US-only cells (NFP/ADP/JOLTS/Claims/PCE), so reusing the pair
