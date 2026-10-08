@@ -192,7 +192,7 @@
       <tr class="oil-head">
         <td class="symbol">{{ oil.display_name }}</td>
         <td class="bias"><span class="pill {{ oil.bias_class }}">{% if oil.score is none %}n/a{% else %}{{ oil.bias }}{% endif %}</span></td>
-        <td class="score mono"><span class="score-chip {{ oil.total_class }}">{% if oil.score is none %}—{% else %}{{ oil.score }}{% endif %}</span></td>
+        <td class="score mono"><span class="score-chip {{ oil.total_class }}">{% if oil.score is none %}—{% else %}{{ '%.1f'|format(oil.score) }}{% endif %}</span></td>
         {{ delta_td(oil.delta, oil.delta_date) }}
         {% if oil.loc_pct is none %}
         <td class="location na mono">—</td>
@@ -205,7 +205,7 @@
         {% else %}
         <td class="location"><span class="loc-chip loc-none">{{ oil.loc_pct }}%</span></td>
         {% endif %}
-        <td class="gstart oil-summary" colspan="4">CL=F prices · {{ oil.n_scored }}/{{ oil.n_signals }} signals with data{% if oil.mean is not none %} · mean {{ '%+.2f'|format(oil.mean) }}{% endif %}</td>
+        <td class="gstart oil-summary" colspan="4">CL=F prices · {{ oil.n_scored }}/{{ oil.n_signals }} signals with data{% if oil.sum is not none %} · sum {{ '%+g'|format(oil.sum) }} across {{ oil.n_scored }} signals{% endif %}</td>
       </tr>
       {% for s in oil.rows %}
       <tr class="oil-sub{% if s.role == 'display' %} oil-info{% endif %}{% if s.role == 'regime' %} oil-regime{% endif %}">
@@ -238,7 +238,7 @@
   <span><span class="sw" style="background:var(--neg1)"></span>−1</span>
   <span><span class="sw" style="background:var(--neg2)"></span>−2</span>
   <span class="note">FX pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>{% if oil %}
-  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; regime rows show their lean but are not counted; info rows have no score. Context only: in a 2010-2026 weekly test neither the score nor any signal predicted 1-8 week returns.</span>{% endif %}
+  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), shown to one decimal and always within −2..+2; the bias uses the nearest whole number; rows without data are left out; regime rows show their lean but are not counted; info rows have no score. Context only: in a 2010-2026 weekly test neither the score nor any signal predicted 1-8 week returns.</span>{% endif %}
   <span class="note">Δ = score change over the last {{ window_days }} days; a white ring marks a cell that changed (hover for the old value).</span>
   <span class="note">Location = last close within the 40-session high-low range. WATCH = directional bias with price pulled back to the zone side (bull ≤35%, bear ≥65%); EXT = biased but at the far end.</span>
 </div>

@@ -134,7 +134,7 @@ def _scores(fridays: list[date]) -> pd.DataFrame:
         df = cl.loc[cl.index <= pd.Timestamp(ds, tz=cl.index.tz)]
         o = score_oil.build_oil(df, cot.disagg_reading("USOIL", cot_rows, ds, lag), curve,
                                 as_of_date=ds, cfg=cfg)
-        rec = {"date": pd.Timestamp(f), "composite": o["score"], "mean": o["mean"]}
+        rec = {"date": pd.Timestamp(f), "composite": o["score_rounded"], "mean": o["mean"]}
         rec.update({r["id"]: r["score"] for r in o["rows"] if r["id"] in sig_ids})
         recs.append(rec)
     return pd.DataFrame(recs).set_index("date"), sig_ids

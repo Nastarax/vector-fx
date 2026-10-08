@@ -304,18 +304,24 @@ def build_oil(df, cot_reading, curve, as_of_date: str | None = None, cfg: dict |
         })
 
     inst = cfg["instrument"]
+    # The mean of -2..+2 cells is itself always within -2..+2 (the clamp is only
+    # a safety net). Shown to 1 decimal; the bias label uses the nearest whole
+    # number, rounding halves away from zero (-0.5 -> -1 -> Bearish).
     if wtot > 0:
-        score = max(-2, min(2, _round_half_away(wsum / wtot)))
-        bias = cfg["bias_labels"][str(score)]
         mean = wsum / wtot
+        rounded = max(-2, min(2, _round_half_away(mean)))
+        score = round(max(-2.0, min(2.0, mean)), 1)
+        bias = cfg["bias_labels"][str(rounded)]
     else:
-        score, bias, mean = None, "Neutral", None
+        score, rounded, bias, mean = None, None, "Neutral", None
     loc_pct = range_position(df) if df is not None else None
     return {
         "symbol": inst["symbol"],
         "display_name": inst.get("display_name", inst["symbol"]),
-        "score": score,
+        "score": score,                 # mean, 1 decimal (what the page shows)
+        "score_rounded": rounded,       # nearest whole number (drives bias + colour)
         "mean": mean,
+        "sum": round(wsum, 2) if wtot > 0 else None,
         "bias": bias,
         "loc_pct": loc_pct,
         "setup": _setup_state(bias, loc_pct),

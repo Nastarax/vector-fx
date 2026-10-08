@@ -74,7 +74,7 @@ def _oil_for_render(oil: dict | None) -> dict | None:
     """USOIL composite is -2..+2, so its chip colours like a single cell."""
     if not oil:
         return None
-    sc = oil.get("score")
+    sc = oil.get("score_rounded")
     return {
         **oil,
         "bias_class": _bias_class(oil["bias"]) if sc is not None else "b-neut",

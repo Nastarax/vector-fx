@@ -116,7 +116,7 @@ def annotate(heatmap: dict, days: int) -> None:
     oil = heatmap.get("oil")
     if oil and oil.get("score") is not None and oil["symbol"] in base:
         prev = base[oil["symbol"]]
-        oil["delta"] = oil["score"] - prev["_total"]
+        oil["delta"] = round(oil["score"] - prev["_total"], 1)
         oil["delta_date"] = base_date
         for s in oil["rows"]:
             if s["score"] is not None and s["id"] in prev and prev[s["id"]] != s["score"]:
