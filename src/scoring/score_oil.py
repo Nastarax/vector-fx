@@ -16,7 +16,7 @@ from pathlib import Path
 
 import yaml
 
-from src.fetchers import baker_hughes, eia
+from src.fetchers import baker_hughes, eia, investing_china_pmi, steo
 from src.fetchers.cot import cot_release_date
 from src.scoring.score_pair import _setup_state
 from src.scoring.score_sentiment import cot_score
@@ -154,6 +154,96 @@ def _score_rig_count(sig: dict, ctx: dict):
     return s, reading, f"rel {d}"
 
 
+def _steo_pair(sig: dict, ctx: dict):
+    """(vintage, released, this series, previous consecutive vintage's series)."""
+    vs = steo.vintages_as_of(ctx["as_of_date"])
+    if not vs:
+        return None
+    k, cur = vs[-1]
+    y, m = (int(x) for x in k.split("-"))
+    pk = f"{y - 1}-12" if m == 1 else f"{y}-{m - 1:02d}"
+    prev = dict(vs).get(pk)
+    return (k, cur["released"], cur["series"].get(sig["series"], {}),
+            prev["series"].get(sig["series"], {}) if prev else None, pk)
+
+
+def _vintage_label(k: str) -> str:
+    y, m = k.split("-")
+    return f"{steo.MONTHS[int(m) - 1].title()} {y}"
+
+
+def _score_steo_spare(sig: dict, ctx: dict):
+    t = _steo_pair(sig, ctx)
+    if t is None:
+        return None, "no STEO vintage released yet", None
+    k, rel, cur, prev, pk = t
+    now, avg = cur.get(k), steo.window_avg(cur, k)
+    if now is None or avg is None:
+        return None, "STEO series missing", None
+    s = 1 if now <= sig["tight_mbd"] else (-1 if now >= sig["loose_mbd"] else 0)
+    rev_txt = ""
+    p_avg = steo.window_avg(prev, k) if prev else None
+    if p_avg is not None:
+        rev = avg - p_avg
+        s += 1 if rev <= -sig["rev_mbd"] else (-1 if rev >= sig["rev_mbd"] else 0)
+        rev_txt = f" (rev {rev:+.2f} vs {_vintage_label(pk)})"
+    reading = f"{now:.2f} mb/d now · next 12m avg {avg:.2f}{rev_txt}"
+    return s, reading, f"STEO {_vintage_label(k)} · rel {rel}"
+
+
+def _score_steo_nonopec(sig: dict, ctx: dict):
+    t = _steo_pair(sig, ctx)
+    if t is None:
+        return None, "no STEO vintage released yet", None
+    k, rel, cur, prev, pk = t
+    avg = steo.window_avg(cur, k)
+    p_avg = steo.window_avg(prev, k) if prev else None
+    if avg is None:
+        return None, "STEO series missing", None
+    if p_avg is None:
+        return None, f"next 12m avg {avg:.2f} mb/d · no previous STEO to compare", f"STEO {_vintage_label(k)}"
+    rev = avg - p_avg
+    a = abs(rev)
+    mag = 2 if a >= sig["strong_mbd"] else (1 if a >= sig["weak_mbd"] else 0)
+    score = -mag if rev > 0 else mag   # more non-OPEC supply = bearish
+    reading = f"next 12m avg {avg:.2f} mb/d · rev {rev:+.2f} vs {_vintage_label(pk)}"
+    return score, reading, f"STEO {_vintage_label(k)} · rel {rel}"
+
+
+def _score_china_pmi(sig: dict, ctx: dict):
+    cache = investing_china_pmi.load_cached()
+    cutoff = ctx["as_of_date"]
+    nbs = cache.get("NBS")
+    if not nbs or (cutoff and nbs.get("date", "9999") > cutoff):
+        return None, "no China PMI print for this date", None
+    bench = nbs.get("forecast") if nbs.get("forecast") is not None else nbs.get("previous")
+    a = nbs["actual"]
+    score = 0 if bench is None or a == bench else (1 if a > bench else -1)
+    vs = "fcst" if nbs.get("forecast") is not None else "prev"
+    reading = f"NBS {a:g} vs {bench:g} {vs} (prev {nbs.get('previous')})" if bench is not None else f"NBS {a:g}"
+    cx = cache.get("CAIXIN")
+    if cx and cx.get("actual") is not None and not (cutoff and cx.get("date", "9999") > cutoff):
+        reading += f" · Caixin {cx['actual']:g}" + (f" vs {cx['forecast']:g}" if cx.get("forecast") is not None else "")
+    return score, reading, f"rel {nbs['date']}"
+
+
+_OPEC_SCORES = {"cut": 1, "hike": -1, "hold": 0}
+
+
+def _score_opec_flag(sig: dict, ctx: dict):
+    ref = ctx["as_of_date"] or date.today().isoformat()
+    past = sorted((e for e in ctx["cfg"].get("opec_decisions") or [] if str(e.get("date")) <= ref),
+                  key=lambda e: str(e["date"]))
+    if not past:
+        return None, "no decision logged (add one to opec_decisions in config/oil.yaml)", None
+    e = past[-1]
+    d = str(e["date"])
+    dec = str(e.get("decision", "")).lower()
+    age = (date.fromisoformat(ref) - date.fromisoformat(d)).days
+    note = f" · {e['note']}" if e.get("note") else ""
+    return _OPEC_SCORES.get(dec), f"{dec or '?'}{note} ({age}d ago)", d
+
+
 def _display_eia(sig: dict, ctx: dict):
     c = _eia_context(sig["series"], ctx["as_of_date"], ctx["cfg"])
     if c is None:
@@ -170,6 +260,10 @@ SCORERS = {
     "cot": _score_cot,
     "trend": _score_trend,
     "rig_count": _score_rig_count,
+    "steo_spare": _score_steo_spare,
+    "steo_nonopec": _score_steo_nonopec,
+    "china_pmi": _score_china_pmi,
+    "opec_flag": _score_opec_flag,
     "eia_display": _display_eia,
 }
 
@@ -194,14 +288,17 @@ def build_oil(df, cot_reading, curve, as_of_date: str | None = None, cfg: dict |
                 print(f"[oil] {sig['id']} scoring failed: {e}")
                 score, reading, dt = None, "error", None
         role = sig.get("role", "signal")
-        if role == "signal" and score is not None:
+        if score is not None:
             score = max(-2, min(2, int(score)))
+        if role == "signal" and score is not None:
             w = float(sig.get("weight", 1.0))
             wsum += w * score
             wtot += w
         rows.append({
             "id": sig["id"], "label": sig["label"], "role": role,
-            "score": score if role == "signal" else None,
+            # signal rows are summed; regime rows keep their lean for display
+            # only; display rows carry no score at all.
+            "score": score if role in ("signal", "regime") else None,
             "weight": sig.get("weight") if role == "signal" else None,
             "reading": reading, "date": dt,
         })

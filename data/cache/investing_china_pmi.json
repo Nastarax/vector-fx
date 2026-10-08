@@ -1,0 +1,15 @@
+{
+ "NBS": {
+  "date": "2026-09-30",
+  "actual": 50.1,
+  "forecast": 50.1,
+  "previous": 49.8
+ },
+ "CAIXIN": {
+  "date": "2026-09-30",
+  "actual": 52.1,
+  "forecast": 51.7,
+  "previous": 51.5
+ },
+ "_fetched_at": "2026-10-08T03:13:35.344011+00:00"
+}

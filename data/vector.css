@@ -158,6 +158,7 @@ table#heatmap{border-collapse:separate;border-spacing:0;min-width:100%;backgroun
 #oil-table td.oil-reading{white-space:normal;min-width:280px}
 #oil-table td.oil-label,#oil-table td.oil-date{color:var(--muted);text-align:left;font-size:11.5px}
 #oil-table tr.oil-info td{opacity:.72}
+#oil-table tr.oil-regime .oil-tag{border-style:solid;color:#aebbf2}
 .oil-tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.4px;
          text-transform:uppercase;color:var(--muted);border:1px dashed var(--border)}
 

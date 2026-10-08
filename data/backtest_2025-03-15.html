@@ -20,7 +20,7 @@
   <div class="meta">
     
       <span style="background:#c2410c;color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:8px">BACKTEST · AS OF 2025-03-15</span><br>
-      Rendered <b>2026-10-07 22:48 EDT</b> · <b>44</b> pairs scored
+      Rendered <b>2026-10-07 23:19 EDT</b> · <b>44</b> pairs scored
     
   </div>
 </header>
@@ -7732,6 +7732,62 @@
         <td class="oil-date mono">rel 2025-03-14</td>
       </tr>
       
+      <tr class="oil-sub oil-regime">
+        <td class="symbol sub">OPEC Spare Capacity</td>
+        <td class="bias"><span class="oil-tag">regime</span></td>
+        
+        <td class="cell mono cn1"><span class="cell-inner">-1</span></td>
+        
+        <td></td>
+        <td></td>
+        <td class="gstart oil-label">opec_spare</td>
+        <td class="oil-reading mono">4.64 mb/d now · next 12m avg 4.36 (rev +0.00 vs Feb 2025)</td>
+        <td class="mono">—</td>
+        <td class="oil-date mono">STEO Mar 2025 · rel 2025-03-06</td>
+      </tr>
+      
+      <tr class="oil-sub oil-regime">
+        <td class="symbol sub">Non-OPEC Supply (STEO)</td>
+        <td class="bias"><span class="oil-tag">regime</span></td>
+        
+        <td class="cell mono c0"><span class="cell-inner">0</span></td>
+        
+        <td></td>
+        <td></td>
+        <td class="gstart oil-label">nonopec_supply</td>
+        <td class="oil-reading mono">next 12m avg 72.09 mb/d · rev -0.10 vs Feb 2025</td>
+        <td class="mono">—</td>
+        <td class="oil-date mono">STEO Mar 2025 · rel 2025-03-06</td>
+      </tr>
+      
+      <tr class="oil-sub oil-regime">
+        <td class="symbol sub">China mPMI</td>
+        <td class="bias"><span class="oil-tag">regime</span></td>
+        
+        <td class="cell na mono">—</td>
+        
+        <td></td>
+        <td></td>
+        <td class="gstart oil-label">china_pmi</td>
+        <td class="oil-reading mono">no China PMI print for this date</td>
+        <td class="mono">—</td>
+        <td class="oil-date mono">—</td>
+      </tr>
+      
+      <tr class="oil-sub oil-regime">
+        <td class="symbol sub">OPEC+ Decision</td>
+        <td class="bias"><span class="oil-tag">regime</span></td>
+        
+        <td class="cell na mono">—</td>
+        
+        <td></td>
+        <td></td>
+        <td class="gstart oil-label">opec_flag</td>
+        <td class="oil-reading mono">no decision logged (add one to opec_decisions in config/oil.yaml)</td>
+        <td class="mono">—</td>
+        <td class="oil-date mono">—</td>
+      </tr>
+      
       <tr class="oil-sub oil-info">
         <td class="symbol sub">US Production</td>
         <td class="bias"><span class="oil-tag">display</span></td>
@@ -7772,7 +7828,7 @@
   <span><span class="sw" style="background:var(--neg1)"></span>−1</span>
   <span><span class="sw" style="background:var(--neg2)"></span>−2</span>
   <span class="note">FX pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>
-  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; info rows are not counted. Context only: in a 2010-2026 weekly test neither the score nor any signal predicted 1-8 week returns.</span>
+  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; regime rows show their lean but are not counted; info rows have no score. Context only: in a 2010-2026 weekly test neither the score nor any signal predicted 1-8 week returns.</span>
   <span class="note">Δ = score change over the last 7 days; a white ring marks a cell that changed (hover for the old value).</span>
   <span class="note">Location = last close within the 40-session high-low range. WATCH = directional bias with price pulled back to the zone side (bull ≤35%, bear ≥65%); EXT = biased but at the far end.</span>
 </div>

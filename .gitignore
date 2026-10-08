@@ -94,3 +94,6 @@ data/cache/study/
 # Daily per-cell heatmap scores (what-changed markers + delta column). Written by
 # live runs, committed so the 7-day comparison survives between CI runs.
 !data/cache/cell_history.json
+# USOIL regime rows: EIA STEO vintages since 2015 (release-dated) and China PMI.
+!data/cache/steo_vintages.json
+!data/cache/investing_china_pmi.json

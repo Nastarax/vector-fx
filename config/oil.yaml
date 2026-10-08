@@ -17,10 +17,11 @@
 #   eia_display  - display-only EIA series (latest value + 4w context)
 #   rig_count    - Baker Hughes US oil rigs, 4w + 13w % change (falling = bullish)
 #
-# Later phases slot in as new entries + a scorer for their type, e.g.:
-#   - {id: opec_spare, label: OPEC Spare Capacity, role: regime, type: steo, series: COPS_OPEC}
-#   - {id: china_mpmi, label: China mPMI, role: regime, type: investing_pmi}
-#   - {id: opec_flag, label: OPEC+ Decision, role: regime, type: manual_flag}
+#   steo_spare   - EIA STEO OPEC spare capacity: level + revision vs last month's STEO
+#   steo_nonopec - EIA STEO non-OPEC supply: next-12m forecast revision vs last month's STEO
+#   china_pmi    - China NBS manufacturing PMI, actual vs forecast (Caixin shown alongside)
+#   opec_flag    - latest manual entry in opec_decisions below
+# Regime rows are SHOWN with a lean (-2..+2) but never counted in the score.
 
 instrument:
   symbol: USOIL           # broker CFD label shown on the heatmap
@@ -109,6 +110,41 @@ signals:
     long_weeks: 13
     long_pct: 4.0                     # |13w % change| beyond this -> +-1
 
+  # ---- Regime rows (phase 3): context, shown with a lean, not summed ----
+  # EIA STEO vintages (src/fetchers/steo.py): every monthly release since 2015,
+  # each with its own release date, so backtests see a vintage only once out.
+  # Revisions compare the next-12-month average in this STEO vs the previous
+  # month's STEO over the same months (consecutive vintages only: OPEC
+  # membership changes shift the series between distant vintages).
+  - id: opec_spare
+    label: OPEC Spare Capacity
+    role: regime
+    type: steo_spare
+    series: cops_opec                 # mb/d
+    tight_mbd: 1.5                    # current-month spare <= this -> +1 (tight, bullish risk)
+    loose_mbd: 4.0                    # >= this -> -1 (ample cushion)
+    rev_mbd: 0.2                      # next-12m avg revised down by >= this -> +1, up -> -1
+
+  - id: nonopec_supply
+    label: Non-OPEC Supply (STEO)
+    role: regime
+    type: steo_nonopec
+    series: papr_nonopec              # mb/d, total non-OPEC liquids
+    weak_mbd: 0.2                     # next-12m avg revised up by >= this -> -1 (more supply)
+    strong_mbd: 0.5                   # >= this -> -2; downward revisions mirror to +1/+2
+
+  # China official NBS manufacturing PMI (Investing id 594; Caixin id 753 shown
+  # alongside). Refreshed from the laptop (Cloudflare), target china_pmi.
+  - id: china_pmi
+    label: China mPMI
+    role: regime
+    type: china_pmi
+
+  - id: opec_flag
+    label: OPEC+ Decision
+    role: regime
+    type: opec_flag
+
   - id: production
     label: US Production
     role: display
@@ -120,3 +156,12 @@ signals:
     role: display
     type: eia_display
     series: WRPUPUS2                  # U.S. product supplied, total petroleum products, kb/d
+
+# OPEC+ decisions, entered by hand (no reliable free feed). The newest entry on
+# or before the scoring date is shown on the OPEC+ Decision row.
+#   decision: cut (lower output targets / extend cuts) -> +1
+#             hike (raise output targets / unwind cuts) -> -1
+#             hold -> 0
+# Example:
+#   - {date: "2026-11-30", decision: hold, note: "Q1 targets unchanged"}
+opec_decisions: []

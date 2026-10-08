@@ -208,10 +208,10 @@
         <td class="gstart oil-summary" colspan="4">CL=F prices · {{ oil.n_scored }}/{{ oil.n_signals }} signals with data{% if oil.mean is not none %} · mean {{ '%+.2f'|format(oil.mean) }}{% endif %}</td>
       </tr>
       {% for s in oil.rows %}
-      <tr class="oil-sub{% if s.role != 'signal' %} oil-info{% endif %}">
+      <tr class="oil-sub{% if s.role == 'display' %} oil-info{% endif %}{% if s.role == 'regime' %} oil-regime{% endif %}">
         <td class="symbol sub">{{ s.label }}</td>
         <td class="bias">{% if s.role != 'signal' %}<span class="oil-tag">{{ s.role }}</span>{% endif %}</td>
-        {% if s.role != 'signal' %}
+        {% if s.role == 'display' %}
         <td class="cell na mono">·</td>
         {% elif s.score is none %}
         <td class="cell na mono">—</td>
@@ -238,7 +238,7 @@
   <span><span class="sw" style="background:var(--neg1)"></span>−1</span>
   <span><span class="sw" style="background:var(--neg2)"></span>−2</span>
   <span class="note">FX pair score = base currency − quote currency, clamped to −2..+2 per cell.</span>{% if oil %}
-  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; info rows are not counted. Context only: in a 2010-2026 weekly test neither the score nor any signal predicted 1-8 week returns.</span>{% endif %}
+  <span class="note">USOIL = weighted mean of its signal rows (not base − quote), rounded and clamped to −2..+2; rows without data are left out; regime rows show their lean but are not counted; info rows have no score. Context only: in a 2010-2026 weekly test neither the score nor any signal predicted 1-8 week returns.</span>{% endif %}
   <span class="note">Δ = score change over the last {{ window_days }} days; a white ring marks a cell that changed (hover for the old value).</span>
   <span class="note">Location = last close within the 40-session high-low range. WATCH = directional bias with price pulled back to the zone side (bull ≤35%, bear ≥65%); EXT = biased but at the far end.</span>
 </div>

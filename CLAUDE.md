@@ -221,6 +221,24 @@ never blocks the FX page).
   frozen 2013-Aug 2025 file). Downloads only when the cached print is >=7 days
   old (6h retry guard). Score: 4w (+-1.5%) + 13w (+-4%) change, falling =
   bullish (supply read; `direction` flips it).
+- **Regime rows (phase 3)**: shown with a -2..+2 lean, never summed (role
+  `regime` in oil.yaml; study_oil.py ignores them).
+  - OPEC spare capacity + non-OPEC supply revision from EIA STEO vintages
+    (`src/fetchers/steo.py`). The API only serves the current vintage, so every
+    monthly workbook since 2015 (`archives/<mon><yy>_base.xlsx`, lowercase codes
+    `cops_opec`, `papr_nonopec`) is cached in `data/cache/steo_vintages.json`
+    (committed, 142 vintages). Release date read from each workbook; vintages
+    before Oct 2022 carry none, so they use the 15th (later than any real
+    release, so never early). Revisions compare consecutive vintages only (OPEC
+    membership changes shift the series). main.py fetches the new month's file
+    once EIA publishes it (6h retry guard).
+  - China mPMI: Investing NBS (id 594, scored vs forecast) + Caixin (id 753,
+    shown). `src/fetchers/investing_china_pmi.py`, cache
+    `data/cache/investing_china_pmi.json`; refresh target `china_pmi`, and
+    `--due` fetches it once the cached print is 27+ days old (own rule, outside
+    the FX release calendar). Backtests: single snapshot, so n/a for old dates.
+  - OPEC+ decision: manual `opec_decisions` list at the bottom of oil.yaml
+    (cut +1 / hike -1 / hold 0). Left empty on purpose: fill in real decisions.
 
 ## Recent changes (committed)
 

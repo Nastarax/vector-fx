@@ -33,6 +33,7 @@ from src.fetchers import (investing, investing_adp, investing_consumer_conf,
                           investing_household, investing_jolts, investing_pce,
                           investing_ppi, investing_retail_sales, myfxbook_ppi,
                           services_pmi)
+from src.fetchers import investing_china_pmi
 from src.fetchers import release_calendar as rc
 from src.fetchers import unblock
 
@@ -717,6 +718,18 @@ def refresh_core() -> set[str]:
     return fresh1 | fresh2
 
 
+def refresh_china_pmi() -> set[str]:
+    """China NBS + Caixin manufacturing PMI (USOIL regime row). Not an FX cell,
+    so it has no release-calendar entry; --due uses investing_china_pmi.is_due()."""
+    print("\n============================================")
+    print("REFRESHING CHINA MANUFACTURING PMI (USOIL regime row)")
+    print("============================================")
+    investing_china_pmi.fetch_china_pmi()
+    fresh = set(investing_china_pmi._LAST_FRESH)
+    print(f"[china_pmi] {len(fresh)}/{len(investing_china_pmi.CHINA_PMI_URLS)} fresh: {sorted(fresh)}")
+    return fresh
+
+
 def refresh_cpi_history():
     """Deep monthly CPI YoY history for all 8 currencies (Investing
     __NEXT_DATA__). Powers the inflation line chart with continuous, current
@@ -752,6 +765,7 @@ REFRESHERS = {
     "mfx_ppi": refresh_mfx_ppi,
     "cad_retail": refresh_cad_retail,
     "core": refresh_core,
+    "china_pmi": refresh_china_pmi,
 }
 
 # Cache file each target writes (for the commit hint).
@@ -770,6 +784,7 @@ _CACHE_FILES = {
     "mfx_ppi": "data/cache/myfxbook_ppi.json",
     "cad_retail": "data/cache/investing_retail_sales.json",
     "core": "data/cache/investing_core.json",
+    "china_pmi": "data/cache/investing_china_pmi.json",
 }
 # JPY CPI snapshot rides along with the CPI refresh.
 _EXTRA_CACHE_FILES = {"cpi": "data/cache/tokyo_core_cpi.json"}
@@ -848,6 +863,11 @@ def run_due(dry_run: bool = False):
     # Core US CPI/PPI (gold scoring) rides along when USD CPI is due.
     if "cpi" in targets:
         targets.setdefault("core", [])
+
+    # China PMI (USOIL regime row) is outside the FX release calendar: due once
+    # its cached print is ~a month old, with its own retry guard.
+    if investing_china_pmi.is_due():
+        targets.setdefault("china_pmi", [])
 
     print(f"=== Investing.com refresh (--due{' --dry-run' if dry_run else ''}) ===")
     due_total = sum(1 for e in cal["entries"].values() if e.get("status") == "due")
