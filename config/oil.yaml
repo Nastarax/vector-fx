@@ -164,4 +164,18 @@ signals:
 #             hold -> 0
 # Example:
 #   - {date: "2026-11-30", decision: hold, note: "Q1 targets unchanged"}
-opec_decisions: []
+# Filled 2026-10-08 from OPEC press releases + Reuters/CNBC coverage (web search).
+# "date" = meeting date; the note says which month the decision applies to.
+opec_decisions:
+  - {date: "2025-11-02", decision: hike, note: "V8: +137 kb/d for Dec; pause Jan-Mar 2026 (seasonal)"}
+  - {date: "2025-11-30", decision: hold, note: "Full OPEC+: 2026 group targets unchanged; capacity-assessment mechanism agreed"}
+  - {date: "2026-01-04", decision: hold, note: "V8 reaffirm Q1 pause"}
+  - {date: "2026-02-01", decision: hold, note: "V8 reaffirm pause for March"}
+  - {date: "2026-03-01", decision: hike, note: "V8 resume unwinding 1.65 mb/d cut: +206 kb/d for April"}
+  - {date: "2026-04-05", decision: hike, note: "V8: +206 kb/d for May"}
+  - {date: "2026-05-03", decision: hike, note: "+188 kb/d for June; first meeting without UAE (left OPEC/OPEC+ May 1)"}
+  - {date: "2026-06-07", decision: hike, note: "7 countries: +188 kb/d for July"}
+  - {date: "2026-07-05", decision: hike, note: "+188 kb/d for August"}
+  - {date: "2026-08-02", decision: hike, note: "+188 kb/d for September; completes unwind of the 1.65 mb/d cut"}
+  - {date: "2026-09-06", decision: hold, note: "October unchanged; quotas pending 2027 capacity baselines"}
+  - {date: "2026-10-04", decision: hold, note: "November unchanged; further changes unlikely before 2027"}
