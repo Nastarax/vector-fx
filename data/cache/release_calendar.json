@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-09T12:04:04Z",
+  "generated": "2026-10-09T13:00:34Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -10,
       "status": "due",
-      "last_checked": "2026-10-08T23:00:33Z"
+      "last_checked": "2026-10-09T13:00:34Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -1084,14 +1084,14 @@
       "indicator": "household_spending",
       "label": "Household Spending",
       "source": "investing",
-      "last_release": "2026-09-03",
+      "last_release": "2026-10-08",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-10-03",
+      "next_release": "2026-11-07",
       "next_basis": "estimated",
-      "days_until": -6,
-      "status": "due",
-      "last_checked": "2026-10-08T23:00:33Z"
+      "days_until": 29,
+      "status": "upcoming",
+      "last_checked": "2026-10-09T13:00:34Z"
     }
   }
 }
