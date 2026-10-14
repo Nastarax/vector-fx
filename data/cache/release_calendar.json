@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-14T13:27:41Z",
+  "generated": "2026-10-14T15:16:25Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -566,14 +566,14 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-09-11",
+      "last_release": "2026-10-14",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-10-12",
+      "next_release": "2026-11-14",
       "next_basis": "estimated",
-      "days_until": -2,
-      "status": "due",
-      "last_checked": "2026-10-13T19:21:57Z"
+      "days_until": 31,
+      "status": "upcoming",
+      "last_checked": "2026-10-14T15:16:25Z"
     },
     "EUR|cpi": {
       "currency": "EUR",
@@ -905,10 +905,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-10-14",
+      "next_release": "2026-10-16",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 2,
+      "status": "upcoming",
       "last_checked": null
     },
     "EUR|rates": {
@@ -919,10 +919,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-10-14",
+      "next_release": "2026-10-29",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 15,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|rates": {
@@ -989,10 +989,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-10-14",
+      "next_release": "2026-10-16",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 2,
+      "status": "upcoming",
       "last_checked": null
     },
     "NZD|rates": {
