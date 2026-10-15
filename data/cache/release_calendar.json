@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-15T15:12:07Z",
+  "generated": "2026-10-15T16:10:38Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -342,13 +342,13 @@
       "indicator": "retail_sales",
       "label": "Retail Sales",
       "source": "te",
-      "last_release": "2026-09-16",
+      "last_release": "2026-10-15",
       "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-10-15",
+      "next_release": "2026-11-13",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 29,
+      "status": "upcoming",
       "last_checked": null
     },
     "EUR|retail_sales": {
@@ -657,7 +657,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-09-18T14:18:27Z"
+      "last_checked": "2026-10-15T16:10:38Z"
     },
     "NZD|cpi": {
       "currency": "NZD",
@@ -678,13 +678,13 @@
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "te",
-      "last_release": "2026-09-10",
+      "last_release": "2026-10-15",
       "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-10-09",
+      "next_release": "2026-11-13",
       "next_basis": "estimated",
-      "days_until": -6,
-      "status": "due",
+      "days_until": 29,
+      "status": "upcoming",
       "last_checked": null
     },
     "EUR|ppi": {
@@ -1070,13 +1070,13 @@
       "indicator": "jobless_claims",
       "label": "Unemployment Claims",
       "source": "te",
-      "last_release": "2026-10-08",
+      "last_release": "2026-10-15",
       "period_days": 7,
       "period_basis": "derived",
-      "next_release": "2026-10-15",
+      "next_release": "2026-10-22",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 7,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|household_spending": {
