@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-15T16:10:38Z",
+  "generated": "2026-10-16T00:18:44Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -16,
       "status": "due",
-      "last_checked": "2026-10-15T15:12:07Z"
+      "last_checked": "2026-10-16T00:18:44Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -216,14 +216,14 @@
       "indicator": "mpmi",
       "label": "Manufacturing PMI",
       "source": "investing",
-      "last_release": "2026-09-10",
+      "last_release": "2026-10-15",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-10-10",
+      "next_release": "2026-11-14",
       "next_basis": "estimated",
-      "days_until": -5,
-      "status": "due",
-      "last_checked": "2026-10-15T15:12:07Z"
+      "days_until": 30,
+      "status": "upcoming",
+      "last_checked": "2026-10-16T00:18:44Z"
     },
     "USD|spmi": {
       "currency": "USD",
@@ -335,7 +335,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-10-15T15:12:07Z"
+      "last_checked": "2026-10-16T00:18:44Z"
     },
     "USD|retail_sales": {
       "currency": "USD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -2,
       "status": "due",
-      "last_checked": "2026-10-15T15:12:07Z"
+      "last_checked": "2026-10-16T00:18:44Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-10-15T15:12:07Z"
+      "last_checked": "2026-10-16T00:18:44Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
