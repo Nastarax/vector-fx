@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-16T22:13:11Z",
+  "generated": "2026-10-16T23:05:02Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -2,
       "status": "due",
-      "last_checked": "2026-10-16T13:20:52Z"
+      "last_checked": "2026-10-16T23:05:02Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
