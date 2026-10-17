@@ -52,7 +52,7 @@
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 14
+  "loc": 9
  },
  "EURAUD": {
   "setup": null,
@@ -112,7 +112,7 @@
  "EURUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 22
+  "loc": 23
  },
  "EURCAD": {
   "setup": null,
