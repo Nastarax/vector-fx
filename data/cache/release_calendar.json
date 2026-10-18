@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-18T16:19:24Z",
+  "generated": "2026-10-18T18:10:36Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -657,7 +657,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-10-17T00:14:50Z"
+      "last_checked": "2026-10-18T18:10:36Z"
     },
     "NZD|cpi": {
       "currency": "NZD",
