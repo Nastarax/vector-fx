@@ -4,6 +4,11 @@
   "bias": "Very Bullish",
   "loc": 35
  },
+ "USDJPY": {
+  "setup": "extended",
+  "bias": "Bullish",
+  "loc": 68
+ },
  "NZDJPY": {
   "setup": "watch",
   "bias": "Bullish",
@@ -14,20 +19,10 @@
   "bias": "Bullish",
   "loc": 92
  },
- "GBPUSD": {
-  "setup": "mid",
-  "bias": "Bullish",
-  "loc": 37
- },
  "CADJPY": {
   "setup": "watch",
   "bias": "Bullish",
   "loc": 29
- },
- "USDJPY": {
-  "setup": "extended",
-  "bias": "Bullish",
-  "loc": 68
  },
  "AUDJPY": {
   "setup": "watch",
@@ -35,6 +30,11 @@
   "loc": 17
  },
  "CHFJPY": {
+  "setup": "mid",
+  "bias": "Bullish",
+  "loc": 37
+ },
+ "GBPUSD": {
   "setup": "mid",
   "bias": "Bullish",
   "loc": 37
@@ -59,11 +59,6 @@
   "bias": "Neutral",
   "loc": 57
  },
- "NZDUSD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 21
- },
  "GBPCAD": {
   "setup": null,
   "bias": "Neutral",
@@ -84,6 +79,11 @@
   "bias": "Neutral",
   "loc": 32
  },
+ "NZDUSD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 21
+ },
  "XAUUSD": {
   "setup": null,
   "bias": "Neutral",
@@ -93,6 +93,11 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 45
+ },
+ "USDCHF": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 60
  },
  "EURCHF": {
   "setup": null,
@@ -109,10 +114,10 @@
   "bias": "Neutral",
   "loc": 12
  },
- "EURUSD": {
+ "USDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 23
+  "loc": 70
  },
  "EURCAD": {
   "setup": null,
@@ -124,16 +129,6 @@
   "bias": "Neutral",
   "loc": 9
  },
- "USDCHF": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 60
- },
- "AUDUSD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 16
- },
  "EURNZD": {
   "setup": null,
   "bias": "Neutral",
@@ -144,10 +139,10 @@
   "bias": "Neutral",
   "loc": 14
  },
- "USDCAD": {
+ "EURUSD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 70
+  "loc": 23
  },
  "AUDCAD": {
   "setup": null,
@@ -158,6 +153,11 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 17
+ },
+ "AUDUSD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 16
  },
  "AUDNZD": {
   "setup": null,
