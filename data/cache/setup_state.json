@@ -107,7 +107,7 @@
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 10
+  "loc": 12
  },
  "EURUSD": {
   "setup": null,
@@ -167,7 +167,7 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 9
+  "loc": 12
  },
  "EURGBP": {
   "setup": "extended",
