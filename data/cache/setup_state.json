@@ -84,11 +84,6 @@
   "bias": "Neutral",
   "loc": 32
  },
- "XAUUSD": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 14
- },
  "DAX": {
   "setup": null,
   "bias": "Neutral",
@@ -103,6 +98,11 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 35
+ },
+ "XAUUSD": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 14
  },
  "SILVER": {
   "setup": null,
