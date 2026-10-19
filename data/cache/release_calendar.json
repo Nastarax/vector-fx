@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-19T10:19:39Z",
+  "generated": "2026-10-19T12:13:58Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -20,
       "status": "due",
-      "last_checked": "2026-10-19T01:21:53Z"
+      "last_checked": "2026-10-19T12:13:58Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -6,
       "status": "due",
-      "last_checked": "2026-10-19T01:21:53Z"
+      "last_checked": "2026-10-19T12:13:58Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -713,7 +713,7 @@
       "next_basis": "estimated",
       "days_until": -5,
       "status": "due",
-      "last_checked": "2026-10-19T01:21:53Z"
+      "last_checked": "2026-10-19T12:13:58Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
