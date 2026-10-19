@@ -37272,9 +37272,9 @@
   "date": "2026-10-16",
   "front": "CLX26.NYM",
   "m12": "CLV27.NYM",
-  "front_px": 100.93,
+  "front_px": 99.6,
   "m12_px": 82.85,
-  "spread_pct": 17.913,
+  "spread_pct": 16.817,
   "source": "yfinance"
  }
 }
