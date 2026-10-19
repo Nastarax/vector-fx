@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-19T12:13:58Z",
+  "generated": "2026-10-19T13:10:34Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -650,14 +650,14 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-09-14",
+      "last_release": "2026-10-19",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-10-15",
+      "next_release": "2026-11-19",
       "next_basis": "estimated",
-      "days_until": -4,
-      "status": "due",
-      "last_checked": "2026-10-19T04:10:39Z"
+      "days_until": 31,
+      "status": "upcoming",
+      "last_checked": "2026-10-19T13:10:34Z"
     },
     "NZD|cpi": {
       "currency": "NZD",
