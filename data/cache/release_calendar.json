@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-20T13:17:24Z",
+  "generated": "2026-10-20T15:16:38Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -818,13 +818,13 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-09-15",
-      "period_days": 29,
+      "last_release": "2026-10-20",
+      "period_days": 30,
       "period_basis": "derived",
-      "next_release": "2026-10-14",
+      "next_release": "2026-11-19",
       "next_basis": "estimated",
-      "days_until": -6,
-      "status": "due",
+      "days_until": 30,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|unemployment_rate": {
