@@ -37291,8 +37291,8 @@
   "front": "CLX26.NYM",
   "m12": "CLV27.NYM",
   "front_px": 101.09,
-  "m12_px": 82.9,
-  "spread_pct": 17.994,
+  "m12_px": 82.84,
+  "spread_pct": 18.053,
   "source": "yfinance"
  }
 }
