@@ -37288,11 +37288,11 @@
  },
  "2026-10-20": {
   "date": "2026-10-20",
-  "front": "CLX26.NYM",
-  "m12": "CLV27.NYM",
-  "front_px": 101.09,
-  "m12_px": 82.84,
-  "spread_pct": 18.053,
+  "front": "CLZ26.NYM",
+  "m12": "CLX27.NYM",
+  "front_px": 98.95,
+  "m12_px": 81.85,
+  "spread_pct": 17.281,
   "source": "yfinance"
  }
 }
