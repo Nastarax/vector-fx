@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-23T14:16:41Z",
+  "generated": "2026-10-23T16:16:28Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -370,13 +370,13 @@
       "indicator": "retail_sales",
       "label": "Retail Sales",
       "source": "te",
-      "last_release": "2026-09-18",
+      "last_release": "2026-10-23",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-10-16",
+      "next_release": "2026-11-20",
       "next_basis": "estimated",
-      "days_until": -7,
-      "status": "due",
+      "days_until": 28,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|retail_sales": {
@@ -975,9 +975,9 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-03",
+      "next_release": "2026-10-28",
       "next_basis": "exact",
-      "days_until": 11,
+      "days_until": 5,
       "status": "upcoming",
       "last_checked": null
     },
