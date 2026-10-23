@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-23T00:16:35Z",
+  "generated": "2026-10-23T02:16:41Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -482,13 +482,13 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-09-24",
+      "last_release": "2026-10-22",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-10-22",
+      "next_release": "2026-11-19",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 28,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|consumer_conf": {
