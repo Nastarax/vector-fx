@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-23T12:21:32Z",
+  "generated": "2026-10-23T14:16:41Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -426,14 +426,14 @@
       "indicator": "retail_sales",
       "label": "Retail Sales",
       "source": "investing",
-      "last_release": "2026-09-24",
+      "last_release": "2026-10-23",
       "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-10-23",
+      "next_release": "2026-11-21",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": "2026-09-24T13:00:52Z"
+      "days_until": 29,
+      "status": "upcoming",
+      "last_checked": "2026-10-23T14:16:41Z"
     },
     "NZD|retail_sales": {
       "currency": "NZD",
