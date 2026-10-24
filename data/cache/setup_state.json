@@ -144,15 +144,15 @@
   "bias": "Neutral",
   "loc": 61
  },
- "DAX": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 23
- },
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
   "loc": 0
+ },
+ "DAX": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 23
  },
  "EURGBP": {
   "setup": null,
