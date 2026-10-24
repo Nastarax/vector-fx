@@ -94,6 +94,11 @@
   "bias": "Neutral",
   "loc": 2
  },
+ "UK100": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 68
+ },
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
@@ -118,11 +123,6 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 8
- },
- "UK100": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 62
  },
  "USDCHF": {
   "setup": null,
