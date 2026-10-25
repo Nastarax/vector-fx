@@ -37318,8 +37318,8 @@
   "front": "CLZ26.NYM",
   "m12": "CLX27.NYM",
   "front_px": 103.27,
-  "m12_px": 81.54,
-  "spread_pct": 21.042,
+  "m12_px": 81.49,
+  "spread_pct": 21.09,
   "source": "yfinance"
  }
 }

@@ -12,7 +12,7 @@
  "CADCHF": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 87
+  "loc": 82
  },
  "GBPUSD": {
   "setup": "mid",
@@ -25,9 +25,9 @@
   "loc": 56
  },
  "GBPCHF": {
-  "setup": "extended",
+  "setup": "mid",
   "bias": "Bullish",
-  "loc": 66
+  "loc": 64
  },
  "AUDJPY": {
   "setup": "watch",
@@ -42,7 +42,7 @@
  "NZDCHF": {
   "setup": "mid",
   "bias": "Bullish",
-  "loc": 42
+  "loc": 41
  },
  "EURUSD": {
   "setup": null,
@@ -82,7 +82,7 @@
  "AUDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 55
+  "loc": 52
  },
  "GBPNZD": {
   "setup": null,
@@ -97,7 +97,7 @@
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 0
+  "loc": 5
  },
  "USDJPY": {
   "setup": null,
@@ -147,7 +147,7 @@
  "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 0
+  "loc": 5
  },
  "DAX": {
   "setup": null,
