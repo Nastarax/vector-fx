@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-26T12:19:39Z",
+  "generated": "2026-10-26T14:09:30Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -27,
       "status": "due",
-      "last_checked": "2026-10-19T12:13:58Z"
+      "last_checked": "2026-10-26T14:09:30Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -13,
       "status": "due",
-      "last_checked": "2026-10-22T18:39:46Z"
+      "last_checked": "2026-10-26T14:09:30Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -594,28 +594,28 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-09-16",
+      "last_release": "2026-10-21",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-10-17",
+      "next_release": "2026-11-21",
       "next_basis": "estimated",
-      "days_until": -9,
-      "status": "due",
-      "last_checked": "2026-10-19T15:09:08Z"
+      "days_until": 26,
+      "status": "upcoming",
+      "last_checked": "2026-10-26T14:09:30Z"
     },
     "JPY|cpi": {
       "currency": "JPY",
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-09-17",
+      "last_release": "2026-10-22",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-10-18",
+      "next_release": "2026-11-22",
       "next_basis": "estimated",
-      "days_until": -8,
-      "status": "due",
-      "last_checked": "2026-09-21T01:16:42Z"
+      "days_until": 27,
+      "status": "upcoming",
+      "last_checked": "2026-10-26T14:09:30Z"
     },
     "CHF|cpi": {
       "currency": "CHF",
@@ -664,14 +664,14 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-07-20",
+      "last_release": "2026-10-21",
       "period_days": 92,
       "period_basis": "derived",
-      "next_release": "2026-10-20",
+      "next_release": "2027-01-21",
       "next_basis": "estimated",
-      "days_until": -6,
-      "status": "due",
-      "last_checked": "2026-07-21T12:31:39Z"
+      "days_until": 87,
+      "status": "upcoming",
+      "last_checked": "2026-10-26T14:09:30Z"
     },
     "USD|ppi": {
       "currency": "USD",
@@ -706,14 +706,14 @@
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "investing",
-      "last_release": "2026-09-16",
+      "last_release": "2026-10-21",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-10-14",
+      "next_release": "2026-11-18",
       "next_basis": "estimated",
-      "days_until": -12,
-      "status": "due",
-      "last_checked": "2026-10-19T12:13:58Z"
+      "days_until": 23,
+      "status": "upcoming",
+      "last_checked": "2026-10-26T14:09:30Z"
     },
     "JPY|ppi": {
       "currency": "JPY",
