@@ -37353,9 +37353,9 @@
   "date": "2026-10-28",
   "front": "CLZ26.NYM",
   "m12": "CLX27.NYM",
-  "front_px": 102.16,
-  "m12_px": 82.88,
-  "spread_pct": 18.872,
+  "front_px": 102.4,
+  "m12_px": 82.9,
+  "spread_pct": 19.043,
   "source": "yfinance"
  }
 }
