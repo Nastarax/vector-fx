@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28T18:16:24Z",
+  "generated": "2026-10-28T20:16:46Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -29,
       "status": "due",
-      "last_checked": "2026-10-28T01:00:35Z"
+      "last_checked": "2026-10-28T20:16:46Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
