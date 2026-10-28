@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28T16:16:23Z",
+  "generated": "2026-10-28T18:16:24Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -989,10 +989,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "",
+      "next_release": "2026-12-09",
       "next_basis": "exact",
-      "days_until": null,
-      "status": "unknown",
+      "days_until": 42,
+      "status": "upcoming",
       "last_checked": null
     },
     "NZD|rates": {
