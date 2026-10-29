@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-29T16:16:20Z",
+  "generated": "2026-10-29T18:16:33Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -468,8 +468,8 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-10-22",
-      "period_days": 14,
+      "last_release": "2026-10-29",
+      "period_days": 7,
       "period_basis": "derived",
       "next_release": "2026-11-05",
       "next_basis": "estimated",
@@ -496,12 +496,12 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-10-05",
-      "period_days": 31,
+      "last_release": "2026-10-29",
+      "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-11-05",
+      "next_release": "2026-11-27",
       "next_basis": "estimated",
-      "days_until": 7,
+      "days_until": 29,
       "status": "upcoming",
       "last_checked": null
     },
