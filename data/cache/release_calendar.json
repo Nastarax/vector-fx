@@ -1,18 +1,18 @@
 {
-  "generated": "2026-10-29T18:16:33Z",
+  "generated": "2026-10-29T20:17:47Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
       "indicator": "gdp",
       "label": "GDP",
       "source": "te",
-      "last_release": "2026-09-30",
+      "last_release": "2026-10-29",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-10-28",
+      "next_release": "2026-11-26",
       "next_basis": "estimated",
-      "days_until": -1,
-      "status": "due",
+      "days_until": 28,
+      "status": "upcoming",
       "last_checked": null
     },
     "EUR|gdp": {
@@ -919,10 +919,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "",
+      "next_release": "2026-11-18",
       "next_basis": "exact",
-      "days_until": null,
-      "status": "unknown",
+      "days_until": 20,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|rates": {
@@ -1049,7 +1049,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-09-30T20:00:49Z"
+      "last_checked": "2026-10-29T20:17:47Z"
     },
     "USD|jolts": {
       "currency": "USD",
@@ -1070,13 +1070,13 @@
       "indicator": "jobless_claims",
       "label": "Unemployment Claims",
       "source": "te",
-      "last_release": "2026-10-22",
+      "last_release": "2026-10-29",
       "period_days": 7,
       "period_basis": "derived",
-      "next_release": "2026-10-29",
+      "next_release": "2026-11-05",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 7,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|household_spending": {
