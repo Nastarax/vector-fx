@@ -1,6 +1,6 @@
 {
   "USD": {
-    "date": "2026-11-18",
+    "date": "2026-11-02",
     "current": 4.0,
     "forecast": 4.0
   },
@@ -17,7 +17,7 @@
   "JPY": {
     "date": "2026-11-09",
     "current": 1.25,
-    "forecast": 1.25
+    "forecast": 1.5
   },
   "CHF": {
     "date": "2026-12-10",
