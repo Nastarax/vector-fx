@@ -32,7 +32,7 @@
  "GBPUSD": {
   "setup": "mid",
   "bias": "Bullish",
-  "loc": 56
+  "loc": 59
  },
  "GBPJPY": {
   "setup": "extended",
@@ -42,7 +42,7 @@
  "CADCHF": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 77
+  "loc": 82
  },
  "CADJPY": {
   "setup": null,
@@ -167,7 +167,7 @@
  "EURAUD": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 24
+  "loc": 14
  },
  "EURGBP": {
   "setup": "extended",
