@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-31T12:28:33Z",
+  "generated": "2026-10-31T14:26:37Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -32,
       "status": "due",
-      "last_checked": "2026-10-28T20:16:46Z"
+      "last_checked": "2026-10-31T14:26:37Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -181,7 +181,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-10-01T12:07:27Z"
+      "last_checked": "2026-10-31T14:26:37Z"
     },
     "AUD|mpmi": {
       "currency": "AUD",
