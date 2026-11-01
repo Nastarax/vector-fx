@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-01T19:17:18Z",
+  "generated": "2026-11-01T21:22:22Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -33,
       "status": "due",
-      "last_checked": "2026-11-01T11:22:43Z"
+      "last_checked": "2026-11-01T21:22:22Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -181,7 +181,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-11-01T11:22:43Z"
+      "last_checked": "2026-11-01T21:22:22Z"
     },
     "AUD|mpmi": {
       "currency": "AUD",
@@ -629,7 +629,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-11-01T11:22:43Z"
+      "last_checked": "2026-11-01T21:22:22Z"
     },
     "AUD|cpi": {
       "currency": "AUD",
