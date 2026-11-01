@@ -69,6 +69,11 @@
   "bias": "Neutral",
   "loc": 78
  },
+ "UK100": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 69
+ },
  "CADJPY": {
   "setup": null,
   "bias": "Neutral",
@@ -78,11 +83,6 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 20
- },
- "UK100": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 69
  },
  "USDCHF": {
   "setup": null,
