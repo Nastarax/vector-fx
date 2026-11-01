@@ -2,7 +2,7 @@
  "AUDCHF": {
   "setup": "mid",
   "bias": "Very Bullish",
-  "loc": 51
+  "loc": 42
  },
  "GBPCHF": {
   "setup": "extended",
@@ -12,12 +12,12 @@
  "AUDUSD": {
   "setup": "mid",
   "bias": "Bullish",
-  "loc": 41
+  "loc": 40
  },
  "AUDJPY": {
   "setup": "mid",
   "bias": "Bullish",
-  "loc": 57
+  "loc": 47
  },
  "GBPUSD": {
   "setup": "mid",
@@ -25,24 +25,24 @@
   "loc": 59
  },
  "AUDNZD": {
-  "setup": "extended",
+  "setup": "mid",
   "bias": "Bullish",
-  "loc": 66
+  "loc": 64
  },
  "GBPJPY": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 83
+  "loc": 70
  },
  "GBPNZD": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 96
+  "loc": 94
  },
  "CADCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 77
+  "loc": 80
  },
  "USDJPY": {
   "setup": null,
@@ -52,12 +52,12 @@
  "GBPCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 33
+  "loc": 31
  },
  "AUDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 12
+  "loc": 11
  },
  "NIKKEI": {
   "setup": null,
@@ -77,12 +77,12 @@
  "CADJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 91
+  "loc": 83
  },
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 20
+  "loc": 9
  },
  "USDCHF": {
   "setup": null,
@@ -92,12 +92,12 @@
  "EURNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 43
+  "loc": 44
  },
  "GBPAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 63
+  "loc": 62
  },
  "USDCAD": {
   "setup": null,
@@ -107,7 +107,7 @@
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 9
+  "loc": 12
  },
  "CHFJPY": {
   "setup": null,
@@ -134,20 +134,20 @@
   "bias": "Neutral",
   "loc": 21
  },
- "NZDJPY": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 19
- },
  "NZDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 10
+  "loc": 11
  },
  "NASDAQ": {
   "setup": null,
   "bias": "Neutral",
   "loc": 9
+ },
+ "NZDJPY": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 8
  },
  "PLATINUM": {
   "setup": null,
@@ -172,6 +172,6 @@
  "EURAUD": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 14
+  "loc": 17
  }
 }
