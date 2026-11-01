@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-01T09:26:30Z",
+  "generated": "2026-11-01T11:22:43Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -33,
       "status": "due",
-      "last_checked": "2026-11-01T00:20:15Z"
+      "last_checked": "2026-11-01T11:22:43Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -181,7 +181,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-11-01T00:20:15Z"
+      "last_checked": "2026-11-01T11:22:43Z"
     },
     "AUD|mpmi": {
       "currency": "AUD",
@@ -629,7 +629,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-10-05T12:21:55Z"
+      "last_checked": "2026-11-01T11:22:43Z"
     },
     "AUD|cpi": {
       "currency": "AUD",
@@ -1063,7 +1063,7 @@
       "next_basis": "estimated",
       "days_until": -5,
       "status": "due",
-      "last_checked": "2026-10-31T16:24:29Z"
+      "last_checked": "2026-11-01T11:22:43Z"
     },
     "USD|jobless_claims": {
       "currency": "USD",
