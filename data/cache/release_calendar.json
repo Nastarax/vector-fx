@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-01T21:22:22Z",
+  "generated": "2026-11-01T23:20:58Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -188,12 +188,12 @@
       "indicator": "mpmi",
       "label": "Manufacturing PMI",
       "source": "investing",
-      "last_release": "2026-10-22",
+      "last_release": "2026-11-01",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-21",
+      "next_release": "2026-12-01",
       "next_basis": "estimated",
-      "days_until": 20,
+      "days_until": 30,
       "status": "upcoming",
       "last_checked": "2026-10-30T13:01:44Z"
     },
@@ -1063,7 +1063,7 @@
       "next_basis": "estimated",
       "days_until": -5,
       "status": "due",
-      "last_checked": "2026-11-01T11:22:43Z"
+      "last_checked": "2026-11-01T23:20:58Z"
     },
     "USD|jobless_claims": {
       "currency": "USD",
