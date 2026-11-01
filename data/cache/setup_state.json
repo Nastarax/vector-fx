@@ -69,11 +69,6 @@
   "bias": "Neutral",
   "loc": 78
  },
- "UK100": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 69
- },
  "CADJPY": {
   "setup": null,
   "bias": "Neutral",
@@ -83,6 +78,11 @@
   "setup": null,
   "bias": "Neutral",
   "loc": 20
+ },
+ "UK100": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 69
  },
  "USDCHF": {
   "setup": null,
@@ -149,20 +149,20 @@
   "bias": "Neutral",
   "loc": 9
  },
- "XAUUSD": {
+ "PLATINUM": {
   "setup": null,
   "bias": "Neutral",
   "loc": 3
  },
- "PLATINUM": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 1
- },
  "SILVER": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 1
+  "loc": 2
+ },
+ "XAUUSD": {
+  "setup": "extended",
+  "bias": "Bearish",
+  "loc": 3
  },
  "EURGBP": {
   "setup": "extended",
