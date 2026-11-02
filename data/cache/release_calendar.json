@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02T01:19:09Z",
+  "generated": "2026-11-02T03:17:15Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -125,7 +125,7 @@
       "next_basis": "estimated",
       "days_until": -1,
       "status": "due",
-      "last_checked": "2026-10-02T12:13:20Z"
+      "last_checked": "2026-11-02T03:17:15Z"
     },
     "EUR|mpmi": {
       "currency": "EUR",
@@ -1049,7 +1049,7 @@
       "next_basis": "estimated",
       "days_until": -4,
       "status": "due",
-      "last_checked": "2026-11-01T17:19:25Z"
+      "last_checked": "2026-11-02T03:17:15Z"
     },
     "USD|jolts": {
       "currency": "USD",
