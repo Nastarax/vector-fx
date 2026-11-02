@@ -37375,5 +37375,14 @@
   "m12_px": 83.01,
   "spread_pct": 18.353,
   "source": "yfinance"
+ },
+ "2026-11-02": {
+  "date": "2026-11-02",
+  "front": "CLZ26.NYM",
+  "m12": "CLX27.NYM",
+  "front_px": 100.34,
+  "m12_px": 81.97,
+  "spread_pct": 18.308,
+  "source": "yfinance"
  }
 }
