@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-02T23:24:28Z",
+  "generated": "2026-11-03T01:22:20Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -1063,7 +1063,7 @@
       "next_basis": "estimated",
       "days_until": -6,
       "status": "due",
-      "last_checked": "2026-11-01T23:20:58Z"
+      "last_checked": "2026-11-03T01:22:20Z"
     },
     "USD|jobless_claims": {
       "currency": "USD",
