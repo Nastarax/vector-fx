@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-03T01:22:20Z",
+  "generated": "2026-11-03T03:19:27Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -975,10 +975,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-03",
+      "next_release": "",
       "next_basis": "exact",
-      "days_until": 1,
-      "status": "upcoming",
+      "days_until": null,
+      "status": "unknown",
       "last_checked": null
     },
     "CAD|rates": {
@@ -1049,7 +1049,7 @@
       "next_basis": "estimated",
       "days_until": -5,
       "status": "due",
-      "last_checked": "2026-11-02T03:17:15Z"
+      "last_checked": "2026-11-03T03:19:27Z"
     },
     "USD|jolts": {
       "currency": "USD",
