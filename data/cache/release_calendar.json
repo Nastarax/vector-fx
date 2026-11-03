@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-03T19:58:53Z",
+  "generated": "2026-11-03T21:28:28Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -622,28 +622,28 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-10-01",
+      "last_release": "2026-11-03",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-11-01",
+      "next_release": "2026-12-04",
       "next_basis": "estimated",
-      "days_until": -2,
-      "status": "due",
-      "last_checked": "2026-11-02T23:24:28Z"
+      "days_until": 31,
+      "status": "upcoming",
+      "last_checked": "2026-11-03T21:28:28Z"
     },
     "AUD|cpi": {
       "currency": "AUD",
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-07-29",
+      "last_release": "2026-10-28",
       "period_days": 91,
       "period_basis": "derived",
-      "next_release": "2026-10-28",
+      "next_release": "2027-01-27",
       "next_basis": "estimated",
-      "days_until": -6,
-      "status": "due",
-      "last_checked": "2026-07-29T14:24:37Z"
+      "days_until": 85,
+      "status": "upcoming",
+      "last_checked": "2026-11-03T21:28:28Z"
     },
     "CAD|cpi": {
       "currency": "CAD",
@@ -975,10 +975,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "",
+      "next_release": "2026-11-04",
       "next_basis": "exact",
-      "days_until": null,
-      "status": "unknown",
+      "days_until": 1,
+      "status": "upcoming",
       "last_checked": null
     },
     "CAD|rates": {
@@ -1049,7 +1049,7 @@
       "next_basis": "estimated",
       "days_until": -6,
       "status": "due",
-      "last_checked": "2026-11-03T03:19:27Z"
+      "last_checked": "2026-11-03T21:28:28Z"
     },
     "USD|jolts": {
       "currency": "USD",
