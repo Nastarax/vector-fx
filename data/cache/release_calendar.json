@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-03T17:35:25Z",
+  "generated": "2026-11-03T19:58:53Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -35,
       "status": "due",
-      "last_checked": "2026-11-02T23:24:28Z"
+      "last_checked": "2026-11-03T19:58:53Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -272,12 +272,12 @@
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "investing",
-      "last_release": "2026-10-05",
+      "last_release": "2026-10-23",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-04",
+      "next_release": "2026-11-22",
       "next_basis": "estimated",
-      "days_until": 1,
+      "days_until": 19,
       "status": "upcoming",
       "last_checked": "2026-10-04T16:10:55Z"
     },
@@ -286,14 +286,14 @@
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "te",
-      "last_release": "2026-09-01",
+      "last_release": "2026-10-01",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-03",
+      "next_release": "2026-12-03",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": "2026-10-05T14:04:17Z"
+      "days_until": 30,
+      "status": "upcoming",
+      "last_checked": "2026-11-03T19:58:53Z"
     },
     "AUD|spmi": {
       "currency": "AUD",
@@ -321,7 +321,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-10-05T14:04:17Z"
+      "last_checked": "2026-11-03T19:58:53Z"
     },
     "NZD|spmi": {
       "currency": "NZD",
