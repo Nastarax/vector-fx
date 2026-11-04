@@ -18,10 +18,10 @@
     "previous": 55.3
   },
   "USD": {
-    "date": "2026-10-01",
-    "actual": 54.5,
-    "forecast": 54.8,
-    "previous": 54.6
+    "date": "2026-11-02",
+    "actual": 55.5,
+    "forecast": 54.5,
+    "previous": 54.5
   },
   "GBP": {
     "date": "2026-11-02",
@@ -36,10 +36,10 @@
     "previous": 52.9
   },
   "CAD": {
-    "date": "2026-10-01",
-    "actual": 51.5,
+    "date": "2026-11-02",
+    "actual": 49.6,
     "forecast": null,
-    "previous": 53.0
+    "previous": 51.5
   },
   "JPY": {
     "date": "2026-11-02",
