@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-04T18:10:36Z",
+  "generated": "2026-11-04T19:04:39Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -244,28 +244,28 @@
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "investing",
-      "last_release": "2026-10-05",
+      "last_release": "2026-11-04",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-04",
+      "next_release": "2026-12-04",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": null
+      "days_until": 30,
+      "status": "upcoming",
+      "last_checked": "2026-11-04T19:04:39Z"
     },
     "GBP|spmi": {
       "currency": "GBP",
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "investing",
-      "last_release": "2026-10-05",
+      "last_release": "2026-11-04",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-04",
+      "next_release": "2026-12-04",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": null
+      "days_until": 30,
+      "status": "upcoming",
+      "last_checked": "2026-11-04T19:04:39Z"
     },
     "JPY|spmi": {
       "currency": "JPY",

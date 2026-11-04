@@ -6,16 +6,16 @@
     "previous": 54.9
   },
   "EUR": {
-    "date": "2026-10-05",
-    "actual": 53.0,
-    "forecast": 53.0,
-    "previous": 51.6
+    "date": "2026-11-04",
+    "actual": 51.4,
+    "forecast": 51.7,
+    "previous": 53.0
   },
   "GBP": {
-    "date": "2026-10-05",
-    "actual": 52.1,
-    "forecast": 51.7,
-    "previous": 52.5
+    "date": "2026-11-04",
+    "actual": 52.8,
+    "forecast": 53.1,
+    "previous": 52.1
   },
   "AUD": {
     "date": "2026-10-04",
