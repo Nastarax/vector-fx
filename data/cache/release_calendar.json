@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-04T13:21:42Z",
+  "generated": "2026-11-04T15:16:42Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -36,
       "status": "due",
-      "last_checked": "2026-11-03T19:58:53Z"
+      "last_checked": "2026-11-04T15:16:42Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -314,14 +314,14 @@
       "indicator": "spmi",
       "label": "Services PMI",
       "source": "te",
-      "last_release": "2026-09-01",
+      "last_release": "2026-10-01",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-03",
+      "next_release": "2026-12-03",
       "next_basis": "estimated",
-      "days_until": -1,
-      "status": "due",
-      "last_checked": "2026-11-03T19:58:53Z"
+      "days_until": 29,
+      "status": "upcoming",
+      "last_checked": "2026-11-04T15:16:42Z"
     },
     "NZD|spmi": {
       "currency": "NZD",
@@ -1042,14 +1042,14 @@
       "indicator": "adp",
       "label": "ADP",
       "source": "investing",
-      "last_release": "2026-09-30",
+      "last_release": "2026-11-04",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-10-28",
+      "next_release": "2026-12-02",
       "next_basis": "estimated",
-      "days_until": -7,
-      "status": "due",
-      "last_checked": "2026-11-03T21:28:28Z"
+      "days_until": 28,
+      "status": "upcoming",
+      "last_checked": "2026-11-04T15:16:42Z"
     },
     "USD|jolts": {
       "currency": "USD",
