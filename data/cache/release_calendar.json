@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05T02:04:39Z",
+  "generated": "2026-11-05T03:08:49Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -933,9 +933,9 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-05",
+      "next_release": "2026-12-17",
       "next_basis": "exact",
-      "days_until": 1,
+      "days_until": 43,
       "status": "upcoming",
       "last_checked": null
     },
