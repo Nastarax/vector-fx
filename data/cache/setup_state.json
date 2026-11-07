@@ -2,7 +2,7 @@
  "USDJPY": {
   "setup": "extended",
   "bias": "Very Bullish",
-  "loc": 73
+  "loc": 88
  },
  "USDCAD": {
   "setup": "mid",
@@ -17,12 +17,12 @@
  "GBPJPY": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 73
+  "loc": 68
  },
  "GBPAUD": {
   "setup": "extended",
   "bias": "Bullish",
-  "loc": 89
+  "loc": 90
  },
  "GBPCAD": {
   "setup": "extended",
@@ -52,17 +52,12 @@
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 27
- },
- "CADJPY": {
-  "setup": null,
-  "bias": "Neutral",
-  "loc": 62
+  "loc": 20
  },
  "EURCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 32
+  "loc": 33
  },
  "DAX": {
   "setup": null,
@@ -72,17 +67,22 @@
  "AUDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 21
+  "loc": 12
+ },
+ "CADJPY": {
+  "setup": null,
+  "bias": "Neutral",
+  "loc": 56
  },
  "EURAUD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 76
+  "loc": 80
  },
  "EURNZD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 84
+  "loc": 87
  },
  "NIKKEI": {
   "setup": null,
@@ -92,22 +92,22 @@
  "NZDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 19
+  "loc": 11
  },
  "AUDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 14
+  "loc": 12
  },
  "NZDCAD": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 19
+  "loc": 16
  },
  "GBPCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 38
+  "loc": 29
  },
  "AUDNZD": {
   "setup": null,
@@ -127,12 +127,12 @@
  "AUDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 17
+  "loc": 9
  },
  "NZDCHF": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 15
+  "loc": 10
  },
  "EURGBP": {
   "setup": "extended",
@@ -152,12 +152,12 @@
  "CADCHF": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 20
+  "loc": 12
  },
  "SILVER": {
   "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 19
+  "loc": 18
  },
  "AUDUSD": {
   "setup": "extended",
@@ -165,9 +165,9 @@
   "loc": 5
  },
  "XAUUSD": {
-  "setup": "mid",
+  "setup": "extended",
   "bias": "Very Bearish",
-  "loc": 36
+  "loc": 35
  },
  "NZDUSD": {
   "setup": "extended",
