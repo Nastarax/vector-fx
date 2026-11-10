@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10T15:05:58Z",
+  "generated": "2026-11-10T16:00:50Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -42,
       "status": "due",
-      "last_checked": "2026-11-09T20:00:46Z"
+      "last_checked": "2026-11-10T16:00:50Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-10-27T16:00:49Z"
+      "last_checked": "2026-11-10T16:00:50Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -1084,14 +1084,14 @@
       "indicator": "household_spending",
       "label": "Household Spending",
       "source": "investing",
-      "last_release": "2026-10-08",
+      "last_release": "2026-11-09",
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-07",
+      "next_release": "2026-12-09",
       "next_basis": "estimated",
-      "days_until": -3,
-      "status": "due",
-      "last_checked": "2026-11-09T20:00:46Z"
+      "days_until": 29,
+      "status": "upcoming",
+      "last_checked": "2026-11-10T16:00:50Z"
     }
   }
 }
