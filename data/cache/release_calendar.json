@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-12T01:07:56Z",
+  "generated": "2026-11-12T02:05:05Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -720,14 +720,14 @@
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "investing",
-      "last_release": "2026-10-12",
+      "last_release": "2026-11-11",
       "period_days": 30,
       "period_basis": "derived",
-      "next_release": "2026-11-11",
+      "next_release": "2026-12-11",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": "2026-11-11T14:05:07Z"
+      "days_until": 30,
+      "status": "upcoming",
+      "last_checked": "2026-11-12T02:05:05Z"
     },
     "CHF|ppi": {
       "currency": "CHF",
