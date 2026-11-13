@@ -1,16 +1,16 @@
 {
   "CHF": {
-    "date": "2026-10-14",
-    "actual": -0.2,
-    "consensus": -0.2,
-    "forecast": -0.2,
-    "previous": -0.7
+    "date": "2026-11-15",
+    "actual": 0.9,
+    "consensus": 0.0,
+    "forecast": 0.0,
+    "previous": -0.2
   },
   "AUD": {
-    "date": "2026-09-30",
+    "date": "",
     "actual": 3.6,
-    "consensus": 2.5,
-    "forecast": 2.5,
-    "previous": 3.0
+    "consensus": 4.5,
+    "forecast": 4.5,
+    "previous": 3.6
   }
 }

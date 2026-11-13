@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-13T05:02:33Z",
+  "generated": "2026-11-13T14:00:58Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -55,7 +55,7 @@
       "next_basis": "estimated",
       "days_until": -45,
       "status": "due",
-      "last_checked": "2026-11-12T23:00:35Z"
+      "last_checked": "2026-11-13T14:00:58Z"
     },
     "CHF|gdp": {
       "currency": "CHF",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-11-12T23:00:35Z"
+      "last_checked": "2026-11-13T14:00:58Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -734,27 +734,27 @@
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "myfxbook",
-      "last_release": "2026-10-14",
+      "last_release": "2026-11-15",
       "period_days": 30,
       "period_basis": "derived",
-      "next_release": "2026-11-13",
+      "next_release": "2026-12-15",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": "2026-11-13T05:02:33Z"
+      "days_until": 32,
+      "status": "upcoming",
+      "last_checked": "2026-11-13T14:00:58Z"
     },
     "AUD|ppi": {
       "currency": "AUD",
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "myfxbook",
-      "last_release": "2026-09-30",
+      "last_release": "",
       "period_days": 91,
       "period_basis": "derived",
-      "next_release": "2026-12-30",
+      "next_release": null,
       "next_basis": "estimated",
-      "days_until": 47,
-      "status": "upcoming",
+      "days_until": null,
+      "status": "unknown",
       "last_checked": null
     },
     "CAD|ppi": {
