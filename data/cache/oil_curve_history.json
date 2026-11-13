@@ -37470,9 +37470,9 @@
   "date": "2026-11-13",
   "front": "CLZ26.NYM",
   "m12": "CLX27.NYM",
-  "front_px": 89.03,
-  "m12_px": 76.44,
-  "spread_pct": 14.141,
+  "front_px": 88.57,
+  "m12_px": 75.6,
+  "spread_pct": 14.644,
   "source": "yfinance"
  }
 }
