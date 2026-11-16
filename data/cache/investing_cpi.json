@@ -6,10 +6,10 @@
     "previous": 3.4
   },
   "CAD": {
-    "date": "2026-10-19",
+    "date": "2026-11-16",
     "actual": 3.1,
-    "forecast": 3.2,
-    "previous": 3.0
+    "forecast": null,
+    "previous": 3.1
   },
   "EUR": {
     "date": "2026-11-04",
