@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-16T14:12:53Z",
+  "generated": "2026-11-16T15:00:21Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -62,13 +62,13 @@
       "indicator": "gdp",
       "label": "GDP",
       "source": "te",
-      "last_release": "2026-09-03",
-      "period_days": 20,
+      "last_release": "2026-11-16",
+      "period_days": 47,
       "period_basis": "derived",
-      "next_release": "2026-09-23",
+      "next_release": "2027-01-02",
       "next_basis": "estimated",
-      "days_until": -54,
-      "status": "due",
+      "days_until": 47,
+      "status": "upcoming",
       "last_checked": null
     },
     "AUD|gdp": {
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -6,
       "status": "due",
-      "last_checked": "2026-11-16T02:00:34Z"
+      "last_checked": "2026-11-16T15:00:21Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
