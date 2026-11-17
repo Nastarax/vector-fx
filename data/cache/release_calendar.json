@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-17T17:00:22Z",
+  "generated": "2026-11-17T23:10:40Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -573,7 +573,7 @@
       "next_basis": "estimated",
       "days_until": -3,
       "status": "due",
-      "last_checked": "2026-11-17T14:16:37Z"
+      "last_checked": "2026-11-17T23:10:40Z"
     },
     "EUR|cpi": {
       "currency": "EUR",
