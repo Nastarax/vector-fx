@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-17T14:16:37Z",
+  "generated": "2026-11-17T16:02:57Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -783,7 +783,7 @@
       "next_basis": "estimated",
       "days_until": 0,
       "status": "due",
-      "last_checked": "2026-08-19T01:00:50Z"
+      "last_checked": "2026-11-17T16:02:57Z"
     },
     "USD|unemployment_rate": {
       "currency": "USD",
@@ -818,12 +818,12 @@
       "indicator": "unemployment_rate",
       "label": "Unemployment Rate",
       "source": "te",
-      "last_release": "2026-10-20",
-      "period_days": 30,
+      "last_release": "2026-11-17",
+      "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-11-19",
+      "next_release": "2026-12-16",
       "next_basis": "estimated",
-      "days_until": 2,
+      "days_until": 29,
       "status": "upcoming",
       "last_checked": null
     },
