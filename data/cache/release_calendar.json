@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-17T23:10:40Z",
+  "generated": "2026-11-18T01:00:50Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -342,13 +342,13 @@
       "indicator": "retail_sales",
       "label": "Retail Sales",
       "source": "te",
-      "last_release": "2026-10-15",
+      "last_release": "2026-11-17",
       "period_days": 29,
       "period_basis": "derived",
-      "next_release": "2026-11-13",
+      "next_release": "2026-12-16",
       "next_basis": "estimated",
-      "days_until": -4,
-      "status": "due",
+      "days_until": 29,
+      "status": "upcoming",
       "last_checked": null
     },
     "EUR|retail_sales": {
@@ -776,14 +776,14 @@
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "investing",
-      "last_release": "2026-08-18",
+      "last_release": "2026-11-17",
       "period_days": 91,
       "period_basis": "default",
-      "next_release": "2026-11-17",
+      "next_release": "2027-02-16",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
-      "last_checked": "2026-11-17T16:02:57Z"
+      "days_until": 91,
+      "status": "upcoming",
+      "last_checked": "2026-11-18T01:00:50Z"
     },
     "USD|unemployment_rate": {
       "currency": "USD",
