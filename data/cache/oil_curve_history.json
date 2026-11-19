@@ -37515,9 +37515,9 @@
   "date": "2026-11-19",
   "front": "CLZ26.NYM",
   "m12": "CLX27.NYM",
-  "front_px": 84.23,
-  "m12_px": 72.51,
-  "spread_pct": 13.914,
+  "front_px": 83.68,
+  "m12_px": 73.13,
+  "spread_pct": 12.608,
   "source": "yfinance"
  }
 }
