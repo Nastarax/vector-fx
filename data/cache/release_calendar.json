@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-19T23:10:38Z",
+  "generated": "2026-11-20T00:00:23Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -461,7 +461,7 @@
       "next_basis": "estimated",
       "days_until": -9,
       "status": "due",
-      "last_checked": "2026-11-19T15:00:18Z"
+      "last_checked": "2026-11-20T00:00:23Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -762,12 +762,12 @@
       "indicator": "ppi",
       "label": "PPI YoY",
       "source": "te",
-      "last_release": "2026-10-22",
-      "period_days": 29,
+      "last_release": "2026-11-19",
+      "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-11-20",
+      "next_release": "2026-12-17",
       "next_basis": "estimated",
-      "days_until": 1,
+      "days_until": 28,
       "status": "upcoming",
       "last_checked": null
     },
@@ -933,9 +933,9 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-12-17",
+      "next_release": "2026-11-26",
       "next_basis": "exact",
-      "days_until": 28,
+      "days_until": 7,
       "status": "upcoming",
       "last_checked": null
     },
@@ -1070,13 +1070,13 @@
       "indicator": "jobless_claims",
       "label": "Unemployment Claims",
       "source": "te",
-      "last_release": "2026-11-12",
+      "last_release": "2026-11-19",
       "period_days": 7,
       "period_basis": "derived",
-      "next_release": "2026-11-19",
+      "next_release": "2026-11-26",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 7,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|household_spending": {
