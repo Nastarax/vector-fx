@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-21T02:10:38Z",
+  "generated": "2026-11-21T03:00:24Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -461,20 +461,20 @@
       "next_basis": "estimated",
       "days_until": -10,
       "status": "due",
-      "last_checked": "2026-11-20T18:00:19Z"
+      "last_checked": "2026-11-21T03:00:24Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "te",
-      "last_release": "2026-10-29",
-      "period_days": 7,
+      "last_release": "2026-11-20",
+      "period_days": 14,
       "period_basis": "derived",
-      "next_release": "2026-11-05",
+      "next_release": "2026-12-04",
       "next_basis": "estimated",
-      "days_until": -15,
-      "status": "due",
+      "days_until": 14,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|consumer_conf": {
