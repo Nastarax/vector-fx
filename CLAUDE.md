@@ -318,6 +318,12 @@ and backtest branches, plus both builder calls).
   fallback, so missing/empty caches degrade gracefully to TE.
 - US-only indicators (NFP, ADP, JOLTS, Jobless Claims, PCE) score 0 (neutral) for non-USD
   so USD pairs reflect USD's direction.
+- Indicator `weight` in `indicators.yaml` (default 1) multiplies each cell in pair /
+  currency totals (`weighted_total` in score_pair.py) and the scorecard technical
+  sub-score. **Trend (4H/D) is weight 0 since 2026-11-22**: display-only, greyed column
+  with a "context" tag (`.ctx` / `.ctx-tag` in vector.css). USOIL trend is separate (oil.yaml).
+  Pair `bias_thresholds` bullish/bearish lowered 5 -> 4 at the same time (very stays 9);
+  the score-chip shading in `build_heatmap._total_class` now reads those thresholds.
 - COT score is single-component: week-over-week change in Long% only (+1/0/-1 per
   threshold). Pair COT cell = base - quote, clamped -2..+2. (This was fixed earlier; the
   old two-component version was a bug.)

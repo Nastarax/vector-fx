@@ -37,13 +37,16 @@ def _bias_class(bias: str) -> str:
 
 
 def _total_class(total: int) -> str:
-    if total >= 9:
+    # Chip shade follows the pair bias thresholds in indicators.yaml
+    from src.scoring.score_pair import load_indicators_cfg
+    t = load_indicators_cfg()["bias_thresholds"]
+    if total >= t["very_bullish"]:
         return "total-c2"
-    if total >= 5:
+    if total >= t["bullish"]:
         return "total-c1"
-    if total <= -9:
+    if total <= t["very_bearish"]:
         return "total-cn2"
-    if total <= -5:
+    if total <= t["bearish"]:
         return "total-cn1"
     return ""
 

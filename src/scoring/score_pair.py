@@ -133,6 +133,24 @@ def _dir_mag(actual, benchmark, direction, t0_pp: float, t1_pp: float):
     return s
 
 
+def indicator_weights(cfg: dict | None = None) -> dict[str, float]:
+    """id -> weight from indicators.yaml (default 1). weight 0 = display-only."""
+    cfg = cfg or load_indicators_cfg()
+    return {
+        ind["id"]: ind.get("weight", 1)
+        for inds in cfg["categories"].values()
+        for ind in inds
+    }
+
+
+def weighted_total(scores: dict, weights: dict[str, float]):
+    """Sum of cell scores times their indicator weight (None cells skipped).
+    Returns an int when the result is whole, so bias thresholds and the
+    integer score chips keep working with the default 0/1 weights."""
+    t = sum(v * weights.get(k, 1) for k, v in scores.items() if v is not None)
+    return int(t) if float(t).is_integer() else t
+
+
 def bias_label(total: int, thresholds: dict) -> str:
     if total >= thresholds["very_bullish"]:
         return "Very Bullish"
@@ -1250,6 +1268,7 @@ def build_pair_rows(
     cfg = load_indicators_cfg()
     pairs_cfg = load_pairs_cfg()
     thresholds = cfg["bias_thresholds"]
+    weights = indicator_weights(cfg)
 
     # Flat list of indicator ids in render order
     indicator_ids: list[str] = []
@@ -1325,7 +1344,7 @@ def build_pair_rows(
         else:
             scores["crowd"] = retail_score(retail_data.get(sym))
 
-        total = sum(v for v in scores.values() if v is not None)
+        total = weighted_total(scores, weights)
 
         # Flag the COT cell stale if EITHER currency in the pair has stale COT.
         # Used by the template to render a visible warning marker on the cell.
@@ -1369,6 +1388,7 @@ def build_currency_rows(
     """
     cfg = load_indicators_cfg()
     thresholds = cfg["bias_thresholds"]
+    weights = indicator_weights(cfg)
 
     # Currency rows sum fewer active cells than pairs, so they get their own
     # thresholds (see currency_bias_thresholds in indicators.yaml). USD and
@@ -1403,7 +1423,7 @@ def build_currency_rows(
                 s = ccy_scores.get(ind_id)
                 scores[ind_id] = s if s is not None else 0
 
-        total = sum(v for v in scores.values() if v is not None)
+        total = weighted_total(scores, weights)
 
         # Flag the COT cell stale if this currency's COT reading is stale
         cot_stale = False
@@ -1437,7 +1457,9 @@ def build_heatmap(macro_data, cot_data, retail_data, prices, prices_4h=None, as_
     for cat_name, inds in cfg["categories"].items():
         cat_groups[cat_name] = [i["id"] for i in inds]
         for i in inds:
-            indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name})
+            indicator_meta.append({"id": i["id"], "label": i["label"], "category": cat_name,
+                                   "weight": i.get("weight", 1),
+                                   "context": i.get("weight", 1) == 0})
 
     per_ccy = build_currency_scores(macro_data, cot_data, ff_history=ff_history, te_history=te_history, investing_mpmi=investing_mpmi, investing_spmi=investing_spmi, abs_au_mhsi=abs_au_mhsi, investing_cpi=investing_cpi, investing_ppi=investing_ppi, investing_gdp=investing_gdp, myfxbook_ppi=myfxbook_ppi, investing_cc=investing_cc, investing_jolts=investing_jolts, investing_adp=investing_adp, investing_pce=investing_pce, investing_retail_sales=investing_retail_sales, rates_outlook=rates_outlook, investing_core=investing_core, treasury_2y=treasury_2y)
     pair_rows = build_pair_rows(per_ccy, prices, retail_data, prices_4h=prices_4h, as_of_date=as_of_date, cot_data=cot_data)

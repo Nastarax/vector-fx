@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src.output.timefmt import updated_at_str
+from src.scoring.score_pair import indicator_weights
 from src.scoring.score_sentiment import COT_NET_NEUTRAL_PP
 
 OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data"
@@ -90,9 +91,15 @@ def _build_currency(
     ccy_scores = per_ccy.get(ccy, {})
 
     # Technical aggregation (trend + seasonality, both pair-level)
+    # Weights from indicators.yaml (trend is weight 0 = display-only context:
+    # still shown in the Technical table, not counted in any score).
+    w = indicator_weights()
+    w_trend, w_seas = w.get("trend", 1), w.get("seasonality", 1)
     trend_avg = _agg_pair_scores(pair_rows, ccy, "trend")
     seas_avg = _agg_pair_scores(pair_rows, ccy, "seasonality")
-    technical_score = (trend_avg or 0) + (seas_avg or 0)
+    technical_score = (trend_avg or 0) * w_trend + (seas_avg or 0) * w_seas
+    # Max-abs of the technical section for _sub_bias (was a flat 4 at weight 1)
+    tech_max = 2 * w_trend + 2 * w_seas
 
     # Sentiment+COT aggregation
     cot_s = ccy_scores.get("cot")
@@ -164,7 +171,7 @@ def _build_currency(
     return {
         "ccy": ccy,
         "total_score": total_score,
-        "bias": _sub_bias(total_score, len(growth_rows) + len(inflation_rows) + len(jobs_rows) + 4),
+        "bias": _sub_bias(total_score, len(growth_rows) + len(inflation_rows) + len(jobs_rows) + tech_max),
         "sub_scores": {
             "technical": technical_score,
             "sentiment_cot": sentiment_cot_score,
@@ -181,7 +188,7 @@ def _build_currency(
             "jobs": jobs_score,
         },
         "sub_bias": {
-            "technical": _sub_bias(technical_score, 4),
+            "technical": _sub_bias(technical_score, max(1, tech_max)),
             "sentiment_cot": _sub_bias(sentiment_cot_score, 4),
             "fundamentals": _sub_bias(fundamentals_score, max(1, len(growth_rows) + len(inflation_rows) + len(jobs_rows))),
             "growth": _sub_bias(growth_score, max(1, len(growth_rows))),

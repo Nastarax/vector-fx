@@ -121,7 +121,7 @@
         <th title="Last close's position in the 40-session high-low range (0% = range low, 100% = range high). WATCH = directional bias with price pulled back to the zone-hunting side; EXTENDED = biased but at the far end of the range.">Location</th>
         {% set ns = namespace(prev='') %}
         {% for ind in indicators %}
-          <th class="{% if ind.category != ns.prev %}gstart{% endif %}">{{ ind.label }}</th>
+          <th class="{% if ind.category != ns.prev %}gstart{% endif %}{% if ind.context %} ctx{% endif %}"{% if ind.context %} title="Context only: shown for reference, weight 0, not counted in any score"{% endif %}>{{ ind.label }}{% if ind.context %}<span class="ctx-tag">context</span>{% endif %}</th>
           {% set ns.prev = ind.category %}
         {% endfor %}
       </tr>
@@ -151,7 +151,7 @@
         {% set ns = namespace(prev='') %}
         {% for ind in indicators %}
           {% set v = r.scores[ind.id] %}
-          {% set gs = ' gstart' if ind.category != ns.prev else '' %}
+          {% set gs = (' gstart' if ind.category != ns.prev else '') ~ (' ctx' if ind.context else '') %}
           {% if v is none %}
             <td class="cell na mono{{ gs }}">—</td>
           {% else %}

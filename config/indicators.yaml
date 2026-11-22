@@ -13,12 +13,17 @@
 #   -1 if pct_change <  0
 #   -2 if pct_change <= -1 std dev
 # Then flipped if direction = down_is_bullish.
+#
+# weight (optional, default 1): multiplier on the indicator's cell when summing
+# pair / currency totals and the Asset Scorecard sub-scores. weight 0 = display
+# only: the cell still renders (greyed, tagged "context") but counts for nothing.
 
 categories:
   Technical:
     - id: trend
       label: 4H/D Trend
       method: trend_score          # custom: price vs SMA20/50/200 on Daily + 4H
+      weight: 0                    # display-only context (2026-11-22); USOIL trend is separate (oil.yaml)
     - id: seasonality
       label: Seasonality
       method: seasonality_score    # custom: 10y avg of current calendar month, +-1
@@ -94,11 +99,13 @@ categories:
       lookback_periods: 12
 
 # Bias label thresholds based on total pair score
+# bullish/bearish lowered 5 -> 4 on 2026-11-22 when Trend (a +-2 cell) went to
+# weight 0, to keep roughly the same share of the max pair score.
 bias_thresholds:
   very_bullish: 9
-  bullish: 5
+  bullish: 4
   neutral: 4            # |score| < this is neutral
-  bearish: -5
+  bearish: -4
   very_bearish: -9
 
 # "What changed" layer on the main heatmap (src/output/changes.py): window for
@@ -110,7 +117,7 @@ changes:
 # (no trend/seasonality/crowd), and non-USD fiat rows also carry hard zeros
 # in the 5 US-only cells (NFP/ADP/JOLTS/Claims/PCE), so reusing the pair
 # thresholds skewed every currency row Neutral. These keep the same
-# per-cell fraction as the pair thresholds (bullish 5/18, very 9/18),
+# per-cell fraction as the pair thresholds did on 2026-06-10 (bullish 5/18, very 9/18),
 # scaled to each row's active cell count. Bearish mirrors negative.
 currency_bias_thresholds:
   full:                  # USD + XAU rows: 15 active cells (COT + 14 macro)

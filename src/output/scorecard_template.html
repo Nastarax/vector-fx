@@ -248,7 +248,7 @@ function renderTechnicalSentiment(scData){
   html += '<span class="section-bias" style="color:'+(tBias.indexOf('Bull')>=0?'#9fc0ff':(tBias.indexOf('Bear')>=0?'#ffb8c0':'#7e89b8'))+'">'+tBias+'</span>';
   html += '<span class="col-actual"></span><span class="col-forecast"></span><span class="col-previous"></span><span class="col-surprise"></span>';
   html += '</div>';
-  html += '<div class="row"><span class="ind-name">4H / Daily Chart Trend</span><span class="impact">'+impactPill(scData.technical.trend_label)+'</span><span></span><span></span><span></span><span></span></div>';
+  html += '<div class="row"><span class="ind-name">4H / Daily Chart Trend <span class="ctx-tag" title="Context only: weight 0, not counted in the score">context</span></span><span class="impact">'+impactPill(scData.technical.trend_label)+'</span><span></span><span></span><span></span><span></span></div>';
   html += '<div class="row"><span class="ind-name">Current Month\'s Seasonality</span><span class="impact">'+impactPill(scData.technical.seasonality_label)+'</span><span></span><span></span><span></span><span></span></div>';
   html += '</div>';
 
