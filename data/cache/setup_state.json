@@ -22,7 +22,7 @@
  "PLATINUM": {
   "setup": "watch",
   "bias": "Bullish",
-  "loc": 0
+  "loc": 2
  },
  "CHFJPY": {
   "setup": null,
@@ -152,7 +152,7 @@
  "SILVER": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 1
+  "loc": 2
  },
  "AUDCHF": {
   "setup": "extended",
