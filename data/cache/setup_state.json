@@ -22,7 +22,7 @@
  "CHFJPY": {
   "setup": "watch",
   "bias": "Bullish",
-  "loc": 13
+  "loc": 14
  },
  "GBPAUD": {
   "setup": "extended",
@@ -67,7 +67,7 @@
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 7
+  "loc": 9
  },
  "NZDJPY": {
   "setup": null,
@@ -147,7 +147,7 @@
  "AUDCHF": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 5
+  "loc": 4
  },
  "SILVER": {
   "setup": "extended",
