@@ -6,7 +6,7 @@
  },
  "USDJPY": {
   "setup": "extended",
-  "bias": "Bullish",
+  "bias": "Very Bullish",
   "loc": 89
  },
  "GBPAUD": {
@@ -154,6 +154,11 @@
   "bias": "Bearish",
   "loc": 2
  },
+ "AUDUSD": {
+  "setup": "extended",
+  "bias": "Bearish",
+  "loc": 0
+ },
  "AUDCHF": {
   "setup": "extended",
   "bias": "Bearish",
@@ -163,11 +168,6 @@
   "setup": "mid",
   "bias": "Bearish",
   "loc": 47
- },
- "AUDUSD": {
-  "setup": "extended",
-  "bias": "Bearish",
-  "loc": 0
  },
  "XAUUSD": {
   "setup": "extended",
