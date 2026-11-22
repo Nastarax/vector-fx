@@ -22,7 +22,7 @@
  "CHFJPY": {
   "setup": "watch",
   "bias": "Bullish",
-  "loc": 14
+  "loc": 12
  },
  "GBPAUD": {
   "setup": "extended",
@@ -37,7 +37,7 @@
  "GBPJPY": {
   "setup": "watch",
   "bias": "Bullish",
-  "loc": 7
+  "loc": 6
  },
  "EURCAD": {
   "setup": "watch",
@@ -67,12 +67,12 @@
  "EURJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 11
+  "loc": 7
  },
  "NZDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 2
+  "loc": 1
  },
  "UK100": {
   "setup": null,
@@ -87,7 +87,7 @@
  "AUDJPY": {
   "setup": null,
   "bias": "Neutral",
-  "loc": 5
+  "loc": 4
  },
  "EURAUD": {
   "setup": null,
@@ -137,7 +137,7 @@
  "CADJPY": {
   "setup": "extended",
   "bias": "Bearish",
-  "loc": 9
+  "loc": 6
  },
  "EURGBP": {
   "setup": "extended",
