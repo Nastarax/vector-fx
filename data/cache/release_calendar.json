@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-24T17:12:43Z",
+  "generated": "2026-11-24T18:11:09Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
@@ -454,14 +454,14 @@
       "indicator": "consumer_conf",
       "label": "Consumer Conf",
       "source": "investing",
-      "last_release": "2026-10-27",
+      "last_release": "2026-11-24",
       "period_days": 14,
       "period_basis": "derived",
-      "next_release": "2026-11-10",
+      "next_release": "2026-12-08",
       "next_basis": "estimated",
-      "days_until": -14,
-      "status": "due",
-      "last_checked": "2026-11-22T00:00:18Z"
+      "days_until": 14,
+      "status": "upcoming",
+      "last_checked": "2026-11-24T18:11:09Z"
     },
     "EUR|consumer_conf": {
       "currency": "EUR",
@@ -608,14 +608,14 @@
       "indicator": "cpi",
       "label": "CPI YoY",
       "source": "investing",
-      "last_release": "2026-10-22",
+      "last_release": "2026-11-19",
       "period_days": 31,
       "period_basis": "derived",
-      "next_release": "2026-11-22",
+      "next_release": "2026-12-20",
       "next_basis": "estimated",
-      "days_until": -2,
-      "status": "due",
-      "last_checked": "2026-10-26T14:09:30Z"
+      "days_until": 26,
+      "status": "upcoming",
+      "last_checked": "2026-11-24T18:11:09Z"
     },
     "CHF|cpi": {
       "currency": "CHF",
