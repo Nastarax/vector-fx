@@ -37560,9 +37560,9 @@
   "date": "2026-11-25",
   "front": "CLF27.NYM",
   "m12": "CLZ27.NYM",
-  "front_px": 81.63,
-  "m12_px": 71.05,
-  "spread_pct": 12.961,
+  "front_px": 83.86,
+  "m12_px": 72.04,
+  "spread_pct": 14.095,
   "source": "yfinance"
  }
 }
