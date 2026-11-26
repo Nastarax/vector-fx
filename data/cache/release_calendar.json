@@ -1,18 +1,18 @@
 {
-  "generated": "2026-11-26T05:13:49Z",
+  "generated": "2026-11-26T06:13:44Z",
   "entries": {
     "USD|gdp": {
       "currency": "USD",
       "indicator": "gdp",
       "label": "GDP",
       "source": "te",
-      "last_release": "2026-10-29",
+      "last_release": "2026-11-25",
       "period_days": 28,
       "period_basis": "derived",
-      "next_release": "2026-11-26",
+      "next_release": "2026-12-23",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 27,
+      "status": "upcoming",
       "last_checked": null
     },
     "EUR|gdp": {
@@ -919,10 +919,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-26",
+      "next_release": "2026-12-03",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 7,
+      "status": "upcoming",
       "last_checked": null
     },
     "GBP|rates": {
@@ -933,10 +933,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-26",
+      "next_release": "2026-12-17",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 21,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|rates": {
@@ -975,10 +975,10 @@
       "last_release": null,
       "period_days": 30,
       "period_basis": "default",
-      "next_release": "2026-11-26",
+      "next_release": "2026-12-08",
       "next_basis": "exact",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 12,
+      "status": "upcoming",
       "last_checked": null
     },
     "CAD|rates": {
@@ -1070,13 +1070,13 @@
       "indicator": "jobless_claims",
       "label": "Unemployment Claims",
       "source": "te",
-      "last_release": "2026-11-19",
+      "last_release": "2026-11-25",
       "period_days": 7,
       "period_basis": "derived",
-      "next_release": "2026-11-26",
+      "next_release": "2026-12-02",
       "next_basis": "estimated",
-      "days_until": 0,
-      "status": "due",
+      "days_until": 6,
+      "status": "upcoming",
       "last_checked": null
     },
     "JPY|household_spending": {
